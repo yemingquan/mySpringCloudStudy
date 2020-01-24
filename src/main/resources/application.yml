@@ -1,0 +1,23 @@
+server:
+  port: 4400
+spring:
+  application:
+    name: login-service
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.1.109:3306/demo?characterEncoding=utf8&useUnicode=true
+    username: root
+    password: 123456
+
+mybatis:
+  type-aliases-package: com.example.springBootDemo.domain
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://192.168.1.109:8761/eureka/
+
+
+
+
+
