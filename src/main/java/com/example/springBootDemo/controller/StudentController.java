@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-//MVC层 json格式
+//MVC层  json格式
 @RestController
 @RequestMapping("/ssm")
 public class StudentController {
