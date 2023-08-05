@@ -14,18 +14,18 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * (BaseZbStock)实体类
+ * (BaseDtStock)实体类
  *
  * @author makejava
- * @since 2023-08-06 00:40:17
+ * @since 2023-08-06 01:18:38
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel(description = "")
-@TableName("base_zb_stock")
-public class BaseZbStock implements Serializable {
+@TableName("base_dt_stock")
+public class BaseDtStock implements Serializable {
     private static final long serialVersionUID = -70647211829841658L;
     /**
      * 主键

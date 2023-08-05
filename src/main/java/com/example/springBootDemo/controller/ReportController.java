@@ -6,14 +6,8 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.system.session.RespBean;
-import com.example.springBootDemo.domain.BaseZbStock;
-import com.example.springBootDemo.domain.BaseZtStock;
-import com.example.springBootDemo.domain.BaseZthfStock;
-import com.example.springBootDemo.domain.Student;
-import com.example.springBootDemo.service.BaseZbStockService;
-import com.example.springBootDemo.service.BaseZtStockService;
-import com.example.springBootDemo.service.BaseZthfStockService;
-import com.example.springBootDemo.service.StudentService;
+import com.example.springBootDemo.domain.*;
+import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
 import io.swagger.annotations.Api;
@@ -53,7 +47,46 @@ public class ReportController {
     BaseZthfStockService baseZthfStockService;
     @Autowired
     BaseZbStockService baseZbStockService;
+    @Autowired
+    BaseDtStockService baseDtStockService;
 
+    /***
+     * @param multipartFile
+     * @return
+     */
+    @PostMapping("/importExcelDtStock")
+    public RespBean importExcelDtStock(MultipartFile multipartFile) {
+        //设置导入参数
+        ImportParams importParams = new ImportParams();
+        importParams.setHeadRows(1); //表头占1行，默认1
+
+        try {
+            //导入前先删除当天的数据
+            EntityWrapper<BaseDtStock> wrapper = new EntityWrapper<>();
+            wrapper.eq("create_date", DateUtil.format(new Date(),"yyyy-MM-dd"));
+            baseDtStockService.delete(wrapper);
+
+            List<BaseDtStock> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseDtStock.class, importParams);
+            list.stream().forEach(po-> {
+                po.setCreateDate(new Date());
+                po.setModifedDate(new Date());
+                BigDecimal before = new BigDecimal(po.getCirculation());
+                po.setCirculation(before.divide(new BigDecimal(100000000),2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                po.setAmplitude(po.getAmplitude() * 100);
+//                po.setYesterdayAmplitude(po.getYesterdayAmplitude() * 100);
+                po.setChangingHands(po.getChangingHands() * 100);
+//                po.setYesterdayChangingHands(po.getYesterdayChangingHands() * 100);
+            });
+            if (baseDtStockService.insertBatch(list,list.size())) {
+                return RespBean.success("导入成 功");
+            }
+            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+    
     /***
      * @param multipartFile
      * @return
