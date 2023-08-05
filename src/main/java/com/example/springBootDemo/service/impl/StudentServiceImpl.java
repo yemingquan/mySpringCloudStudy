@@ -1,43 +1,21 @@
 package com.example.springBootDemo.service.impl;
 
-import com.example.springBootDemo.Dao.StudentDao;
-import com.example.springBootDemo.domain.Student;
-import com.example.springBootDemo.service.IStudentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.example.springBootDemo.dao.StudentMapper;
+import com.example.springBootDemo.domain.StudentPo;
+import com.example.springBootDemo.service.StudentService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import java.util.List;
 
+/**
+ * (BStudent)表服务实现类
+ *
+ * @author xiaoye
+ * @since 2023-08-05 12:46:33
+ */
+@Slf4j
 @Service
-@EnableTransactionManagement
-public class StudentServiceImpl implements IStudentService {
+public class StudentServiceImpl extends ServiceImpl<StudentMapper, StudentPo> implements StudentService {
 
-    @Autowired
-    StudentDao dao;
-
-    @Override
-    public void save(String name) {
-        dao.save(name);
-    }
-
-    @Override
-    public void delete(Long id) {
-        dao.delete(id);
-    }
-
-    @Override
-    public void update(Student stu) {
-        dao.update(stu);
-    }
-
-    @Override
-    public Student get(Long id) {
-        return dao.get(id);
-    }
-
-    @Override
-    public List<Student> list() {
-        return dao.list();
-    }
 }
