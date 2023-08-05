@@ -1,15 +1,17 @@
 package com.example.springBootDemo.domain;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.enums.IdType;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalTime;
-import java.util.Date;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * (BaseZthfStock)实体类
@@ -28,292 +30,132 @@ public class BaseZthfStock implements Serializable {
     /**
      * 主键
      */
+    @TableId(type = IdType.AUTO)
     private Integer id;
+
     /**
      * 股票编码
      */
+    @Excel(name = "代码", orderNum = "5")
     private String stockCode;
+
     /**
      * 股票名称
      */
+    @Excel(name = "名称", orderNum = "6")
     private String stockName;
+
     /**
      * 所属板块
      */
+    @Excel(name = "上市板块", orderNum = "1")
     private String plate;
+
     /**
      * 主业
      */
+    @Excel(name = "所属行业", orderNum = "2")
     private String mainBusiness;
+
     /**
      * 分支
      */
+    @Excel(name = "细分行业", orderNum = "3")
     private String nicheBusiness;
-    /**
-     * 流通市值,亿元
-     */
-    private Integer circulation;
+
+    @Excel(name = "流通市值", orderNum = "4")
+    private double circulation;
     /**
      * 说明
      */
     private String instructions;
+
     /**
      * 连板数
      */
+    @Excel(name = "连板", orderNum = "7")
     private Integer combo;
+
     /**
      * 涨停时间
      */
-    private LocalTime hardenTime;
+    @Excel(name = "涨停时间", orderNum = "8")
+    private Date hardenTime;
+
     /**
      * 最终涨停时间
      */
-    private LocalTime finalHardenTime;
+    @Excel(name = "最终时间", orderNum = "9")
+    private Date finalHardenTime;
+
     /**
      * 涨停类型
      */
     private String hardenType;
+
     /**
      * 涨停原因
      */
     private String reason;
+
     /**
      * 涨幅
      */
     private Double gains;
+
     /**
      * 昨日涨幅
      */
+    @Excel(name = "昨日涨幅", orderNum = "12")
     private Double yesterdayGains;
+
     /**
      * 振幅
      */
+    @Excel(name = "振幅", orderNum = "10")
     private Double amplitude;
+
     /**
      * 昨日振幅
      */
+    @Excel(name = "昨日振幅", orderNum = "13")
     private Double yesterdayAmplitude;
+
     /**
      * 换手
      */
+    @Excel(name = "换手", orderNum = "11")
     private Double changingHands;
+
     /**
      * 昨日换手
      */
+    @Excel(name = "昨日换手", orderNum = "14")
     private Double yesterdayChangingHands;
+
     /**
      * 创建时间
      */
     private Date createDate;
+
     /**
      * 创建者
      */
     private String createBy;
+
     /**
      * 修改时间
      */
     private Date modifedDate;
+
     /**
      * 修改者
      */
     private String modifedBy;
+
     /**
      * 备注说明
      */
     private String remark;
-
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getStockCode() {
-        return stockCode;
-    }
-
-    public void setStockCode(String stockCode) {
-        this.stockCode = stockCode;
-    }
-
-    public String getStockName() {
-        return stockName;
-    }
-
-    public void setStockName(String stockName) {
-        this.stockName = stockName;
-    }
-
-    public String getPlate() {
-        return plate;
-    }
-
-    public void setPlate(String plate) {
-        this.plate = plate;
-    }
-
-    public String getMainBusiness() {
-        return mainBusiness;
-    }
-
-    public void setMainBusiness(String mainBusiness) {
-        this.mainBusiness = mainBusiness;
-    }
-
-    public String getNicheBusiness() {
-        return nicheBusiness;
-    }
-
-    public void setNicheBusiness(String nicheBusiness) {
-        this.nicheBusiness = nicheBusiness;
-    }
-
-    public Integer getCirculation() {
-        return circulation;
-    }
-
-    public void setCirculation(Integer circulation) {
-        this.circulation = circulation;
-    }
-
-    public String getInstructions() {
-        return instructions;
-    }
-
-    public void setInstructions(String instructions) {
-        this.instructions = instructions;
-    }
-
-    public Integer getCombo() {
-        return combo;
-    }
-
-    public void setCombo(Integer combo) {
-        this.combo = combo;
-    }
-
-    public LocalTime getHardenTime() {
-        return hardenTime;
-    }
-
-    public void setHardenTime(LocalTime hardenTime) {
-        this.hardenTime = hardenTime;
-    }
-
-    public LocalTime getFinalHardenTime() {
-        return finalHardenTime;
-    }
-
-    public void setFinalHardenTime(LocalTime finalHardenTime) {
-        this.finalHardenTime = finalHardenTime;
-    }
-
-    public String getHardenType() {
-        return hardenType;
-    }
-
-    public void setHardenType(String hardenType) {
-        this.hardenType = hardenType;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
-
-    public Double getGains() {
-        return gains;
-    }
-
-    public void setGains(Double gains) {
-        this.gains = gains;
-    }
-
-    public Double getYesterdayGains() {
-        return yesterdayGains;
-    }
-
-    public void setYesterdayGains(Double yesterdayGains) {
-        this.yesterdayGains = yesterdayGains;
-    }
-
-    public Double getAmplitude() {
-        return amplitude;
-    }
-
-    public void setAmplitude(Double amplitude) {
-        this.amplitude = amplitude;
-    }
-
-    public Double getYesterdayAmplitude() {
-        return yesterdayAmplitude;
-    }
-
-    public void setYesterdayAmplitude(Double yesterdayAmplitude) {
-        this.yesterdayAmplitude = yesterdayAmplitude;
-    }
-
-    public Double getChangingHands() {
-        return changingHands;
-    }
-
-    public void setChangingHands(Double changingHands) {
-        this.changingHands = changingHands;
-    }
-
-    public Double getYesterdayChangingHands() {
-        return yesterdayChangingHands;
-    }
-
-    public void setYesterdayChangingHands(Double yesterdayChangingHands) {
-        this.yesterdayChangingHands = yesterdayChangingHands;
-    }
-
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
-    public String getCreateBy() {
-        return createBy;
-    }
-
-    public void setCreateBy(String createBy) {
-        this.createBy = createBy;
-    }
-
-    public Date getModifedDate() {
-        return modifedDate;
-    }
-
-    public void setModifedDate(Date modifedDate) {
-        this.modifedDate = modifedDate;
-    }
-
-    public String getModifedBy() {
-        return modifedBy;
-    }
-
-    public void setModifedBy(String modifedBy) {
-        this.modifedBy = modifedBy;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
 }
 
