@@ -1,7 +1,7 @@
 package com.example.springBootDemo.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.example.springBootDemo.domain.StudentPo;
+import com.example.springBootDemo.domain.Student;
 import com.example.springBootDemo.service.StudentService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class StudentController {
     StudentService studentService;
 
     @GetMapping("/save")
-    public String save(StudentPo po){
+    public String save(Student po){
         studentService.insert(po);
         return "save success";
     }
@@ -33,7 +33,7 @@ public class StudentController {
     }
 
     @GetMapping("/update")
-    public String update(StudentPo stu){
+    public String update(Student stu){
 //        Student stu = new Student();
 //        stu.setId((long)Math.random());
 //        stu.setName("人名"+Math.random());
@@ -42,17 +42,17 @@ public class StudentController {
     }
 
     @GetMapping("/get")
-    public StudentPo get(Long id){
-        StudentPo stu = studentService.selectById(id);
+    public Student get(Long id){
+        Student stu = studentService.selectById(id);
         return stu;
     }
 
     @GetMapping("/list")
-    public List<StudentPo> list(StudentPo po){
+    public List<Student> list(Student po){
         //根据某年级查询并列举所有数据
-        EntityWrapper<StudentPo> wrapper = new EntityWrapper<>();
+        EntityWrapper<Student> wrapper = new EntityWrapper<>();
         wrapper.eq("id",po.getId());
-        List<StudentPo> list = studentService.selectList(wrapper);
+        List<Student> list = studentService.selectList(wrapper);
         return list;
     }
 }

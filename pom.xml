@@ -132,6 +132,13 @@
 			<artifactId>poi-ooxml-schemas</artifactId>
 			<version>4.1.2</version>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>e-iceblue</groupId>-->
+<!--			<artifactId>spire.xls</artifactId>-->
+<!--			&lt;!&ndash;<version>5.3.3</version>&ndash;&gt;-->
+<!--		</dependency>-->
+
+
 
 		<!--				<dependency>-->
 <!--			<groupId>org.apache.poi</groupId>-->
@@ -204,6 +211,11 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
+		</repository>
+		<repository>
+			<id>com.e-iceblue</id>
+			<name>e-iceblue</name>
+			<url>https://repo.e-iceblue.com/nexus/content/groups/public/</url>
 		</repository>
 	</repositories>
 </project>
