@@ -14,7 +14,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>login-service</artifactId>
 	<version>0.1</version>
-	<name>login-service</name>
+	<name>login-start.service</name>
 	<description>登录服务</description> 
 	<packaging>jar</packaging>
 
