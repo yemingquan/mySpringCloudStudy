@@ -4,11 +4,9 @@ import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
 import com.baomidou.mybatisplus.enums.IdType;
+import com.example.springBootDemo.entity.base.BaseStock;
 import io.swagger.annotations.ApiModel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -23,9 +21,10 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
 @ApiModel(description = "")
 @TableName("base_zb_stock")
-public class BaseZbStock implements Serializable {
+public class BaseZbStock extends BaseStock implements Serializable {
     private static final long serialVersionUID = -70647211829841658L;
     /**
      * 主键
@@ -64,7 +63,7 @@ public class BaseZbStock implements Serializable {
     private String nicheBusiness;
 
     @Excel(name = "流通市值", orderNum = "4")
-    private double circulation;
+    private Double circulation;
     /**
      * 说明
      */
