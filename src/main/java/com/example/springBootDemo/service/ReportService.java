@@ -1,6 +1,9 @@
 package com.example.springBootDemo.service;
 
+import com.example.springBootDemo.entity.report.ZtReport;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * @所属模块<p>
@@ -11,6 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
  * @公司名称
  */
 public interface ReportService {
+    List<ZtReport> getZtDate(String date);
+
+    List<ZtReport> getZthfDate(String date);
+
     boolean importExcelZthfStock(MultipartFile multipartFile) throws Exception;
 
     boolean importExcelZtStock(MultipartFile multipartFile) throws Exception;

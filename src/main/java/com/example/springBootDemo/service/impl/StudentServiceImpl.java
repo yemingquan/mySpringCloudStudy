@@ -1,7 +1,7 @@
 package com.example.springBootDemo.service.impl;
 
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
-import com.example.springBootDemo.dao.StudentDao;
+import com.example.springBootDemo.dao.mapper.StudentDao;
 import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.service.StudentService;
 import lombok.extern.slf4j.Slf4j;

@@ -5,9 +5,12 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.Student;
+import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.ReportService;
 import com.example.springBootDemo.service.StudentService;
+import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -195,5 +199,39 @@ public class ReportController {
         excelUtil.exportCustomExcel(list, fileName, sheetName, response);
     }
 
+
+    /**
+     * 导出员工数据excel
+     *
+     * @param response
+     */
+    @GetMapping("/exportZtRePort")
+    public void exportZtRePort(HttpServletResponse response) throws IOException {
+        List<ZtReport> list = Lists.newArrayList();
+        String fileName = "涨停.xlsx";
+        String sheetName = "涨停";
+
+        String date = DateUtil.format(new Date(), "yyyy-MM-dd");
+        List<ZtReport> ztList = reportService.getZtDate(date);
+//        List<BaseZthfStock> zthfList = reportService.getZthfDate(date);
+        list.addAll(ztList);
+
+//        List<T> list1 = toZtReport(ztList);
+//        List<T> list2 = toZtReport(zthfList);
+//
+//        EntityWrapper<ZtReport> wrapper = new EntityWrapper<>();
+        ExcelUtil<ZtReport> excelUtil = new ExcelUtil<>(ZtReport.class);
+        excelUtil.exportCustomExcel(list, fileName, sheetName, response);
+    }
+
+//    private List<ZtReport> toZtReport(List<BaseZtStock> list) {
+//        List<ZtReport> resultlist = Lists.newArrayList();
+//        for (T t:list){
+//            ZtReport z = new ZtReport();
+//            BeanUtils.copyProperties(t,z);
+//            resultlist.add(z);
+//        }
+//        return resultlist;
+//    }
 
 }

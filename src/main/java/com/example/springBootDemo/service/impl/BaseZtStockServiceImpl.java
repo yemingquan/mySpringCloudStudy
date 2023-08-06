@@ -2,12 +2,14 @@ package com.example.springBootDemo.service.impl;
 
 
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
-import com.example.springBootDemo.dao.BaseZtStockDao;
+import com.example.springBootDemo.dao.mapper.BaseZtStockDao;
 import com.example.springBootDemo.entity.BaseZtStock;
+import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.BaseZtStockService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (BaseZtStock)表服务实现类
@@ -18,5 +20,11 @@ import javax.annotation.Resource;
 @Service("baseZtStockService")
 public class BaseZtStockServiceImpl extends ServiceImpl<BaseZtStockDao, BaseZtStock> implements BaseZtStockService {
     @Resource
-    private BaseZtStockDao baseZtStockMapper;
+    private BaseZtStockDao baseZtStockDao;
+
+    @Override
+    public List<ZtReport> getZtReportByDate(String date) {
+        baseZtStockDao.testDB();
+        return baseZtStockDao.getZtReportByDate(date);
+    }
 }

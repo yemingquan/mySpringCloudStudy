@@ -1,4 +1,4 @@
-package com.example.springBootDemo.dao;
+package com.example.springBootDemo.dao.mapper;
 
 
 import com.baomidou.mybatisplus.mapper.BaseMapper;

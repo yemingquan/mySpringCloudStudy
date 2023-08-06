@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.springBootDemo.dao.BaseZbStockDao">
+<mapper namespace="com.example.springBootDemo.dao.mapper.BaseBdUpStockDao">
 
-    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseZbStock">
-        <!--@Table base_zb_stock-->
+    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseBdUpStock">
+        <!--@Table base_bd_up_stock-->
         <result property="id" column="id" jdbcType="INTEGER"/>
         <result property="stockCode" column="stock_code" jdbcType="VARCHAR"/>
         <result property="stockName" column="stock_name" jdbcType="VARCHAR"/>
@@ -12,8 +12,6 @@
         <result property="nicheBusiness" column="niche_business" jdbcType="VARCHAR"/>
         <result property="circulation" column="circulation" jdbcType="NUMERIC"/>
         <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
-        <result property="combo" column="combo" jdbcType="INTEGER"/>
-        <result property="touchTime" column="touch_time" jdbcType="VARCHAR"/>
         <result property="yesterdayGains" column="yesterday_gains" jdbcType="NUMERIC"/>
         <result property="startGains" column="start_gains" jdbcType="NUMERIC"/>
         <result property="gains" column="gains" jdbcType="NUMERIC"/>
@@ -31,6 +29,7 @@
         <result property="trendType" column="trend_type" jdbcType="VARCHAR"/>
         <result property="remark" column="remark" jdbcType="VARCHAR"/>
     </resultMap>
+
 
 </mapper>
 

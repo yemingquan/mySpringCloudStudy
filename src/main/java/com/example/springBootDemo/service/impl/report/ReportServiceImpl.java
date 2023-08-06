@@ -1,10 +1,11 @@
-package com.example.springBootDemo.service.impl;
+package com.example.springBootDemo.service.impl.report;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.entity.*;
 import com.example.springBootDemo.entity.base.BaseStock;
+import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,17 @@ public class ReportServiceImpl implements ReportService {
     BaseBdDownStockService baseBdDownStockService;
     @Autowired
     BaseBdUpStockService baseBdUpStockService;
+
+    @Override
+    public List<ZtReport> getZtDate(String date){
+        return baseZtStockService.getZtReportByDate(date);
+    }
+
+    @Override
+    public List<ZtReport> getZthfDate(String date){
+        return null;
+    }
+
 
     @Override
     public boolean importExcelZthfStock(MultipartFile multipartFile) throws Exception {
