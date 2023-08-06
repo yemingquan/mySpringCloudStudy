@@ -1,5 +1,6 @@
 package com.example.springBootDemo.util.excel;
 
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 
@@ -16,8 +17,7 @@ import java.math.BigDecimal;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)//作用在什么地方
-public @interface Excel
-{
+public @interface Excel {
     /**
      * 导出时在excel中排序
      */
@@ -33,20 +33,20 @@ public @interface Excel
      */
     public String dateFormat() default "";
 
-    /**
-     * 如果是字典类型，请设置字典的type值 (如: sys_user_sex)
-     */
-    public String dictType() default "";
+//    /**
+//     * 如果是字典类型，请设置字典的type值 (如: sys_user_sex)
+//     */
+//    public String dictType() default "";
 
     /**
      * 读取内容转表达式 (如: 0=男,1=女,2=未知)
      */
     public String readConverterExp() default "";
 
-    /**
-     * 分隔符，读取字符串组内容
-     */
-    public String separator() default ",";
+//    /**
+//     * 分隔符，读取字符串组内容
+//     */
+//    public String separator() default ",";
 
     /**
      * BigDecimal 精度 默认:-1(默认不开启BigDecimal格式化)
@@ -116,12 +116,33 @@ public @interface Excel
     /**
      * 导出列头背景颜色
      */
-    public IndexedColors headerBackgroundColor() default IndexedColors.GREY_50_PERCENT;
+    public IndexedColors headerBackgroundColor() default IndexedColors.WHITE;
 
     /**
      * 导出列头字体颜色
      */
-    public IndexedColors headerColor() default IndexedColors.WHITE;
+    public IndexedColors headerColor() default IndexedColors.BLACK;
+
+    /**
+     * 字体下划线
+     *
+     * @return
+     */
+    public byte fontUnderLine() default Font.U_NONE;
+
+    /**
+     * 字体删除线
+     *
+     * @return
+     */
+    public boolean strikeout() default false;
+
+    /**
+     * 字体加粗
+     *
+     * @return
+     */
+    public boolean bold() default false;
 
     /**
      * 导出单元格背景颜色
@@ -153,34 +174,29 @@ public @interface Excel
      */
     Type type() default Type.ALL;
 
-    public enum Type
-    {
+
+    public enum Type {
         ALL(0), EXPORT(1), IMPORT(2);
         private final int value;
 
-        Type(int value)
-        {
+        Type(int value) {
             this.value = value;
         }
 
-        public int value()
-        {
+        public int value() {
             return this.value;
         }
     }
 
-    public enum ColumnType
-    {
+    public enum ColumnType {
         NUMERIC(0), STRING(1), IMAGE(2);
         private final int value;
 
-        ColumnType(int value)
-        {
+        ColumnType(int value) {
             this.value = value;
         }
 
-        public int value()
-        {
+        public int value() {
             return this.value;
         }
     }

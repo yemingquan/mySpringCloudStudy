@@ -1,13 +1,12 @@
 package com.example.springBootDemo.controller;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
-import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
-import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.Student;
-import com.example.springBootDemo.service.*;
+import com.example.springBootDemo.service.ReportService;
+import com.example.springBootDemo.service.StudentService;
 import com.example.springBootDemo.util.excel.ExcelUtil;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
@@ -185,13 +184,15 @@ public class ReportController {
      */
     @GetMapping("/export")
     public void export(HttpServletResponse response) throws IOException {
-        String title = "excel测试";
-        ExportParams params = new ExportParams(title, "sheet1", ExcelType.XSSF);
+        String fileName = "excel测试.xlsx";
+        String sheetName = "excel测试";
+//        ExportParams params = new ExportParams(title, "sheet1", ExcelType.XSSF);
 
         EntityWrapper<Student> wrapper = new EntityWrapper<>();
         List<Student> list = studentService.selectList(wrapper);
 
-        ExcelUtil.exportExcel(list, Student.class, title, response, params);
+        ExcelUtil<Student> excelUtil = new ExcelUtil<>(Student.class);
+        excelUtil.exportCustomExcel(list, fileName, sheetName, response);
     }
 
 
