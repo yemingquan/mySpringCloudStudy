@@ -3,7 +3,7 @@ package com.example.springBootDemo.service.impl;
 
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.dao.BaseZthfStockDao;
-import com.example.springBootDemo.domain.BaseZthfStock;
+import com.example.springBootDemo.entity.BaseZthfStock;
 import com.example.springBootDemo.service.BaseZthfStockService;
 import org.springframework.stereotype.Service;
 

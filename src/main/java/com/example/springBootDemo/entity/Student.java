@@ -1,4 +1,4 @@
-package com.example.springBootDemo.domain;
+package com.example.springBootDemo.entity;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotations.TableName;

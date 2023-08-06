@@ -1,7 +1,7 @@
 package com.example.springBootDemo.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.example.springBootDemo.domain.Student;
+import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.service.StudentService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;

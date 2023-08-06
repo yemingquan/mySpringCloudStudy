@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.springBootDemo.dao.BaseZthfStockDao">
 
-    <resultMap id="BaseResultMap" type="com.example.springBootDemo.domain.BaseZthfStock">
+    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseZthfStock">
         <!--@Table base_zthf_stock-->
         <result property="id" column="id" jdbcType="INTEGER"/>
         <result property="stockCode" column="stock_code" jdbcType="VARCHAR"/>

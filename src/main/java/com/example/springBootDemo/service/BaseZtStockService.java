@@ -2,7 +2,7 @@ package com.example.springBootDemo.service;
 
 
 import com.baomidou.mybatisplus.service.IService;
-import com.example.springBootDemo.domain.BaseZtStock;
+import com.example.springBootDemo.entity.BaseZtStock;
 
 /**
  * (BaseZtStock)表服务接口

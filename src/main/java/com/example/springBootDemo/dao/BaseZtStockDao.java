@@ -1,7 +1,7 @@
 package com.example.springBootDemo.dao;
 
 import com.baomidou.mybatisplus.mapper.BaseMapper;
-import com.example.springBootDemo.domain.BaseZtStock;
+import com.example.springBootDemo.entity.BaseZtStock;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

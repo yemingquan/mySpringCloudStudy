@@ -1,7 +1,7 @@
 package com.example.springBootDemo.service;
 
 import com.baomidou.mybatisplus.service.IService;
-import com.example.springBootDemo.domain.BaseDtStock;
+import com.example.springBootDemo.entity.BaseDtStock;
 
 /**
  * (BaseDtStock)表服务接口

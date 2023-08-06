@@ -6,7 +6,7 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.system.session.RespBean;
-import com.example.springBootDemo.domain.*;
+import com.example.springBootDemo.entity.*;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
@@ -49,7 +49,86 @@ public class ReportController {
     BaseZbStockService baseZbStockService;
     @Autowired
     BaseDtStockService baseDtStockService;
+    @Autowired
+    BaseBdDownStockService baseBdDownStockService;
+    @Autowired
+    BaseBdUpStockService baseBdUpStockService;
 
+    /***
+     * @param multipartFile
+     * @return
+     */
+    @PostMapping("/importExcelBdUpStock")
+    public RespBean importExcelBdUpStock(MultipartFile multipartFile) {
+        //设置导入参数
+        ImportParams importParams = new ImportParams();
+        importParams.setHeadRows(1); //表头占1行，默认1
+
+        try {
+            //导入前先删除当天的数据
+            EntityWrapper<BaseBdUpStock> wrapper = new EntityWrapper<>();
+            wrapper.eq("create_date", DateUtil.format(new Date(),"yyyy-MM-dd"));
+            baseBdUpStockService.delete(wrapper);
+
+            List<BaseBdUpStock> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseBdUpStock.class, importParams);
+            list.stream().forEach(po-> {
+                po.setCreateDate(new Date());
+                po.setModifedDate(new Date());
+                BigDecimal before = new BigDecimal(po.getCirculation());
+                po.setCirculation(before.divide(new BigDecimal(100000000),2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                po.setAmplitude(po.getAmplitude() * 100);
+//                po.setYesterdayAmplitude(po.getYesterdayAmplitude() * 100);
+                po.setChangingHands(po.getChangingHands() * 100);
+//                po.setYesterdayChangingHands(po.getYesterdayChangingHands() * 100);
+            });
+            if (baseBdUpStockService.insertBatch(list,list.size())) {
+                return RespBean.success("导入成功");
+            }
+            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+    
+    /***
+     * @param multipartFile
+     * @return
+     */
+    @PostMapping("/importExcelBdDownStock")
+    public RespBean importExcelBdDownStock(MultipartFile multipartFile) {
+        //设置导入参数
+        ImportParams importParams = new ImportParams();
+        importParams.setHeadRows(1); //表头占1行，默认1
+
+        try {
+            //导入前先删除当天的数据
+            EntityWrapper<BaseBdDownStock> wrapper = new EntityWrapper<>();
+            wrapper.eq("create_date", DateUtil.format(new Date(),"yyyy-MM-dd"));
+            baseBdDownStockService.delete(wrapper);
+
+            List<BaseBdDownStock> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseBdDownStock.class, importParams);
+            list.stream().forEach(po-> {
+                po.setCreateDate(new Date());
+                po.setModifedDate(new Date());
+                BigDecimal before = new BigDecimal(po.getCirculation());
+                po.setCirculation(before.divide(new BigDecimal(100000000),2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                po.setAmplitude(po.getAmplitude() * 100);
+//                po.setYesterdayAmplitude(po.getYesterdayAmplitude() * 100);
+                po.setChangingHands(po.getChangingHands() * 100);
+//                po.setYesterdayChangingHands(po.getYesterdayChangingHands() * 100);
+            });
+            if (baseBdDownStockService.insertBatch(list,list.size())) {
+                return RespBean.success("导入成功");
+            }
+            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+    
+    
     /***
      * @param multipartFile
      * @return
@@ -78,7 +157,7 @@ public class ReportController {
 //                po.setYesterdayChangingHands(po.getYesterdayChangingHands() * 100);
             });
             if (baseDtStockService.insertBatch(list,list.size())) {
-                return RespBean.success("导入成 功");
+                return RespBean.success("导入成功");
             }
             return RespBean.error("导入失败");
         } catch (Exception e) {
