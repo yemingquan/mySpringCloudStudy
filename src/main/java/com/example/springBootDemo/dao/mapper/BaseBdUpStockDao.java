@@ -2,7 +2,10 @@ package com.example.springBootDemo.dao.mapper;
 
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 import com.example.springBootDemo.entity.BaseBdUpStock;
+import com.example.springBootDemo.entity.report.BdReport;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * 向上波动的股票(BaseBdUpStock)表数据库访问层
@@ -13,5 +16,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface BaseBdUpStockDao extends BaseMapper<BaseBdUpStock>{
 
+    List<BdReport> getBdReportByDate(String date);
 }
 

@@ -32,5 +32,11 @@
         <result property="remark" column="remark" jdbcType="VARCHAR"/>
     </resultMap>
 
+    <select id="getMbReportByDate" resultType="com.example.springBootDemo.entity.report.MbReport" parameterType="java.lang.String">
+        select
+          id, stock_code, stock_name, plate, main_business, niche_business, circulation, instructions, combo, touch_time, yesterday_gains, start_gains, gains, amplitude, changing_hands, yesterday_amplitude, yesterday_changing_hands, average_Price10, average_Price5, current_Price, create_date, create_by, modifed_date, modifed_by, trend_type, remark
+        from base_dt_stock
+        where create_date = #{date}
+    </select>
 </mapper>
 

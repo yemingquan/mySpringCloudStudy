@@ -1,10 +1,14 @@
 package com.example.springBootDemo.service.impl;
 
-import com.example.springBootDemo.entity.BaseBdUpStock;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.dao.mapper.BaseBdUpStockDao;
+import com.example.springBootDemo.entity.BaseBdUpStock;
+import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.service.BaseBdUpStockService;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 
 /**
@@ -15,4 +19,11 @@ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
  */
 @Service("baseBdUpStockService")
 public class BaseBdUpStockServiceImpl extends ServiceImpl<BaseBdUpStockDao, BaseBdUpStock> implements BaseBdUpStockService {
+    @Resource
+    private BaseBdUpStockDao baseBdUpStockDao;
+
+    @Override
+    public List<BdReport> getBdReportByDate(String date) {
+        return baseBdUpStockDao.getBdReportByDate(date);
+    }
 }

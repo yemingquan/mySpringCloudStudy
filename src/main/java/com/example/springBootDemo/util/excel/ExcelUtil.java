@@ -677,6 +677,13 @@ public class ExcelUtil<T> implements Serializable {
         return propertyValue;
     }
 
+    /**
+     * 涨停报表样式处理
+     * @param list
+     * @return
+     * @throws IllegalAccessException
+     * @throws NoSuchFieldException
+     */
     public Map<String, Map> OprZtReport(List<ZtReport> list) throws IllegalAccessException, NoSuchFieldException {
         Map<String, Map> annotationMapping = Maps.newConcurrentMap();
         //注解只有一个，所以不符合条件的话，要给默认值
