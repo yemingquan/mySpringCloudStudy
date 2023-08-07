@@ -312,14 +312,7 @@ public class ExcelUtil<T> implements Serializable {
         XSSFWorkbook workbook = null;
         try {
             // 得到所有定义字段
-            Field[] allFields = clazz.getDeclaredFields();
-            List<Field> fields = new ArrayList<Field>();
-            // 得到所有field并存放到一个list中.
-            for (Field field : allFields) {
-                if (field.isAnnotationPresent(Excel.class)) {
-                    fields.add(field);
-                }
-            }
+            List<Field> fields = getClassFields();
 
             // 产生工作薄对象
             workbook = new XSSFWorkbook();
@@ -465,14 +458,7 @@ public class ExcelUtil<T> implements Serializable {
         XSSFWorkbook workbook = null;
         try {
             // 得到所有定义字段
-            Field[] allFields = clazz.getDeclaredFields();
-            List<Field> fields = new ArrayList<Field>();
-            // 得到所有field并存放到一个list中.
-            for (Field field : allFields) {
-                if (field.isAnnotationPresent(Excel.class)) {
-                    fields.add(field);
-                }
-            }
+            List<Field> fields = getClassFields();
 
             // 产生工作薄对象
             workbook = new XSSFWorkbook();
@@ -679,17 +665,205 @@ public class ExcelUtil<T> implements Serializable {
 
     /**
      * 涨停报表样式处理
+     *
      * @param list
      * @return
      * @throws IllegalAccessException
      * @throws NoSuchFieldException
      */
     public Map<String, Map> OprZtReport(List<ZtReport> list) throws IllegalAccessException, NoSuchFieldException {
+        //注解和对象的映射关系 key:代码-属性 value:注解配置
         Map<String, Map> annotationMapping = Maps.newConcurrentMap();
         //注解只有一个，所以不符合条件的话，要给默认值
         Map<String, Object> defaultAnnotationMap = Maps.newConcurrentMap();
         Boolean firstFlag = true;
+        List<Field> fields = getClassFields();
 
+        //集合循环
+            for (int i = 0; i < list.size(); i++) {
+                ZtReport po = list.get(i);
+                String stockCode = po.getStockCode();
+
+                //注解循环
+                for (int j = 0; j < fields.size(); j++) {
+                    Field f = fields.get(j);
+                    // 获取注解映射的map对象
+                    Map map = getAnnotationMap(po, f);
+
+                    String key = stockCode + "-" + f.getName();
+    //                Object o = field.get((T) po);
+    //                log.info(i + "-" + key + "-" + o);
+
+                    if (firstFlag) {
+                        defaultAnnotationMap = initDefaultAnnotationMap((HashMap<String, Object>) map);
+                        firstFlag = false;
+                    } else {
+                        map.putAll(defaultAnnotationMap);
+                    }
+
+                    // TODO 需要硬编码
+                    generalOpr(po, map);
+                    specialOpr(po, f, map);
+
+                    // 深-转成 JSON 再转回来  类型会变的不对
+                    // 深-使用 Apache 的序列化工具类 SerializationUtils
+                    // 浅-新建 Map 时将原 Map 传入构造方法
+    //                Map<String, Object> afterMap = JSON.parseObject(JSON.toJSONString(map));
+                    Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
+                    annotationMapping.put(key, afterMap);
+                }
+            }
+        return annotationMapping;
+    }
+
+    /**
+     * 导出样式特殊处理
+     *
+     * @param po
+     * @param f
+     * @param map
+     */
+    private void specialOpr(ZtReport po, Field f, Map map) {
+        //具体
+        switch (f.getName()) {
+            //流通盘大小
+            case "circulation":
+                //与通用不同的是，这里需要改变底色
+                double value = po.getCirculation();
+                if (value < 30) {
+                    map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+                } else if (value > 400) {
+                    map.put("backgroundColor", IndexedColors.YELLOW);
+                }
+                break;
+            //昨日涨幅
+            case "yesterdayGains":
+                value = po.getYesterdayGains();
+                if (value < -5) {
+                    map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+                }
+                break;
+            //换手
+            case "changingHands":
+                value = po.getChangingHands();
+                if (value == 0) {
+                    map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+                } else if (value > 50) {
+                    map.put("backgroundColor", IndexedColors.YELLOW);
+                }
+                break;
+            //昨日换手
+            case "yesterdaychangingHands":
+                //辨识度标的逻辑
+                value = po.getYesterdayAmplitude();
+                if (value == 0) {
+                    map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+                } else if (value > 50) {
+                    map.put("backgroundColor", IndexedColors.YELLOW);
+                }
+                break;
+            //振幅
+            case "amplitude":
+                value = po.getAmplitude();
+                if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
+                    map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+                }
+                break;
+            //昨日振幅
+            case "yesterdayAmplitude":
+                value = po.getYesterdayAmplitude();
+                if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
+                    map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+                }
+                break;
+            //股票名称
+            case "stockName":
+                //辨识度标的逻辑
+                break;
+        }
+    }
+
+    /**
+     * 导出数据通常处理
+     *
+     * @param po
+     * @param map
+     */
+    private void generalOpr(ZtReport po, Map map) {
+        //通用
+        Double circulation = po.getCirculation();
+        byte fontUnderLine = Font.U_NONE;
+        boolean strikeout = false;
+        if (circulation < 30) {
+            fontUnderLine = Font.U_SINGLE;
+        } else if (circulation > 400) {
+            strikeout = true;
+        }
+
+        Integer combo = po.getCombo();
+        IndexedColors color = IndexedColors.BLACK;
+        if (combo > 1) {
+            color = IndexedColors.RED;
+        }
+
+        boolean bold = false;
+        map.put("fontUnderLine", fontUnderLine);
+        map.put("strikeout", strikeout);
+        map.put("color", color);
+        map.put("bold", bold);
+
+//                //底色
+//                if(i%2==1){
+//                    //单数 浅灰
+//                    map.put("backgroundColor", IndexedColors.GREY_25_PERCENT);
+//                }else{
+////                    map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+//                }
+    }
+
+    /**
+     * 初始化注解数据
+     *
+     * @param map
+     * @return
+     */
+    private Map<String, Object> initDefaultAnnotationMap(HashMap<String, Object> map) {
+        Map<String, Object> defaultAnnotationMap;
+        defaultAnnotationMap = SerializationUtils.clone(map);
+        defaultAnnotationMap.remove("name");
+        defaultAnnotationMap.remove("dateFormat");
+        defaultAnnotationMap.remove("suffix");
+        return defaultAnnotationMap;
+    }
+
+    /**
+     * 获取当前字段注解的配置
+     *
+     * @param po
+     * @param f
+     * @return
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
+    private Map getAnnotationMap(ZtReport po, Field f) throws NoSuchFieldException, IllegalAccessException {
+        // 获得field.
+        Field field = po.getClass().getDeclaredField(f.getName());
+        // 设置实体类私有属性可访问
+        field.setAccessible(true);
+        // 使用反射的方式修改注解的值
+        Excel annotation = field.getAnnotation(Excel.class);
+        InvocationHandler handler = Proxy.getInvocationHandler(annotation);
+        Field annotationField = handler.getClass().getDeclaredField("memberValues");
+        annotationField.setAccessible(true);
+        return (Map) annotationField.get(handler);
+    }
+
+    /**
+     * 得到class所有属性字段
+     *
+     * @return
+     */
+    private List<Field> getClassFields() {
         // 得到所有定义字段
         Field[] allFields = clazz.getDeclaredFields();
         List<Field> fields = new ArrayList<Field>();
@@ -699,139 +873,7 @@ public class ExcelUtil<T> implements Serializable {
                 fields.add(field);
             }
         }
-
-        //集合循环
-        for (int i = 0; i < list.size(); i++) {
-            ZtReport po = list.get(i);
-            String stockCode = po.getStockCode();
-
-            //注解循环
-            for (int j = 0; j < fields.size(); j++) {
-                Field f = fields.get(j);
-                // 获得field.
-                Field field = po.getClass().getDeclaredField(f.getName());
-                // 设置实体类私有属性可访问
-                field.setAccessible(true);
-                // 使用反射的方式修改注解的值
-                Excel annotation = field.getAnnotation(Excel.class);
-                InvocationHandler handler = Proxy.getInvocationHandler(annotation);
-                Field annotationField = handler.getClass().getDeclaredField("memberValues");
-                annotationField.setAccessible(true);
-                Map map = (Map) annotationField.get(handler);
-
-                if (firstFlag) {
-                    defaultAnnotationMap = SerializationUtils.clone((HashMap<String, Object>) map);
-                    defaultAnnotationMap.remove("name");
-                    defaultAnnotationMap.remove("dateFormat");
-                    defaultAnnotationMap.remove("suffix");
-                    firstFlag = false;
-                } else {
-                    map.putAll(defaultAnnotationMap);
-                }
-
-                Object o = field.get((T) po);
-                String key = stockCode + "-" + f.getName();
-                log.info(i + "-" + key + "-" + o);
-
-
-                // TODO 需要硬编码
-                //通用
-                Double circulation = po.getCirculation();
-                byte fontUnderLine = Font.U_NONE;
-                boolean strikeout = false;
-                if (circulation < 30) {
-                    fontUnderLine = Font.U_SINGLE;
-                } else if (circulation > 400) {
-                    strikeout = true;
-                }
-
-                Integer combo = po.getCombo();
-                IndexedColors color = IndexedColors.BLACK;
-                if (combo > 1) {
-                    color = IndexedColors.RED;
-                }
-
-                boolean bold = false;
-                map.put("fontUnderLine", fontUnderLine);
-                map.put("strikeout", strikeout);
-                map.put("color", color);
-                map.put("bold", bold);
-
-//                //底色
-//                if(i%2==1){
-//                    //单数 浅灰
-//                    map.put("backgroundColor", IndexedColors.GREY_25_PERCENT);
-//                }else{
-////                    map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
-//                }
-
-                //具体
-                switch (f.getName()) {
-                        //流通盘大小
-                    case "circulation":
-                        //与通用不同的是，这里需要改变底色
-                        double value = po.getCirculation();
-                        if (value < 30) {
-                            map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
-                        } else if (value > 400) {
-                            map.put("backgroundColor", IndexedColors.YELLOW);
-                        }
-                        break;
-                        //昨日涨幅
-                    case "yesterdayGains":
-                        value = po.getYesterdayGains();
-                        if (value < -5) {
-                            map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
-                        }
-                        break;
-                        //换手
-                    case "changingHands":
-                        value = po.getChangingHands();
-                        if (value == 0) {
-                            map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
-                        } else if (value  > 50) {
-                            map.put("backgroundColor", IndexedColors.YELLOW);
-                        }
-                        break;
-                        //昨日换手
-                    case "yesterdaychangingHands":
-                        //辨识度标的逻辑
-                        value = po.getYesterdayAmplitude();
-                        if (value == 0) {
-                            map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
-                        } else if (value  > 50) {
-                            map.put("backgroundColor", IndexedColors.YELLOW);
-                        }
-                        break;
-                        //振幅
-                    case "amplitude":
-                        value = po.getAmplitude();
-                        if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
-                            map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
-                        }
-                        break;
-                    //昨日振幅
-                    case "yesterdayAmplitude":
-                        value = po.getYesterdayAmplitude();
-                        if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
-                            map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
-                        }
-                        break;
-                        //股票名称
-                    case "stockName":
-                        //辨识度标的逻辑
-                        break;
-                }
-
-                // 深-转成 JSON 再转回来  类型会变的不对
-                // 深-使用 Apache 的序列化工具类 SerializationUtils
-                // 浅-新建 Map 时将原 Map 传入构造方法
-//                Map<String, Object> afterMap = JSON.parseObject(JSON.toJSONString(map));
-                Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
-                annotationMapping.put(key, afterMap);
-            }
-        }
-        return annotationMapping;
+        return fields;
     }
 
     public Map<String, Map> OprMbReport(List<MbReport> list) {
