@@ -42,25 +42,25 @@ public class ZtReport extends BaseStock implements Serializable {
     @Excel(name = "连板")
     private Integer combo;
 
-    @Excel(name = "首次时间",dateFormat="hh:mm:ss")
+    @Excel(name = "首次时间",dateFormat="HH:mm:ss")
     private Date hardenTime;
 
-    @Excel(name = "最终时间" ,dateFormat="hh:mm:ss")
+    @Excel(name = "最终时间" ,dateFormat="HH:mm:ss")
     private Date finalHardenTime;
 
-    @Excel(name = "振幅")
+    @Excel(name = "振幅",suffix="%")
     private Double amplitude;
 
-    @Excel(name = "换手")
+    @Excel(name = "换手",suffix="%")
     private Double changingHands;
 
-    @Excel(name = "昨日涨幅")
+    @Excel(name = "昨日涨幅",suffix="%")
     private Double yesterdayGains;
 
-    @Excel(name = "昨日振幅")
+    @Excel(name = "昨日振幅",suffix="%")
     private Double yesterdayAmplitude;
 
-    @Excel(name = "昨日换手")
+    @Excel(name = "昨日换手",suffix="%")
     private Double yesterdayChangingHands;
 
     @Excel(name = "涨停类型")

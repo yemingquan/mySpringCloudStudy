@@ -143,7 +143,12 @@
 			<artifactId>poi-ooxml-schemas</artifactId>
 			<version>4.1.2</version>
 		</dependency>
-<!--		<dependency>-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.70</version>
+        </dependency>
+        <!--		<dependency>-->
 <!--			<groupId>e-iceblue</groupId>-->
 <!--			<artifactId>spire.xls</artifactId>-->
 <!--			&lt;!&ndash;<version>5.3.3</version>&ndash;&gt;-->

@@ -7,7 +7,9 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import com.example.springBootDemo.entity.report.ZtReport;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
@@ -298,7 +300,6 @@ public class ExcelUtil<T> implements Serializable {
 //        return sheet;
 //    }
 
-
     /**
      * 对list数据源将其里面的数据导入到excel表单
      *
@@ -306,7 +307,7 @@ public class ExcelUtil<T> implements Serializable {
      * @param sheetName 工作表的名称
      * @return 结果
      */
-    public void exportCustomExcel(List<?> list, String fileName, String sheetName, HttpServletResponse response) {
+    public void exportCustomExcel_bak(List<?> list, String fileName, String sheetName, HttpServletResponse response) {
         XSSFWorkbook workbook = null;
         try {
             // 得到所有定义字段
@@ -382,10 +383,175 @@ public class ExcelUtil<T> implements Serializable {
                         Field f = fields.get(j);
                         // 获得field.
                         Field field = vo.getClass().getDeclaredField(f.getName());
+                        Field codeField = vo.getClass().getDeclaredField("stockCode");
                         // 设置实体类私有属性可访问
                         field.setAccessible(true);
                         // 使用反射的方式修改注解的值
                         Excel attr = field.getAnnotation(Excel.class);
+                        try {
+                            // 设置行高
+                            row.setHeight((short) (attr.height() * 20));
+                            // 根据Excel中设置情况决定是否导出,有些情况需要保持为空,希望用户填写这一列.
+                            if (attr.isExport()) {
+                                // 创建cell
+                                cell = row.createCell(j);
+                                setRowStyle(workbook, cell, attr, false);
+                                if (vo == null) {
+                                    // 如果数据存在就填入,不存在填入空格.
+                                    cell.setCellValue("");
+                                    continue;
+                                }
+
+                                String dateFormat = attr.dateFormat();
+                                Object o = field.get(vo);
+                                String readConverterExp = attr.readConverterExp();
+                                if (StringUtils.isNotEmpty(dateFormat) && o != null) {
+                                    cell.setCellValue(new SimpleDateFormat(dateFormat).format((Date) field.get(vo)));
+                                } else if (StringUtils.isNotEmpty(readConverterExp) && o != null) {
+                                    cell.setCellValue(convertByExp(String.valueOf(field.get(vo)), readConverterExp));
+                                } else {
+                                    cell.setCellType(CellType.STRING);
+                                    // 如果数据存在就填入,不存在填入空格.
+                                    String value = field.get(vo) == null ? attr.defaultValue() : field.get(vo) + attr.suffix();
+                                    cell.setCellValue(value);
+                                }
+                            }
+                        } catch (Exception e) {
+                            log.error("导出Excel失败{}", e.getMessage());
+                        }
+                    }
+                }
+            }
+
+            fileName = new String(fileName.getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+            OutputStream outputStream = response.getOutputStream();
+            response.flushBuffer();
+            workbook.write(outputStream);
+            // 写完数据关闭流
+            outputStream.close();
+            log.warn("导出成功");
+
+//            //String filename = encodingFilename(sheetName);
+//            response.setContentType("application/octet-stream");
+//            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(sheetName, "UTF-8"));
+//            response.flushBuffer();
+//            workbook.write(response.getOutputStream());
+        } catch (Exception e) {
+            log.error("导出Excel异常{}", e);
+            throw new RuntimeException("导出Excel失败，请联系网站管理员！");
+        } finally {
+            if (workbook != null) {
+                try {
+                    workbook.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * 对list数据源将其里面的数据导入到excel表单
+     *
+     * @param annotationMapping
+     * @param list              导出数据集合
+     * @param sheetName         工作表的名称
+     * @return 结果
+     */
+    public void exportCustomExcel(Map<String, Map> annotationMapping, List<?> list, String fileName, String sheetName, HttpServletResponse response) {
+        XSSFWorkbook workbook = null;
+        try {
+            // 得到所有定义字段
+            Field[] allFields = clazz.getDeclaredFields();
+            List<Field> fields = new ArrayList<Field>();
+            // 得到所有field并存放到一个list中.
+            for (Field field : allFields) {
+                if (field.isAnnotationPresent(Excel.class)) {
+                    fields.add(field);
+                }
+            }
+
+            // 产生工作薄对象
+            workbook = new XSSFWorkbook();
+            // excel2003中每个sheet中最多有65536行
+            int sheetSize = 2 ^ 20;
+            // 取出一共有多少个sheet.
+            double sheetNo = Math.ceil(list.size() / sheetSize);
+            for (int index = 0; index <= sheetNo; index++) {
+                // 产生工作表对象
+                XSSFSheet sheet = workbook.createSheet();
+                if (sheetNo == 0) {
+                    workbook.setSheetName(index, sheetName);
+                } else {
+                    // 设置工作表的名称.
+                    workbook.setSheetName(index, sheetName + index);
+                }
+                XSSFRow row;
+                XSSFCell cell; // 产生单元格
+
+                // 产生一行
+                row = sheet.createRow(0);
+                // 写入各个字段的列头名称
+                for (int i = 0; i < fields.size(); i++) {
+                    Field field = fields.get(i);
+                    Excel attr = field.getAnnotation(Excel.class);
+                    // 创建列
+                    cell = row.createCell(i);
+                    row.setHeight((short) (attr.height() * 20));
+                    // 设置列中写入内容为String类型
+                    cell.setCellType(CellType.STRING);
+                    // 设置列宽
+                    sheet.setColumnWidth(i, (int) ((attr.width() + 0.72) * 256));
+                    // 提示信息
+//                    if (StringUtils.isNotEmpty(attr.prompt())) {
+//                        // 这里默认设了2-101列提示.
+//                        setPrompt(sheet, "", attr.prompt(), 1, 100, i, i);
+//                    }
+//                    //只能选择不能输入
+//                    if (attr.combo().length > 0) {
+//                        // 这里默认设了2-101列只能选择不能输入.
+//                        setValidation(sheet, attr.combo(), 1, 100, i, i);
+//                    }
+                    //设置样式
+                    setRowStyle(workbook, cell, attr, true);
+                }
+
+
+                // 写入各条记录
+                int startNo = index * sheetSize;
+                int endNo = Math.min(startNo + sheetSize, list.size());
+                //每条记录对应excel表中的一行
+                for (int i = startNo; i < endNo; i++) {
+                    row = sheet.createRow(i + 1 - startNo);
+                    // 得到导出对象.
+                    T vo = (T) list.get(i);
+                    Field codeField = vo.getClass().getDeclaredField("stockCode");
+                    // 设置实体类私有属性可访问
+                    codeField.setAccessible(true);
+                    Object stockCode = codeField.get(vo);
+
+                    for (int j = 0; j < fields.size(); j++) {
+//                        // 获得field.
+//                        Field field = fields.get(j);
+//                        // 设置实体类私有属性可访问
+//                        field.setAccessible(true);
+//                        Excel attr = field.getAnnotation(Excel.class);
+                        Field f = fields.get(j);
+                        // 获得field.
+                        Field field = vo.getClass().getDeclaredField(f.getName());
+
+                        // 设置实体类私有属性可访问
+                        field.setAccessible(true);
+                        // 使用反射的方式修改注解的值
+                        Excel attr = field.getAnnotation(Excel.class);
+                        InvocationHandler handler = Proxy.getInvocationHandler(attr);
+                        Field annotationField = handler.getClass().getDeclaredField("memberValues");
+                        annotationField.setAccessible(true);
+                        Map map = (Map) annotationField.get(handler);
+                        Map map2 = annotationMapping.get(stockCode + "-" + f.getName());
+                        map.putAll(map2);
                         try {
                             // 设置行高
                             row.setHeight((short) (attr.height() * 20));
@@ -510,7 +676,12 @@ public class ExcelUtil<T> implements Serializable {
         return propertyValue;
     }
 
-    public void OprZtReport(List<ZtReport> list) throws IllegalAccessException, NoSuchFieldException {
+    public Map<String, Map> OprZtReport(List<ZtReport> list) throws IllegalAccessException, NoSuchFieldException {
+        Map<String, Map> annotationMapping = Maps.newConcurrentMap();
+        //注解只有一个，所以不符合条件的话，要给默认值
+        Map<String, Object> defaultAnnotationMap = Maps.newConcurrentMap();
+        Boolean firstFlag = true;
+
         // 得到所有定义字段
         Field[] allFields = clazz.getDeclaredFields();
         List<Field> fields = new ArrayList<Field>();
@@ -524,9 +695,7 @@ public class ExcelUtil<T> implements Serializable {
         //集合循环
         for (int i = 0; i < list.size(); i++) {
             ZtReport po = list.get(i);
-
-
-
+            String stockCode = po.getStockCode();
 
             //注解循环
             for (int j = 0; j < fields.size(); j++) {
@@ -541,6 +710,20 @@ public class ExcelUtil<T> implements Serializable {
                 Field annotationField = handler.getClass().getDeclaredField("memberValues");
                 annotationField.setAccessible(true);
                 Map map = (Map) annotationField.get(handler);
+
+                if (firstFlag) {
+                    defaultAnnotationMap = SerializationUtils.clone((HashMap<String, Object>) map);
+                    defaultAnnotationMap.remove("name");
+                    defaultAnnotationMap.remove("dateFormat");
+                    defaultAnnotationMap.remove("suffix");
+                    firstFlag = false;
+                } else {
+                    map.putAll(defaultAnnotationMap);
+                }
+
+                Object o = field.get((T) po);
+                String key = stockCode + "-" + f.getName();
+                log.info(i + "-" + key + "-" + o);
 
 
                 // TODO 需要硬编码
@@ -566,27 +749,80 @@ public class ExcelUtil<T> implements Serializable {
                 map.put("color", color);
                 map.put("bold", bold);
 
-                Object o = field.get((T) po);
-                log.debug(i + "-" + f.getName() + ":" + o);
+//                //底色
+//                if(i%2==1){
+//                    //单数 浅灰
+//                    map.put("backgroundColor", IndexedColors.GREY_25_PERCENT);
+//                }else{
+////                    map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+//                }
 
                 //具体
                 switch (f.getName()) {
-                    case "":
-                        map.put("strikeout", strikeout);
-                        break;
-                    case "amplitude":
-                        if ("主板".equals(po.getPlate()) && po.getAmplitude() > 12 || po.getAmplitude() > 24) {
+                        //流通盘大小
+                    case "circulation":
+                        //与通用不同的是，这里需要改变底色
+                        double value = po.getCirculation();
+                        if (value < 30) {
                             map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
-                        }else{
-                            map.put("backgroundColor", IndexedColors.WHITE);
+                        } else if (value > 400) {
+                            map.put("backgroundColor", IndexedColors.YELLOW);
                         }
-                        map.put("strikeout", strikeout);
                         break;
-                    default:
-                        continue;
+                        //昨日涨幅
+                    case "yesterdayGains":
+                        value = po.getYesterdayGains();
+                        if (value < -5) {
+                            map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+                        }
+                        break;
+                        //换手
+                    case "changingHands":
+                        value = po.getChangingHands();
+                        if (value == 0) {
+                            map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+                        } else if (value  > 50) {
+                            map.put("backgroundColor", IndexedColors.YELLOW);
+                        }
+                        break;
+                        //昨日换手
+                    case "yesterdaychangingHands":
+                        //辨识度标的逻辑
+                        value = po.getYesterdayAmplitude();
+                        if (value == 0) {
+                            map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+                        } else if (value  > 50) {
+                            map.put("backgroundColor", IndexedColors.YELLOW);
+                        }
+                        break;
+                        //振幅
+                    case "amplitude":
+                        value = po.getAmplitude();
+                        if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
+                            map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+                        }
+                        break;
+                    //昨日振幅
+                    case "yesterdayAmplitude":
+                        value = po.getYesterdayAmplitude();
+                        if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
+                            map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+                        }
+                        break;
+                        //股票名称
+                    case "stockName":
+                        //辨识度标的逻辑
+                        break;
                 }
 
+                // 深-转成 JSON 再转回来  类型会变的不对
+                // 深-使用 Apache 的序列化工具类 SerializationUtils
+                // 浅-新建 Map 时将原 Map 传入构造方法
+//                Map<String, Object> afterMap = JSON.parseObject(JSON.toJSONString(map));
+                Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
+                annotationMapping.put(key, afterMap);
             }
         }
+        return annotationMapping;
     }
 }

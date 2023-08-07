@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @所属模块<p>
@@ -195,7 +196,7 @@ public class ReportController {
         List<Student> list = studentService.selectList(wrapper);
 
         ExcelUtil<Student> excelUtil = new ExcelUtil<>(Student.class);
-        excelUtil.exportCustomExcel(list, fileName, sheetName, response);
+        excelUtil.exportCustomExcel_bak(list, fileName, sheetName, response);
     }
 
 
@@ -214,7 +215,7 @@ public class ReportController {
         List<ZtReport> list = reportService.getZtReportByDate("2023-08-06");
 
         ExcelUtil<ZtReport> excelUtil = new ExcelUtil<>(ZtReport.class);
-        excelUtil.OprZtReport(list);
-        excelUtil.exportCustomExcel(list, fileName, sheetName, response);
+        Map<String, Map> annotationMapping = excelUtil.OprZtReport(list);
+        excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
     }
 }
