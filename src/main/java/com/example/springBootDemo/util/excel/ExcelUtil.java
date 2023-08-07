@@ -6,6 +6,8 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import com.example.springBootDemo.entity.base.BaseStock;
+import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 import com.google.common.collect.Maps;
@@ -663,58 +665,6 @@ public class ExcelUtil<T> implements Serializable {
         return propertyValue;
     }
 
-    /**
-     * 涨停报表样式处理
-     *
-     * @param list
-     * @return
-     * @throws IllegalAccessException
-     * @throws NoSuchFieldException
-     */
-    public Map<String, Map> OprZtReport(List<ZtReport> list) throws IllegalAccessException, NoSuchFieldException {
-        //注解和对象的映射关系 key:代码-属性 value:注解配置
-        Map<String, Map> annotationMapping = Maps.newConcurrentMap();
-        //注解只有一个，所以不符合条件的话，要给默认值
-        Map<String, Object> defaultAnnotationMap = Maps.newConcurrentMap();
-        Boolean firstFlag = true;
-        List<Field> fields = getClassFields();
-
-        //集合循环
-            for (int i = 0; i < list.size(); i++) {
-                ZtReport po = list.get(i);
-                String stockCode = po.getStockCode();
-
-                //注解循环
-                for (int j = 0; j < fields.size(); j++) {
-                    Field f = fields.get(j);
-                    // 获取注解映射的map对象
-                    Map map = getAnnotationMap(po, f);
-
-                    String key = stockCode + "-" + f.getName();
-    //                Object o = field.get((T) po);
-    //                log.info(i + "-" + key + "-" + o);
-
-                    if (firstFlag) {
-                        defaultAnnotationMap = initDefaultAnnotationMap((HashMap<String, Object>) map);
-                        firstFlag = false;
-                    } else {
-                        map.putAll(defaultAnnotationMap);
-                    }
-
-                    // TODO 需要硬编码
-                    generalOpr(po, map);
-                    specialOpr(po, f, map);
-
-                    // 深-转成 JSON 再转回来  类型会变的不对
-                    // 深-使用 Apache 的序列化工具类 SerializationUtils
-                    // 浅-新建 Map 时将原 Map 传入构造方法
-    //                Map<String, Object> afterMap = JSON.parseObject(JSON.toJSONString(map));
-                    Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
-                    annotationMapping.put(key, afterMap);
-                }
-            }
-        return annotationMapping;
-    }
 
     /**
      * 导出样式特殊处理
@@ -789,7 +739,7 @@ public class ExcelUtil<T> implements Serializable {
      * @param po
      * @param map
      */
-    private void generalOpr(ZtReport po, Map map) {
+    private void generalOpr(BaseStock po, Map map) {
         //通用
         Double circulation = po.getCirculation();
         byte fontUnderLine = Font.U_NONE;
@@ -802,7 +752,7 @@ public class ExcelUtil<T> implements Serializable {
 
         Integer combo = po.getCombo();
         IndexedColors color = IndexedColors.BLACK;
-        if (combo > 1) {
+        if (combo != null && combo > 1) {
             color = IndexedColors.RED;
         }
 
@@ -845,7 +795,7 @@ public class ExcelUtil<T> implements Serializable {
      * @throws NoSuchFieldException
      * @throws IllegalAccessException
      */
-    private Map getAnnotationMap(ZtReport po, Field f) throws NoSuchFieldException, IllegalAccessException {
+    private Map getAnnotationMap(T po, Field f) throws NoSuchFieldException, IllegalAccessException {
         // 获得field.
         Field field = po.getClass().getDeclaredField(f.getName());
         // 设置实体类私有属性可访问
@@ -876,11 +826,155 @@ public class ExcelUtil<T> implements Serializable {
         return fields;
     }
 
-    public Map<String, Map> OprMbReport(List<MbReport> list) {
-        return null;
+    /**
+     * 涨停报表样式处理
+     *
+     * @param list
+     * @return
+     * @throws IllegalAccessException
+     * @throws NoSuchFieldException
+     */
+    public Map<String, Map> OprZtReport(List<ZtReport> list) throws IllegalAccessException, NoSuchFieldException {
+        //注解和对象的映射关系 key:代码-属性 value:注解配置
+        Map<String, Map> annotationMapping = Maps.newConcurrentMap();
+        //注解只有一个，所以不符合条件的话，要给默认值
+        Map<String, Object> defaultAnnotationMap = Maps.newConcurrentMap();
+        Boolean firstFlag = true;
+        List<Field> fields = getClassFields();
+
+        //集合循环
+        for (int i = 0; i < list.size(); i++) {
+            ZtReport po = list.get(i);
+            String stockCode = po.getStockCode();
+
+            //注解循环
+            for (int j = 0; j < fields.size(); j++) {
+                Field f = fields.get(j);
+                // 获取注解映射的map对象
+                Map map = getAnnotationMap((T) po, f);
+
+                String key = stockCode + "-" + f.getName();
+                //                Object o = field.get((T) po);
+                //                log.info(i + "-" + key + "-" + o);
+
+                if (firstFlag) {
+                    defaultAnnotationMap = initDefaultAnnotationMap((HashMap<String, Object>) map);
+                    firstFlag = false;
+                } else {
+                    map.putAll(defaultAnnotationMap);
+                }
+
+                generalOpr(po, map);
+                specialOpr(po, f, map);
+
+                //深拷贝后，把映射关系放到map中
+                Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
+                annotationMapping.put(key, afterMap);
+            }
+        }
+        return annotationMapping;
     }
 
-    public Map<String, Map> OprBdReport(List<T> list) {
-        return null;
+    /**
+     * 模板报表样式处理
+     *
+     * @param list
+     * @return
+     */
+    public Map<String, Map> OprMbReport(List<MbReport> list) throws NoSuchFieldException, IllegalAccessException {
+        //注解和对象的映射关系 key:代码-属性 value:注解配置
+        Map<String, Map> annotationMapping = Maps.newConcurrentMap();
+        //注解只有一个，所以不符合条件的话，要给默认值
+        Map<String, Object> defaultAnnotationMap = Maps.newConcurrentMap();
+        Boolean firstFlag = true;
+        List<Field> fields = getClassFields();
+
+        //集合循环
+        for (int i = 0; i < list.size(); i++) {
+            MbReport po = list.get(i);
+            String stockCode = po.getStockCode();
+
+            //注解循环
+            for (int j = 0; j < fields.size(); j++) {
+                Field f = fields.get(j);
+                // 获取注解映射的map对象
+                Map map = getAnnotationMap((T) po, f);
+
+                String key = stockCode + "-" + f.getName();
+                //                Object o = field.get((T) po);
+                //                log.info(i + "-" + key + "-" + o);
+
+                if (firstFlag) {
+                    defaultAnnotationMap = initDefaultAnnotationMap((HashMap<String, Object>) map);
+                    firstFlag = false;
+                } else {
+                    map.putAll(defaultAnnotationMap);
+                }
+
+
+                generalOpr(po, map);
+//                specialOpr(po, f, map);
+
+                //深拷贝后，把映射关系放到map中
+                Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
+                annotationMapping.put(key, afterMap);
+            }
+        }
+        return annotationMapping;
+    }
+
+    /**
+     * 波动报表样式处理
+     *
+     * @param list
+     * @return
+     */
+    public Map<String, Map> OprBdReport(List<BdReport> list) throws NoSuchFieldException, IllegalAccessException {
+        //注解和对象的映射关系 key:代码-属性 value:注解配置
+        Map<String, Map> annotationMapping = Maps.newConcurrentMap();
+        //注解只有一个，所以不符合条件的话，要给默认值
+        Map<String, Object> defaultAnnotationMap = Maps.newConcurrentMap();
+        Boolean firstFlag = true;
+        List<Field> fields = getClassFields();
+
+        //集合循环
+        for (int i = 0; i < list.size(); i++) {
+            BdReport po = list.get(i);
+            String stockCode = po.getStockCode();
+
+            //注解循环
+            for (int j = 0; j < fields.size(); j++) {
+                Field f = fields.get(j);
+                // 获取注解映射的map对象
+                Map map = getAnnotationMap((T) po, f);
+
+                String key = stockCode + "-" + f.getName();
+                //                Object o = field.get((T) po);
+                //                log.info(i + "-" + key + "-" + o);
+
+                if (firstFlag) {
+                    defaultAnnotationMap = initDefaultAnnotationMap((HashMap<String, Object>) map);
+                    firstFlag = false;
+                } else {
+                    map.putAll(defaultAnnotationMap);
+                }
+
+
+                generalOpr(po, map);
+//                specialOpr(po, f, map);
+
+                //深拷贝后，把映射关系放到map中
+                Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
+                annotationMapping.put(key, afterMap);
+            }
+        }
+        return annotationMapping;
     }
 }
+
+
+// 深-转成 JSON 再转回来  类型会变的不对
+// 深-使用 Apache 的序列化工具类 SerializationUtils
+// 浅-新建 Map 时将原 Map 传入构造方法
+//                Map<String, Object> afterMap = JSON.parseObject(JSON.toJSONString(map));
+//    Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
