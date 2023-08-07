@@ -8,17 +8,14 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 涨停报表
+ * 摸板报表
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ZtReport extends BaseStock implements Serializable {
-
-    @Excel(name = "类型")
-    private String reason;
+public class MbReport extends BaseStock implements Serializable {
 
     @Excel(name = "上市板块")
     private String plate;
@@ -29,9 +26,6 @@ public class ZtReport extends BaseStock implements Serializable {
     @Excel(name = "细分")
     private String nicheBusiness;
 
-    @Excel(name = "说明")
-    private String instructions;
-
     @Excel(name = "流通市值")
     private Double circulation;
 
@@ -41,14 +35,11 @@ public class ZtReport extends BaseStock implements Serializable {
     @Excel(name = "名称")
     private String stockName;
 
-    @Excel(name = "连板")
-    private Integer combo;
+    @Excel(name = "摸板时间",dateFormat="HH:mm:ss")
+    private Date touchTime;
 
-    @Excel(name = "首次时间",dateFormat="HH:mm:ss")
-    private Date hardenTime;
-
-    @Excel(name = "最终时间" ,dateFormat="HH:mm:ss")
-    private Date finalHardenTime;
+    @Excel(name = "涨幅")
+    private Double gains;
 
     @Excel(name = "振幅",suffix="%")
     private Double amplitude;
@@ -56,18 +47,23 @@ public class ZtReport extends BaseStock implements Serializable {
     @Excel(name = "换手",suffix="%")
     private Double changingHands;
 
-    @Excel(name = "昨日涨幅",suffix="%")
-    private Double yesterdayGains;
-
     @Excel(name = "昨日振幅",suffix="%")
     private Double yesterdayAmplitude;
 
     @Excel(name = "昨日换手",suffix="%")
     private Double yesterdayChangingHands;
 
-    @Excel(name = "涨停类型")
-    private String hardenType;
+    @Excel(name = "10日均价")
+    private Double averagePrice10;
 
+    @Excel(name = "5日均价")
+    private Double averagePrice5;
+
+    @Excel(name = "现价")
+    private Double currentPrice;
+
+    @Excel(name = "说明")
+    private String instructions;
 
     private static final long serialVersionUID = 1L;
 }

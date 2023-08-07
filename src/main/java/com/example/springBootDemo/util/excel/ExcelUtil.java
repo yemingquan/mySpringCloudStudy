@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -824,5 +825,13 @@ public class ExcelUtil<T> implements Serializable {
             }
         }
         return annotationMapping;
+    }
+
+    public Map<String, Map> OprMbReport(List<MbReport> list) {
+        return null;
+    }
+
+    public Map<String, Map> OprBdReport(List<T> list) {
+        return null;
     }
 }

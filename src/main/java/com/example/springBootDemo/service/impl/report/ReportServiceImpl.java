@@ -5,6 +5,8 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.entity.*;
 import com.example.springBootDemo.entity.base.BaseStock;
+import com.example.springBootDemo.entity.report.BdReport;
+import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
@@ -44,10 +46,30 @@ public class ReportServiceImpl implements ReportService {
     BaseBdUpStockService baseBdUpStockService;
 
     @Override
-    public List<ZtReport> getZtReportByDate(String date){
+    public List<ZtReport> getZtReportByDate(String date) {
         List<ZtReport> list = Lists.newArrayList();
         List<ZtReport> list1 = baseZtStockService.getZtReportByDate(date);
-        List<ZtReport> list2 =baseZthfStockService.getZtReportByDate(date);
+        List<ZtReport> list2 = baseZthfStockService.getZtReportByDate(date);
+        list.addAll(list1);
+        list.addAll(list2);
+        return list;
+    }
+
+    @Override
+    public List<MbReport> getMbReportByDate(String date) {
+        List<MbReport> list = Lists.newArrayList();
+        List<MbReport> list1 = baseZbStockService.getMbReportByDate(date);
+        List<MbReport> list2 = baseDtStockService.getMbReportByDate(date);
+        list.addAll(list1);
+        list.addAll(list2);
+        return list;
+    }
+
+    @Override
+    public List<BdReport> getBdReportByDate(String date) {
+        List<BdReport> list = Lists.newArrayList();
+        List<BdReport> list1 = baseBdUpStockService.getBdReportByDate(date);
+        List<BdReport> list2 = baseBdDownStockService.getBdReportByDate(date);
         list.addAll(list1);
         list.addAll(list2);
         return list;
