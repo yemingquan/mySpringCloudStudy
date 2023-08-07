@@ -24,7 +24,7 @@ public class BaseZtStockServiceImpl extends ServiceImpl<BaseZtStockDao, BaseZtSt
 
     @Override
     public List<ZtReport> getZtReportByDate(String date) {
-        baseZtStockDao.testDB();
+//        baseZtStockDao.testDB();
         return baseZtStockDao.getZtReportByDate(date);
     }
 }

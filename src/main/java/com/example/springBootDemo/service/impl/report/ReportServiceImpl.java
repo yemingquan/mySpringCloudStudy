@@ -8,6 +8,7 @@ import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,13 +44,13 @@ public class ReportServiceImpl implements ReportService {
     BaseBdUpStockService baseBdUpStockService;
 
     @Override
-    public List<ZtReport> getZtDate(String date){
-        return baseZtStockService.getZtReportByDate(date);
-    }
-
-    @Override
-    public List<ZtReport> getZthfDate(String date){
-        return null;
+    public List<ZtReport> getZtReportByDate(String date){
+        List<ZtReport> list = Lists.newArrayList();
+        List<ZtReport> list1 = baseZtStockService.getZtReportByDate(date);
+        List<ZtReport> list2 =baseZthfStockService.getZtReportByDate(date);
+        list.addAll(list1);
+        list.addAll(list2);
+        return list;
     }
 
 

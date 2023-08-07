@@ -2,6 +2,9 @@ package com.example.springBootDemo.service;
 
 import com.baomidou.mybatisplus.service.IService;
 import com.example.springBootDemo.entity.BaseZthfStock;
+import com.example.springBootDemo.entity.report.ZtReport;
+
+import java.util.List;
 
 ;
 
@@ -13,4 +16,5 @@ import com.example.springBootDemo.entity.BaseZthfStock;
  */
 public interface BaseZthfStockService extends IService<BaseZthfStock> {
 
+    List<ZtReport> getZtReportByDate(String date);
 }

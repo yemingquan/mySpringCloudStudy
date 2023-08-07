@@ -6,18 +6,18 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import com.example.springBootDemo.entity.report.ZtReport;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -374,10 +374,17 @@ public class ExcelUtil<T> implements Serializable {
                     // 得到导出对象.
                     T vo = (T) list.get(i);
                     for (int j = 0; j < fields.size(); j++) {
+//                        // 获得field.
+//                        Field field = fields.get(j);
+//                        // 设置实体类私有属性可访问
+//                        field.setAccessible(true);
+//                        Excel attr = field.getAnnotation(Excel.class);
+                        Field f = fields.get(j);
                         // 获得field.
-                        Field field = fields.get(j);
+                        Field field = vo.getClass().getDeclaredField(f.getName());
                         // 设置实体类私有属性可访问
                         field.setAccessible(true);
+                        // 使用反射的方式修改注解的值
                         Excel attr = field.getAnnotation(Excel.class);
                         try {
                             // 设置行高
@@ -394,15 +401,17 @@ public class ExcelUtil<T> implements Serializable {
                                 }
 
                                 String dateFormat = attr.dateFormat();
+                                Object o = field.get(vo);
                                 String readConverterExp = attr.readConverterExp();
-                                if (StringUtils.isNotEmpty(dateFormat)) {
+                                if (StringUtils.isNotEmpty(dateFormat) && o != null) {
                                     cell.setCellValue(new SimpleDateFormat(dateFormat).format((Date) field.get(vo)));
-                                } else if (StringUtils.isNotEmpty(readConverterExp)) {
+                                } else if (StringUtils.isNotEmpty(readConverterExp) && o != null) {
                                     cell.setCellValue(convertByExp(String.valueOf(field.get(vo)), readConverterExp));
                                 } else {
                                     cell.setCellType(CellType.STRING);
                                     // 如果数据存在就填入,不存在填入空格.
-                                    cell.setCellValue(field.get(vo) == null ? attr.defaultValue() : field.get(vo) + attr.suffix());
+                                    String value = field.get(vo) == null ? attr.defaultValue() : field.get(vo) + attr.suffix();
+                                    cell.setCellValue(value);
                                 }
                             }
                         } catch (Exception e) {
@@ -499,5 +508,85 @@ public class ExcelUtil<T> implements Serializable {
             throw e;
         }
         return propertyValue;
+    }
+
+    public void OprZtReport(List<ZtReport> list) throws IllegalAccessException, NoSuchFieldException {
+        // 得到所有定义字段
+        Field[] allFields = clazz.getDeclaredFields();
+        List<Field> fields = new ArrayList<Field>();
+        // 得到所有field并存放到一个list中.
+        for (Field field : allFields) {
+            if (field.isAnnotationPresent(Excel.class)) {
+                fields.add(field);
+            }
+        }
+
+        //集合循环
+        for (int i = 0; i < list.size(); i++) {
+            ZtReport po = list.get(i);
+
+
+
+
+            //注解循环
+            for (int j = 0; j < fields.size(); j++) {
+                Field f = fields.get(j);
+                // 获得field.
+                Field field = po.getClass().getDeclaredField(f.getName());
+                // 设置实体类私有属性可访问
+                field.setAccessible(true);
+                // 使用反射的方式修改注解的值
+                Excel annotation = field.getAnnotation(Excel.class);
+                InvocationHandler handler = Proxy.getInvocationHandler(annotation);
+                Field annotationField = handler.getClass().getDeclaredField("memberValues");
+                annotationField.setAccessible(true);
+                Map map = (Map) annotationField.get(handler);
+
+
+                // TODO 需要硬编码
+                //通用
+                Double circulation = po.getCirculation();
+                byte fontUnderLine = Font.U_NONE;
+                boolean strikeout = false;
+                if (circulation < 30) {
+                    fontUnderLine = Font.U_SINGLE;
+                } else if (circulation > 400) {
+                    strikeout = true;
+                }
+
+                Integer combo = po.getCombo();
+                IndexedColors color = IndexedColors.BLACK;
+                if (combo > 1) {
+                    color = IndexedColors.RED;
+                }
+
+                boolean bold = false;
+                map.put("fontUnderLine", fontUnderLine);
+                map.put("strikeout", strikeout);
+                map.put("color", color);
+                map.put("bold", bold);
+
+                Object o = field.get((T) po);
+                log.debug(i + "-" + f.getName() + ":" + o);
+
+                //具体
+                switch (f.getName()) {
+                    case "":
+                        map.put("strikeout", strikeout);
+                        break;
+                    case "amplitude":
+                        if ("主板".equals(po.getPlate()) && po.getAmplitude() > 12 || po.getAmplitude() > 24) {
+                            map.put("backgroundColor", IndexedColors.LIGHT_TURQUOISE);
+                        }else{
+                            map.put("backgroundColor", IndexedColors.WHITE);
+                        }
+                        map.put("strikeout", strikeout);
+                        break;
+                    default:
+                        continue;
+                }
+
+            }
+        }
     }
 }

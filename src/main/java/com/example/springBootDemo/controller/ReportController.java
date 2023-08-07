@@ -10,7 +10,6 @@ import com.example.springBootDemo.service.ReportService;
 import com.example.springBootDemo.service.StudentService;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
-import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -206,32 +205,16 @@ public class ReportController {
      * @param response
      */
     @GetMapping("/exportZtRePort")
-    public void exportZtRePort(HttpServletResponse response) throws IOException {
-        List<ZtReport> list = Lists.newArrayList();
+    public void exportZtRePort(HttpServletResponse response) throws IOException, IllegalAccessException, NoSuchFieldException {
+
         String fileName = "涨停.xlsx";
         String sheetName = "涨停";
 
         String date = DateUtil.format(new Date(), "yyyy-MM-dd");
-        List<ZtReport> ztList = reportService.getZtDate(date);
-//        List<BaseZthfStock> zthfList = reportService.getZthfDate(date);
-        list.addAll(ztList);
+        List<ZtReport> list = reportService.getZtReportByDate("2023-08-06");
 
-//        List<T> list1 = toZtReport(ztList);
-//        List<T> list2 = toZtReport(zthfList);
-//
-//        EntityWrapper<ZtReport> wrapper = new EntityWrapper<>();
         ExcelUtil<ZtReport> excelUtil = new ExcelUtil<>(ZtReport.class);
+        excelUtil.OprZtReport(list);
         excelUtil.exportCustomExcel(list, fileName, sheetName, response);
     }
-
-//    private List<ZtReport> toZtReport(List<BaseZtStock> list) {
-//        List<ZtReport> resultlist = Lists.newArrayList();
-//        for (T t:list){
-//            ZtReport z = new ZtReport();
-//            BeanUtils.copyProperties(t,z);
-//            resultlist.add(z);
-//        }
-//        return resultlist;
-//    }
-
 }

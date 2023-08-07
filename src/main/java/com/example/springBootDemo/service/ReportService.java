@@ -14,9 +14,7 @@ import java.util.List;
  * @公司名称
  */
 public interface ReportService {
-    List<ZtReport> getZtDate(String date);
-
-    List<ZtReport> getZthfDate(String date);
+    List<ZtReport> getZtReportByDate(String date);
 
     boolean importExcelZthfStock(MultipartFile multipartFile) throws Exception;
 

@@ -11,9 +11,13 @@ spring:
     password: 123456
 
 
-mybatis:
-  type-aliases-package: com.example.springBootDemo.enity
-  mapper-locations: classpath:com.example.springBootDemo.dao.xml/*.xml
+mybatis-plus:
+  type-aliases-package: com.example.springBootDemo.entity
+  mapper-locations: classpath*:mapper/*.xml
+  # Mybatis 开启驼峰标识, 数据库为下划线命名规则, 而实体类为驼峰标识, 不开启此选项无法查询出数据
+  configuration:
+    map-underscore-to-camel-case: true
+
 
 #wo：
 #  name:WO

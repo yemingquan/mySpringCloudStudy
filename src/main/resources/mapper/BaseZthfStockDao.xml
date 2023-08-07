@@ -31,6 +31,11 @@
     </resultMap>
 
 
-
+    <select id="getZtReportByDate" resultType="com.example.springBootDemo.entity.report.ZtReport" parameterType="java.lang.String">
+        select
+          id, stock_code, stock_name, plate, main_business, niche_business, circulation, instructions, combo, harden_time, final_harden_time, harden_type, reason, gains, yesterday_gains, amplitude, yesterday_amplitude, changing_hands, yesterday_changing_hands, create_date, create_by, modifed_date, modifed_by, remark
+        from base_zthf_stock
+        where create_date = #{date}
+    </select>
 </mapper>
 
