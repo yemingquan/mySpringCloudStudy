@@ -15,7 +15,7 @@
 	<artifactId>login-service</artifactId>
 	<version>0.1</version>
 	<name>login-start.service</name>
-	<description>登录服务</description> 
+	<description>登录服务</description>
 	<packaging>jar</packaging>
 
 	<!--java版本-->
@@ -148,50 +148,12 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.70</version>
         </dependency>
-        <!--		<dependency>-->
-<!--			<groupId>e-iceblue</groupId>-->
-<!--			<artifactId>spire.xls</artifactId>-->
-<!--			&lt;!&ndash;<version>5.3.3</version>&ndash;&gt;-->
-<!--		</dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>e-iceblue</groupId>-->
+<!--            <artifactId>spire.xls</artifactId>-->
+<!--            <version>12.9.1</version>-->
+<!--        </dependency>-->
 
-
-
-		<!--				<dependency>-->
-<!--			<groupId>org.apache.poi</groupId>-->
-<!--			<artifactId>poi-ooxml-schemas</artifactId>-->
-<!--			<version>4.1.0</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>org.apache.poi</groupId>-->
-<!--			<artifactId>poi-scratchpad</artifactId>-->
-<!--			<version>4.1.0</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>org.apache.poi</groupId>-->
-<!--			<artifactId>ooxml-schemas</artifactId>-->
-<!--			<version>1.4</version>-->
-<!--		</dependency>-->
-
-
-		<!--&lt;!&ndash;常用工具类依赖&ndash;&gt;
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-		</dependency>-->
-		<!--&lt;!&ndash;io常用工具依赖&ndash;&gt;
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.11.0</version>
-		</dependency>-->
-
-		<!--解决@ConfigurationProperties(prefix = "wo")的
-		Springboot Configuration Annotation Processor not found in classPath问题依赖-->
-		<!--<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-configuration-processor</artifactId>
-			<optional>true</optional>
-		</dependency>-->
 	</dependencies>
 
 
@@ -239,20 +201,21 @@
 		</plugins>
 	</build>
 
-	<!--服务器仓库-->
-	<repositories>
-		<repository>
-			<id>spring-milestones</id>
-			<name>Spring Milestones</name>
-			<url>https://repo.spring.io/milestone</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>com.e-iceblue</id>
-			<name>e-iceblue</name>
-			<url>https://repo.e-iceblue.com/nexus/content/groups/public/</url>
-		</repository>
-	</repositories>
+    <!--服务器仓库-->
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>com.e-iceblue</id>
+            <name>e-iceblue</name>
+            <url> https://repo.e-iceblue.cn/repository/maven-public /</url>
+<!--            <url>https://repo.e-iceblue.com/nexus/content/groups/public/</url>-->
+        </repository>
+    </repositories>
 </project>

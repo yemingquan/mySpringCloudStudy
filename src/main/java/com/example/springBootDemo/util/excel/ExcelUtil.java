@@ -10,6 +10,7 @@ import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
@@ -47,6 +48,11 @@ public class ExcelUtil<T> implements Serializable {
         this.clazz = clazz;
     }
 
+    public static  List<String> BSD_STOCK_LIST;
+
+    {
+        BSD_STOCK_LIST = Lists.newArrayList("百利电气","云南城投","金科股份");
+    }
     /**
      * excel 导出
      *
@@ -577,6 +583,10 @@ public class ExcelUtil<T> implements Serializable {
                 }
             }
 
+//            response.reset();
+//            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName+".xlsx", "UTF-8")); // 设定输出文件头,该方法有两个参数，分别表示应答头的名字和值。XSSF:xlsx    HSSF:xls  中文要用encode处理一下
+//            response.setContentType("application/msexcel");
+//            response.setContentType("application/octet-stream;charset=UTF-8");
             fileName = new String(fileName.getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
             response.setContentType("application/octet-stream");
             response.setHeader("Content-disposition", "attachment;filename=" + fileName);
@@ -666,77 +676,6 @@ public class ExcelUtil<T> implements Serializable {
         return propertyValue;
     }
 
-
-    /**
-     * 导出样式特殊处理
-     *
-     * @param po
-     * @param f
-     * @param map
-     * @param colorMap
-     */
-    private void specialOpr(ZtReport po, Field f, Map map, Map colorMap) {
-        //根据主业给与背景随机颜色
-        map.put("backgroundColor", colorMap.get(po.getMainBusiness()));
-
-        //具体
-        switch (f.getName()) {
-            //流通盘大小
-            case "circulation":
-                //与通用不同的是，这里需要改变底色
-                double value = po.getCirculation();
-                if (value < 30) {
-                    map.put("backgroundColor", IndexedColors.TURQUOISE);
-                } else if (value > 400) {
-                    map.put("backgroundColor", IndexedColors.YELLOW);
-                }
-                break;
-            //昨日涨幅
-            case "yesterdayGains":
-                value = po.getYesterdayGains();
-                if (value < -5) {
-                    map.put("backgroundColor", IndexedColors.TURQUOISE);
-                }
-                break;
-            //换手
-            case "changingHands":
-                value = po.getChangingHands();
-                if (value == 0) {
-                    map.put("backgroundColor", IndexedColors.TURQUOISE);
-                } else if (value > 50) {
-                    map.put("backgroundColor", IndexedColors.YELLOW);
-                }
-                break;
-            //昨日换手
-            case "yesterdaychangingHands":
-                //辨识度标的逻辑
-                value = po.getYesterdayAmplitude();
-                if (value == 0) {
-                    map.put("backgroundColor", IndexedColors.TURQUOISE);
-                } else if (value > 50) {
-                    map.put("backgroundColor", IndexedColors.YELLOW);
-                }
-                break;
-            //振幅
-            case "amplitude":
-                value = po.getAmplitude();
-                if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
-                    map.put("backgroundColor", IndexedColors.TURQUOISE);
-                }
-                break;
-            //昨日振幅
-            case "yesterdayAmplitude":
-                value = po.getYesterdayAmplitude();
-                if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
-                    map.put("backgroundColor", IndexedColors.TURQUOISE);
-                }
-                break;
-            //股票名称
-            case "stockName":
-                //辨识度标的逻辑
-                break;
-        }
-    }
 
     /**
      * 导出数据通常处理
@@ -865,7 +804,7 @@ public class ExcelUtil<T> implements Serializable {
         IndexedColors[] colorArr = {IndexedColors.LIGHT_GREEN, IndexedColors.WHITE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_YELLOW, IndexedColors.LIGHT_TURQUOISE};
         int num = 0;
         for (String str : ztMap.keySet()) {
-            colorMap.put(str, colorArr[num++%colorArr.length]);
+            colorMap.put(str, colorArr[num++ % colorArr.length]);
         }
 
 
@@ -892,7 +831,7 @@ public class ExcelUtil<T> implements Serializable {
                 }
 
                 generalOpr(po, map);
-                specialOpr(po, f, map, colorMap);
+                specialOprZtReport(po, f, map, colorMap);
 
                 //深拷贝后，把映射关系放到map中
                 Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
@@ -940,7 +879,7 @@ public class ExcelUtil<T> implements Serializable {
 
 
                 generalOpr(po, map);
-                specialOpr33(po, f, map);
+                specialOprMbReport(po, f, map);
 
                 //深拷贝后，把映射关系放到map中
                 Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
@@ -950,6 +889,91 @@ public class ExcelUtil<T> implements Serializable {
         return annotationMapping;
     }
 
+    /**
+     * 单个特殊处理中的通用部分
+     *
+     * @param po
+     * @param f
+     * @param map
+     */
+    private void generalSpecialOpr(BaseStock po, Field f, Map map) {
+        //具体
+        switch (f.getName()) {
+            //流通盘大小
+            case "circulation":
+                //与通用不同的是，这里需要改变底色
+                double value = po.getCirculation();
+                if (value < 30) {
+                    map.put("backgroundColor", IndexedColors.TURQUOISE);
+                } else if (value > 400) {
+                    map.put("backgroundColor", IndexedColors.YELLOW);
+                }
+                break;
+            //昨日涨幅
+            case "yesterdayGains":
+                value = po.getYesterdayGains();
+                if (value < -5) {
+                    map.put("backgroundColor", IndexedColors.TURQUOISE);
+                }else if(value>9){
+                    map.put("backgroundColor", IndexedColors.YELLOW);
+                }
+                break;
+            //昨日涨幅
+            case "startGains":
+                value = po.getStartGains();
+                if (value < -5) {
+                    map.put("backgroundColor", IndexedColors.TURQUOISE);
+                }else if(value>9){
+                    map.put("backgroundColor", IndexedColors.YELLOW);
+                }
+                break;
+            //换手
+            case "changingHands":
+                value = po.getChangingHands();
+                if (value == 0) {
+                    map.put("backgroundColor", IndexedColors.TURQUOISE);
+                } else if (value > 50) {
+                    map.put("backgroundColor", IndexedColors.YELLOW);
+                }
+                break;
+            //昨日换手
+            case "yesterdaychangingHands":
+                //辨识度标的逻辑
+                value = po.getYesterdayAmplitude();
+                if (value == 0) {
+                    map.put("backgroundColor", IndexedColors.TURQUOISE);
+                } else if (value > 50) {
+                    map.put("backgroundColor", IndexedColors.YELLOW);
+                }
+                break;
+            //振幅
+            case "amplitude":
+                value = po.getAmplitude();
+                if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
+                    map.put("backgroundColor", IndexedColors.TURQUOISE);
+                }else if (value==0) {
+                    map.put("backgroundColor", IndexedColors.YELLOW);
+                }
+                break;
+            //昨日振幅
+            case "yesterdayAmplitude":
+                value = po.getYesterdayAmplitude();
+                if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
+                    map.put("backgroundColor", IndexedColors.TURQUOISE);
+                }else if (value==0) {
+                    map.put("backgroundColor", IndexedColors.YELLOW);
+                }
+                break;
+            //股票名称
+            case "stockName":
+                //辨识度标的逻辑
+                String valueStr = po.getStockName();
+                if (BSD_STOCK_LIST.contains(valueStr)) {
+                    map.put("backgroundColor", IndexedColors.LAVENDER);
+                }
+                break;
+        }
+    }
 
 
     /**
@@ -990,7 +1014,7 @@ public class ExcelUtil<T> implements Serializable {
 
 
                 generalOpr(po, map);
-                specialOpr22(po, f, map);
+                specialOprBdReport(po, f, map);
 
                 //深拷贝后，把映射关系放到map中
                 Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
@@ -1000,124 +1024,28 @@ public class ExcelUtil<T> implements Serializable {
         return annotationMapping;
     }
 
-    private void specialOpr22(BdReport po, Field f, Map map) {
+    /**
+     * 导出样式特殊处理
+     *
+     * @param po
+     * @param f
+     * @param map
+     * @param colorMap
+     */
+    private void specialOprZtReport(ZtReport po, Field f, Map map, Map colorMap) {
+        //根据主业给与背景随机颜色
+        map.put("backgroundColor", colorMap.get(po.getMainBusiness()));
         //具体
-        switch (f.getName()) {
-            //流通盘大小
-            case "circulation":
-                //与通用不同的是，这里需要改变底色
-                double value = po.getCirculation();
-                if (value < 30) {
-                    map.put("backgroundColor", IndexedColors.TURQUOISE);
-                } else if (value > 400) {
-                    map.put("backgroundColor", IndexedColors.YELLOW);
-                }
-                break;
-            //昨日涨幅
-            case "yesterdayGains":
-                value = po.getYesterdayGains();
-                if (value < -5) {
-                    map.put("backgroundColor", IndexedColors.TURQUOISE);
-                }
-                break;
-            //换手
-            case "changingHands":
-                value = po.getChangingHands();
-                if (value == 0) {
-                    map.put("backgroundColor", IndexedColors.TURQUOISE);
-                } else if (value > 50) {
-                    map.put("backgroundColor", IndexedColors.YELLOW);
-                }
-                break;
-            //昨日换手
-            case "yesterdaychangingHands":
-                //辨识度标的逻辑
-                value = po.getYesterdayAmplitude();
-                if (value == 0) {
-                    map.put("backgroundColor", IndexedColors.TURQUOISE);
-                } else if (value > 50) {
-                    map.put("backgroundColor", IndexedColors.YELLOW);
-                }
-                break;
-            //振幅
-            case "amplitude":
-                value = po.getAmplitude();
-                if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
-                    map.put("backgroundColor", IndexedColors.TURQUOISE);
-                }
-                break;
-            //昨日振幅
-            case "yesterdayAmplitude":
-                value = po.getYesterdayAmplitude();
-                if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
-                    map.put("backgroundColor", IndexedColors.TURQUOISE);
-                }
-                break;
-            //股票名称
-            case "stockName":
-                //辨识度标的逻辑
-                break;
-        }
+        generalSpecialOpr(po, f, map);
     }
 
-    private void specialOpr33(MbReport po, Field f, Map map) {
-            //具体
-            switch (f.getName()) {
-                //流通盘大小
-                case "circulation":
-                    //与通用不同的是，这里需要改变底色
-                    double value = po.getCirculation();
-                    if (value < 30) {
-                        map.put("backgroundColor", IndexedColors.TURQUOISE);
-                    } else if (value > 400) {
-                        map.put("backgroundColor", IndexedColors.YELLOW);
-                    }
-                    break;
-                //昨日涨幅
-                case "yesterdayGains":
-                    value = po.getYesterdayGains();
-                    if (value < -5) {
-                        map.put("backgroundColor", IndexedColors.TURQUOISE);
-                    }
-                    break;
-                //换手
-                case "changingHands":
-                    value = po.getChangingHands();
-                    if (value == 0) {
-                        map.put("backgroundColor", IndexedColors.TURQUOISE);
-                    } else if (value > 50) {
-                        map.put("backgroundColor", IndexedColors.YELLOW);
-                    }
-                    break;
-                //昨日换手
-                case "yesterdaychangingHands":
-                    //辨识度标的逻辑
-                    value = po.getYesterdayAmplitude();
-                    if (value == 0) {
-                        map.put("backgroundColor", IndexedColors.TURQUOISE);
-                    } else if (value > 50) {
-                        map.put("backgroundColor", IndexedColors.YELLOW);
-                    }
-                    break;
-                //振幅
-                case "amplitude":
-                    value = po.getAmplitude();
-                    if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
-                        map.put("backgroundColor", IndexedColors.TURQUOISE);
-                    }
-                    break;
-                //昨日振幅
-                case "yesterdayAmplitude":
-                    value = po.getYesterdayAmplitude();
-                    if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
-                        map.put("backgroundColor", IndexedColors.TURQUOISE);
-                    }
-                    break;
-                //股票名称
-                case "stockName":
-                    //辨识度标的逻辑
-                    break;
-            }
+    private void specialOprBdReport(BdReport po, Field f, Map map) {
+        generalSpecialOpr(po, f, map);
+    }
+
+
+    private void specialOprMbReport(MbReport po, Field f, Map map) {
+        generalSpecialOpr(po, f, map);
     }
 }
 

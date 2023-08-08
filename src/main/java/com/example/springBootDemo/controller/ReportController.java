@@ -15,11 +15,9 @@ import com.example.springBootDemo.util.excel.ExcelUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -161,7 +159,6 @@ public class ReportController {
     }
 
 
-    
     @ApiOperation("Excel导出测试")
     @GetMapping("/export")
     public void export(HttpServletResponse response) throws IOException {
@@ -179,12 +176,15 @@ public class ReportController {
 
     @GetMapping("/exportZtRePort")
     @ApiOperation("涨停报表导出")
-    public void exportZtRePort(HttpServletResponse response) throws IOException, IllegalAccessException, NoSuchFieldException {
+    public void exportZtRePort(@RequestParam(value = "date") String date,
+                               HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
 
         String fileName = "涨停1111.xlsx";
         String sheetName = "涨停";
+        if (StringUtils.isEmpty(date)) {
+            date = DateUtil.format(new Date(), "yyyy-MM-dd");
+        }
 
-        String date = DateUtil.format(new Date(), "yyyy-MM-dd");
         List<ZtReport> list = reportService.getZtReportByDate(date);
 
         ExcelUtil<ZtReport> excelUtil = new ExcelUtil<>(ZtReport.class);
@@ -194,12 +194,16 @@ public class ReportController {
 
     @GetMapping("/exportMbRePort")
     @ApiOperation("摸板报表导出")
-    public void exportMbRePort(HttpServletResponse response) throws IOException, IllegalAccessException, NoSuchFieldException {
+    public void exportMbRePort(@RequestParam(value = "date") String date,
+                               HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
 
         String fileName = "摸板222.xlsx";
         String sheetName = "摸板";
 
-        String date = DateUtil.format(new Date(), "yyyy-MM-dd");
+        if (StringUtils.isEmpty(date)) {
+            date = DateUtil.format(new Date(), "yyyy-MM-dd");
+        }
+
         List<MbReport> list = reportService.getMbReportByDate(date);
 
         ExcelUtil<MbReport> excelUtil = new ExcelUtil<>(MbReport.class);
@@ -209,12 +213,14 @@ public class ReportController {
 
     @GetMapping("/exportBdRePort")
     @ApiOperation("波动报表导出")
-    public void exportBdRePort(HttpServletResponse response) throws IOException, IllegalAccessException, NoSuchFieldException {
+    public void exportBdRePort(@RequestParam(value = "date") String date,
+                               HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
 
         String fileName = "波动333.xlsx";
         String sheetName = "波动";
-
-        String date = DateUtil.format(new Date(), "yyyy-MM-dd");
+        if (StringUtils.isEmpty(date)) {
+            date = DateUtil.format(new Date(), "yyyy-MM-dd");
+        }
         List<BdReport> list = reportService.getBdReportByDate(date);
 
         ExcelUtil<BdReport> excelUtil = new ExcelUtil<>(BdReport.class);
