@@ -181,11 +181,11 @@ public class ReportController {
     @ApiOperation("涨停报表导出")
     public void exportZtRePort(HttpServletResponse response) throws IOException, IllegalAccessException, NoSuchFieldException {
 
-        String fileName = "涨停.xlsx";
+        String fileName = "涨停1111.xlsx";
         String sheetName = "涨停";
 
         String date = DateUtil.format(new Date(), "yyyy-MM-dd");
-        List<ZtReport> list = reportService.getZtReportByDate("2023-08-06");
+        List<ZtReport> list = reportService.getZtReportByDate(date);
 
         ExcelUtil<ZtReport> excelUtil = new ExcelUtil<>(ZtReport.class);
         Map<String, Map> annotationMapping = excelUtil.OprZtReport(list);
@@ -196,11 +196,11 @@ public class ReportController {
     @ApiOperation("摸板报表导出")
     public void exportMbRePort(HttpServletResponse response) throws IOException, IllegalAccessException, NoSuchFieldException {
 
-        String fileName = "摸板.xlsx";
+        String fileName = "摸板222.xlsx";
         String sheetName = "摸板";
 
         String date = DateUtil.format(new Date(), "yyyy-MM-dd");
-        List<MbReport> list = reportService.getMbReportByDate("2023-08-06");
+        List<MbReport> list = reportService.getMbReportByDate(date);
 
         ExcelUtil<MbReport> excelUtil = new ExcelUtil<>(MbReport.class);
         Map<String, Map> annotationMapping = excelUtil.OprMbReport(list);
@@ -211,11 +211,11 @@ public class ReportController {
     @ApiOperation("波动报表导出")
     public void exportBdRePort(HttpServletResponse response) throws IOException, IllegalAccessException, NoSuchFieldException {
 
-        String fileName = "波动.xlsx";
+        String fileName = "波动333.xlsx";
         String sheetName = "波动";
 
         String date = DateUtil.format(new Date(), "yyyy-MM-dd");
-        List<BdReport> list = reportService.getBdReportByDate("2023-08-06");
+        List<BdReport> list = reportService.getBdReportByDate(date);
 
         ExcelUtil<BdReport> excelUtil = new ExcelUtil<>(BdReport.class);
         Map<String, Map> annotationMapping = excelUtil.OprBdReport(list);

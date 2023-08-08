@@ -189,5 +189,7 @@ public class ReportServiceImpl implements ReportService {
 //                po.setYesterdayAmplitude(po.getYesterdayAmplitude() * 100);
         po.setChangingHands(po.getChangingHands() * 100);
 //                po.setYesterdayChangingHands(po.getYesterdayChangingHands() * 100);
+        if (po.getGains() != null) po.setGains(po.getGains() * 100);
+        if (po.getStartGains() != null) po.setStartGains(po.getStartGains() * 100);
     }
 }

@@ -124,6 +124,9 @@ public class BaseStock implements Serializable {
      * 备注说明
      */
     private String remark;
-
+    /**
+     * 类型:1 涨停 2 涨停回封 3炸板 4跌停 5向上波动 6向下波动
+     */
+    private String source;
 }
 
