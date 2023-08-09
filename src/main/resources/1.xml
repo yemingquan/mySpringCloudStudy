@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+    <!--本地仓库位置 <localRepository>E:\develop\maven_repository_jf\JavaRepository</localRepository>-->
+
+
+<!--    <mirrors>-->
+<!--        <mirror>-->
+<!--            <id>mirrorId</id>-->
+<!--            <mirrorOf>repositoryId</mirrorOf>-->
+<!--            <name>Human Readable Name for this Mirror.</name>-->
+<!--            <url>http://my.repository.com/repo/path</url>-->
+<!--        </mirror>-->
+
+<!--        <mirror>-->
+<!--            <id>alimaven</id>-->
+<!--            <name>aliyun maven</name>-->
+<!--            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>-->
+<!--            <mirrorOf>central</mirrorOf>-->
+<!--        </mirror>-->
+<!--    </mirrors>-->
+
+
+    <profiles>
+        <profile>
+<!--            <id>jdk-1.8</id>-->
+<!--            <activation>-->
+<!--                <activeByDefault>true</activeByDefault>-->
+<!--                <jdk>1.8</jdk>-->
+<!--            </activation>-->
+<!--            <properties>-->
+<!--                <maven.compiler.source>1.8</maven.compiler.source>-->
+<!--                <maven.compiler.target>1.8</maven.compiler.target>-->
+<!--                <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>-->
+<!--            </properties>-->
+            <repositories>
+                <repository>
+                    <id>com.e-iceblue</id>
+                    <name>e-iceblue</name>
+                    <url>https://repo.e-iceblue.com/nexus/content/groups/public/</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+</settings>

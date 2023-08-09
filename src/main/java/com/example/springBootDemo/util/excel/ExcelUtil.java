@@ -10,6 +10,7 @@ import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
+import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -48,11 +50,18 @@ public class ExcelUtil<T> implements Serializable {
         this.clazz = clazz;
     }
 
-    public static  List<String> BSD_STOCK_LIST;
+    public static List<String> BSD_STOCK_LIST;
 
     {
-        BSD_STOCK_LIST = Lists.newArrayList("百利电气","云南城投","金科股份");
+        BSD_STOCK_LIST = Lists.newArrayList(
+                "百利电气", "金科股份", "永鼎股份", "法尔胜",
+                "云南城投", "金科股份", "荣盛发展",
+                "太平洋", "首创证券", "中信证券",
+                "中央商场", "国芳集团", "人人乐",
+                "鸿博股份", "金桥信息", "浪潮信息", "工业富联", "拓维信息", "中科曙光"
+        );
     }
+
     /**
      * excel 导出
      *
@@ -813,6 +822,27 @@ public class ExcelUtil<T> implements Serializable {
             ZtReport po = list.get(i);
             String stockCode = po.getStockCode();
 
+            //说明
+            StringBuffer instructions = new StringBuffer(po.getInstructions());
+            if (po.getCirculation() < 30) {
+                instructions.append("小盘；");
+            }
+            if (po.getAmplitude() == 0) {
+                po.setHardenType("一字板");
+                if (po.getYesterdayAmplitude() == 0) {
+                    instructions.append("连续加速；");
+                } else if (DateUtil.format(po.getHardenTime(), "yyyy-MM-dd").equals("9:30:00") && po.getAmplitude() == 0) {
+                    po.setHardenType("T字板");
+                } else {
+                    po.setHardenType("换手板");
+                }
+            }/* else if (DateUtil.getDatePoor3(new Date(), po.getHardenTime()) < 10 && po.getFinalHardenTime() == null) {
+                po.setHardenType("偷袭板");
+            }*/ else {
+                po.setHardenType("换手板");
+            }
+            po.setInstructions(instructions.toString());
+
             //注解循环
             for (int j = 0; j < fields.size(); j++) {
                 Field f = fields.get(j);
@@ -860,6 +890,13 @@ public class ExcelUtil<T> implements Serializable {
             MbReport po = list.get(i);
             String stockCode = po.getStockCode();
 
+            //说明
+            StringBuffer instructions = new StringBuffer(po.getInstructions());
+            if (po.getCirculation() < 30) {
+                instructions.append("小盘；");
+            }
+            po.setInstructions(instructions.toString());
+
             //注解循环
             for (int j = 0; j < fields.size(); j++) {
                 Field f = fields.get(j);
@@ -897,6 +934,7 @@ public class ExcelUtil<T> implements Serializable {
      * @param map
      */
     private void generalSpecialOpr(BaseStock po, Field f, Map map) {
+
         //具体
         switch (f.getName()) {
             //流通盘大小
@@ -906,7 +944,7 @@ public class ExcelUtil<T> implements Serializable {
                 if (value < 30) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
                 } else if (value > 400) {
-                    map.put("backgroundColor", IndexedColors.YELLOW);
+                    map.put("backgroundColor", IndexedColors.CORNFLOWER_BLUE);
                 }
                 break;
             //昨日涨幅
@@ -914,36 +952,43 @@ public class ExcelUtil<T> implements Serializable {
                 value = po.getYesterdayGains();
                 if (value < -5) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
-                }else if(value>9){
-                    map.put("backgroundColor", IndexedColors.YELLOW);
+                } else if (value > 9) {
+                    map.put("backgroundColor", IndexedColors.CORNFLOWER_BLUE);
                 }
                 break;
-            //昨日涨幅
+            //开盘涨幅
             case "startGains":
                 value = po.getStartGains();
                 if (value < -5) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
-                }else if(value>9){
-                    map.put("backgroundColor", IndexedColors.YELLOW);
+                } else if (value > 5) {
+                    map.put("backgroundColor", IndexedColors.CORNFLOWER_BLUE);
                 }
                 break;
-            //换手
+            case "entitySize":
+                value = po.getEntitySize();
+                if (value < -6) {
+                    map.put("backgroundColor", IndexedColors.TURQUOISE);
+                } else if (value > 6) {
+                    map.put("backgroundColor", IndexedColors.CORNFLOWER_BLUE);
+                }
+                //换手
             case "changingHands":
                 value = po.getChangingHands();
                 if (value == 0) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
                 } else if (value > 50) {
-                    map.put("backgroundColor", IndexedColors.YELLOW);
+                    map.put("backgroundColor", IndexedColors.CORNFLOWER_BLUE);
                 }
                 break;
             //昨日换手
-            case "yesterdaychangingHands":
+            case "yesterdayChangingHands":
                 //辨识度标的逻辑
-                value = po.getYesterdayAmplitude();
+                value = po.getYesterdayChangingHands();
                 if (value == 0) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
                 } else if (value > 50) {
-                    map.put("backgroundColor", IndexedColors.YELLOW);
+                    map.put("backgroundColor", IndexedColors.CORNFLOWER_BLUE);
                 }
                 break;
             //振幅
@@ -951,8 +996,8 @@ public class ExcelUtil<T> implements Serializable {
                 value = po.getAmplitude();
                 if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
-                }else if (value==0) {
-                    map.put("backgroundColor", IndexedColors.YELLOW);
+                } else if (value == 0) {
+                    map.put("backgroundColor", IndexedColors.CORNFLOWER_BLUE);
                 }
                 break;
             //昨日振幅
@@ -960,8 +1005,8 @@ public class ExcelUtil<T> implements Serializable {
                 value = po.getYesterdayAmplitude();
                 if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
-                }else if (value==0) {
-                    map.put("backgroundColor", IndexedColors.YELLOW);
+                } else if (value == 0) {
+                    map.put("backgroundColor", IndexedColors.CORNFLOWER_BLUE);
                 }
                 break;
             //股票名称
@@ -969,10 +1014,11 @@ public class ExcelUtil<T> implements Serializable {
                 //辨识度标的逻辑
                 String valueStr = po.getStockName();
                 if (BSD_STOCK_LIST.contains(valueStr)) {
-                    map.put("backgroundColor", IndexedColors.LAVENDER);
+                    map.put("backgroundColor", IndexedColors.TURQUOISE);
                 }
                 break;
         }
+
     }
 
 
@@ -994,6 +1040,26 @@ public class ExcelUtil<T> implements Serializable {
         for (int i = 0; i < list.size(); i++) {
             BdReport po = list.get(i);
             String stockCode = po.getStockCode();
+
+            //实体大小
+            BigDecimal a = new BigDecimal(po.getGains()).setScale(2, BigDecimal.ROUND_UP);
+            BigDecimal b = new BigDecimal(po.getStartGains()).setScale(2, BigDecimal.ROUND_UP);
+            BigDecimal result = a.subtract(b);
+            double entitySize = result.doubleValue();
+            po.setEntitySize(entitySize);
+            //说明
+            StringBuffer instructions = new StringBuffer(po.getInstructions());
+            if (po.getCirculation() < 30) {
+                instructions.append("小盘;");
+            }
+            if (Math.abs(entitySize) < 2) {
+                instructions.append("十字星;");
+            } else if (entitySize > 6) {
+                instructions.append("大阳线;");
+            } else if (entitySize < -6) {
+                instructions.append("大阴线;");
+            }
+            po.setInstructions(instructions.toString());
 
             //注解循环
             for (int j = 0; j < fields.size(); j++) {
@@ -1035,11 +1101,13 @@ public class ExcelUtil<T> implements Serializable {
     private void specialOprZtReport(ZtReport po, Field f, Map map, Map colorMap) {
         //根据主业给与背景随机颜色
         map.put("backgroundColor", colorMap.get(po.getMainBusiness()));
+
         //具体
         generalSpecialOpr(po, f, map);
     }
 
     private void specialOprBdReport(BdReport po, Field f, Map map) {
+
         generalSpecialOpr(po, f, map);
     }
 

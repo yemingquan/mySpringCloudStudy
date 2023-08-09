@@ -88,6 +88,10 @@ public class ReportServiceImpl implements ReportService {
 
         List<BaseZthfStock> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseZthfStock.class, importParams);
         list.stream().forEach(po -> {
+            StringBuffer instructions = new StringBuffer("");
+
+
+
             datePro(po);
         });
         return baseZthfStockService.insertBatch(list, list.size());
@@ -181,6 +185,8 @@ public class ReportServiceImpl implements ReportService {
 
 
     private void datePro(BaseStock po) {
+        StringBuffer instructions = new StringBuffer("");
+
         po.setCreateDate(new Date());
         po.setModifedDate(new Date());
         BigDecimal before = new BigDecimal(po.getCirculation());
@@ -191,5 +197,8 @@ public class ReportServiceImpl implements ReportService {
 //                po.setYesterdayChangingHands(po.getYesterdayChangingHands() * 100);
         if (po.getGains() != null) po.setGains(po.getGains() * 100);
         if (po.getStartGains() != null) po.setStartGains(po.getStartGains() * 100);
+
+
+        po.setInstructions(instructions.toString());
     }
 }
