@@ -13,8 +13,8 @@ import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -77,7 +77,7 @@ public class ReportServiceImpl implements ReportService {
 
 
     @Override
-    public boolean importExcelZthfStock(MultipartFile multipartFile) throws Exception {
+    public boolean importExcelZthfStock(InputStream is) throws Exception {
         //设置导入参数
         ImportParams importParams = new ImportParams();
         importParams.setHeadRows(1); //表头占1行，默认1
@@ -86,7 +86,7 @@ public class ReportServiceImpl implements ReportService {
         wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
         baseZthfStockService.delete(wrapper);
 
-        List<BaseZthfStock> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseZthfStock.class, importParams);
+        List<BaseZthfStock> list = ExcelImportUtil.importExcel(is, BaseZthfStock.class, importParams);
         list.stream().forEach(po -> {
             StringBuffer instructions = new StringBuffer("");
 
@@ -99,7 +99,7 @@ public class ReportServiceImpl implements ReportService {
 
 
     @Override
-    public boolean importExcelZtStock(MultipartFile multipartFile) throws Exception {
+    public boolean importExcelZtStock(InputStream is) throws Exception {
         //设置导入参数
         ImportParams importParams = new ImportParams();
         importParams.setHeadRows(1); //表头占1行，默认1
@@ -108,7 +108,7 @@ public class ReportServiceImpl implements ReportService {
         wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
         baseZtStockService.delete(wrapper);
 
-        List<BaseZtStock> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseZtStock.class, importParams);
+        List<BaseZtStock> list = ExcelImportUtil.importExcel(is, BaseZtStock.class, importParams);
         list.stream().forEach(po -> {
             datePro(po);
         });
@@ -116,7 +116,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public boolean importExcelBdUpStock(MultipartFile multipartFile) throws Exception {
+    public boolean importExcelBdUpStock(InputStream is) throws Exception {
         //设置导入参数
         ImportParams importParams = new ImportParams();
         importParams.setHeadRows(1); //表头占1行，默认1
@@ -125,7 +125,7 @@ public class ReportServiceImpl implements ReportService {
         wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
         baseBdUpStockService.delete(wrapper);
 
-        List<BaseBdUpStock> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseBdUpStock.class, importParams);
+        List<BaseBdUpStock> list = ExcelImportUtil.importExcel(is, BaseBdUpStock.class, importParams);
         list.stream().forEach(po -> {
             datePro(po);
         });
@@ -133,7 +133,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public boolean importExcelBdDownStock(MultipartFile multipartFile) throws Exception {
+    public boolean importExcelBdDownStock(InputStream is) throws Exception {
         //设置导入参数
         ImportParams importParams = new ImportParams();
         importParams.setHeadRows(1); //表头占1行，默认1
@@ -142,7 +142,7 @@ public class ReportServiceImpl implements ReportService {
         wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
         baseBdDownStockService.delete(wrapper);
 
-        List<BaseBdDownStock> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseBdDownStock.class, importParams);
+        List<BaseBdDownStock> list = ExcelImportUtil.importExcel(is, BaseBdDownStock.class, importParams);
         list.stream().forEach(po -> {
             datePro(po);
         });
@@ -150,7 +150,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public boolean importExcelDtStock(MultipartFile multipartFile) throws Exception {
+    public boolean importExcelDtStock(InputStream is) throws Exception {
         //设置导入参数
         ImportParams importParams = new ImportParams();
         importParams.setHeadRows(1); //表头占1行，默认1
@@ -159,7 +159,7 @@ public class ReportServiceImpl implements ReportService {
         wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
         baseDtStockService.delete(wrapper);
 
-        List<BaseDtStock> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseDtStock.class, importParams);
+        List<BaseDtStock> list = ExcelImportUtil.importExcel(is, BaseDtStock.class, importParams);
         list.stream().forEach(po -> {
             datePro(po);
         });
@@ -167,7 +167,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public boolean importExcelZbStock(MultipartFile multipartFile) throws Exception {
+    public boolean importExcelZbStock(InputStream is) throws Exception {
         //设置导入参数
         ImportParams importParams = new ImportParams();
         importParams.setHeadRows(1); //表头占1行，默认1
@@ -176,7 +176,7 @@ public class ReportServiceImpl implements ReportService {
         wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
         baseZbStockService.delete(wrapper);
 
-        List<BaseZbStock> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseZbStock.class, importParams);
+        List<BaseZbStock> list = ExcelImportUtil.importExcel(is, BaseZbStock.class, importParams);
         list.stream().forEach(po -> {
             datePro(po);
         });

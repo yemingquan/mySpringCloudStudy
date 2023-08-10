@@ -11,6 +11,7 @@ import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.ReportService;
 import com.example.springBootDemo.service.StudentService;
 import com.example.springBootDemo.util.DateUtil;
+import com.example.springBootDemo.util.FileUtil;
 import com.example.springBootDemo.util.excel.ExcelChangeUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
 import io.swagger.annotations.Api;
@@ -22,8 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,7 @@ public class ReportController {
     @PostMapping("/importExcelBdUpStock")
     public RespBean importExcelBdUpStock(MultipartFile multipartFile) {
         try {
-            boolean flag = reportService.importExcelBdUpStock(multipartFile);
+            boolean flag = reportService.importExcelBdUpStock(multipartFile.getInputStream());
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -67,7 +67,7 @@ public class ReportController {
     @PostMapping("/importExcelBdDownStock")
     public RespBean importExcelBdDownStock(MultipartFile multipartFile) {
         try {
-            boolean flag = reportService.importExcelBdDownStock(multipartFile);
+            boolean flag = reportService.importExcelBdDownStock(multipartFile.getInputStream());
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -82,7 +82,7 @@ public class ReportController {
     @PostMapping("/importExcelDtStock")
     public RespBean importExcelDtStock(MultipartFile multipartFile) {
         try {
-            boolean flag = reportService.importExcelDtStock(multipartFile);
+            boolean flag = reportService.importExcelDtStock(multipartFile.getInputStream());
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -98,7 +98,7 @@ public class ReportController {
     @PostMapping("/importExcelZbStock")
     public RespBean importExcelZbStock(MultipartFile multipartFile) {
         try {
-            boolean flag = reportService.importExcelZbStock(multipartFile);
+            boolean flag = reportService.importExcelZbStock(multipartFile.getInputStream());
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -114,7 +114,7 @@ public class ReportController {
     @PostMapping("/importExcelZtStock")
     public RespBean importExcelZtStock(MultipartFile multipartFile) {
         try {
-            boolean flag = reportService.importExcelZtStock(multipartFile);
+            boolean flag = reportService.importExcelZtStock(multipartFile.getInputStream());
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -130,7 +130,7 @@ public class ReportController {
     @PostMapping("/importExcelZthfStock")
     public RespBean importExcelZthfStock(MultipartFile multipartFile) {
         try {
-            boolean flag = reportService.importExcelZthfStock(multipartFile);
+            boolean flag = reportService.importExcelZthfStock(multipartFile.getInputStream());
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -232,9 +232,14 @@ public class ReportController {
 
     @ApiOperation("从文件中读入数据")
     @PostMapping("/importFromFile")
-    public  RespBean importFromFile() throws IOException {
-        File file = new File("C:\\Users\\xiaoYe\\Desktop\\同花顺output\\Table1-1.xls");
-        ExcelChangeUtil.xls2xlsx(file);
+    public  RespBean importFromFile() throws Exception {
+        String basePath = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
+        for (int i = 1; i <= 1; i++) {
+            File file = new File(basePath + "Table" + i + ".xls");
+            File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
+            reportService.importExcelZbStock(new FileInputStream(tempFile));
+        }
+
 
 //        //初始化一个Workbook类的实例
 //        Workbook workbook = new Workbook();
@@ -249,11 +254,35 @@ public class ReportController {
 //            if (studentService.insertBatch(list)) {
 //                return RespBean.success("导入成功");
 //            }
-            return RespBean.error("导入失败");
+            return RespBean.error("导入成功");
         } catch (Exception e) {
             e.printStackTrace();
         }
         return RespBean.error("导入失败");
     }
 
+    @ApiOperation("复盘初始化")
+    @PostMapping("/initFP")
+    public  RespBean initFP() throws IOException {
+        //0环境创建-文件夹
+        String date = DateUtil.format(new Date(), "yyyy-M-d");
+        File baseDir = new File("D:\\DATA\\手机备份数据\\"+ date);
+        File zsPath = new File(baseDir.getPath()+ "\\走势");
+        File qtPath = new File(baseDir.getPath()+ "\\其他");
+        File wpPath = new File(baseDir.getPath()+ "\\尾盘");
+        FileUtil.mkdirs(baseDir.getPath());
+        FileUtil.mkdirs(zsPath.getPath());
+        FileUtil.mkdirs(qtPath.getPath());
+        FileUtil.mkdirs(wpPath.getPath());
+
+
+
+            try {
+
+            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
 }

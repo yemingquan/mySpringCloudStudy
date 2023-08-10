@@ -1,19 +1,25 @@
 package com.example.springBootDemo.util.excel;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.read.builder.ExcelReaderBuilder;
+import com.alibaba.excel.write.builder.ExcelWriterBuilder;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @所属模块<p>
@@ -24,6 +30,72 @@ import java.io.IOException;
  * @公司名称
  */
 public class ExcelChangeUtil {
+
+    /**
+     * 将csv文件转换为 excel文件（分隔符为/t的文件，转换为.xlsx文件）
+     * 转换成功会删除源文件，保留新的.xlsx文件
+     *
+     * @param csvFile
+     * @param fileName
+     * @return
+     * @throws Exception
+     */
+    public static File csvToXlsxConverter(File csvFile, String fileName) throws Exception {
+        if (null == csvFile) {
+            throw new Exception("文件生成失败");
+        }
+        File xlsxFile = new File(csvFile.getParent() + File.separator + fileName.replace(".xls", ".xlsx"));
+        xlsxFile.createNewFile();
+        //后面的编码格式要和生成csv文件的时候保持一致，否则会出现乱码问题
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(csvFile), "GBK"))) {
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            //也可以传入sheet的名字，默认是sheet0
+            XSSFSheet sheet = workbook.createSheet();
+            //对象声明在循环之外，减少栈空间的使用
+            Row row;
+            Cell cell;
+            List<String[]> lines = new ArrayList<>();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line.split("\\t"));
+            }
+            int rowIndex = 0;
+            int cellIndex;
+            for (String[] rowData : lines) {
+                row = sheet.createRow(rowIndex++);
+                cellIndex = 0;
+                for (String cellData : rowData) {
+                    cell = row.createCell(cellIndex++);
+                    cell.setCellValue(cellData);
+                }
+            }
+            try (FileOutputStream outputStream = new FileOutputStream(xlsxFile)) {
+                workbook.write(outputStream);
+            }
+            //记得删除临时文件，我自己的需求在后面做了处理，不需要在此删除临时文件
+            csvFile.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return xlsxFile;
+    }
+
+
+    public static File convertCsvToExcel(File csvFile, String fileName) throws IOException {
+        //csv文件在本都存储时，直接读取就行
+        //File csvFile= new File("csv文件地址");
+        File xlsxFile = File.createTempFile(fileName, ".xlsx");
+        // 使用EasyExcel读取csv文件
+        ExcelReaderBuilder readerBuilder = EasyExcel.read(csvFile).charset(Charset.forName("GBK"));
+        //指定从第几行开始读取，默认情况下会把第一行当做表头忽略读取，会少一行的数据，参数0从第一行开始读取数据
+        readerBuilder.headRowNumber(0);
+        List<Object> dataList = readerBuilder.sheet().doReadSync();
+
+        // 使用EasyExcel写入xlsx文件
+        ExcelWriterBuilder writerBuilder = EasyExcel.write(xlsxFile);
+        writerBuilder.sheet().doWrite(dataList);
+        return xlsxFile;
+    }
 
     /**
      * xls 文件转换为xlsx文件
@@ -65,14 +137,14 @@ public class ExcelChangeUtil {
             sourceFile.delete();
         }
 
-        return  xlsxPath;
+        return xlsxPath;
     }
 
     //为xlsx创建路径
-    public static String createNewXlsxFilePath(File sourceFile){
+    public static String createNewXlsxFilePath(File sourceFile) {
 
         String oldPath = sourceFile.getPath();
-        String newPath = oldPath.substring(0,oldPath.indexOf("."))+".xlsx";
+        String newPath = oldPath.substring(0, oldPath.indexOf(".")) + ".xlsx";
 
         return newPath;
 
@@ -82,6 +154,7 @@ public class ExcelChangeUtil {
 
     /**
      * 转换为xlsx --创建sheet
+     *
      * @param source
      * @param destination
      */
@@ -110,10 +183,11 @@ public class ExcelChangeUtil {
 
     /**
      * 转换xlsx --  复制行
+     *
      * @param srcRow
      * @param destRow
      */
-    public static void copyRow( HSSFRow srcRow, XSSFRow destRow) {
+    public static void copyRow(HSSFRow srcRow, XSSFRow destRow) {
 
         // 拷贝行高
         destRow.setHeight(srcRow.getHeight());
@@ -135,6 +209,7 @@ public class ExcelChangeUtil {
 
     /**
      * 转换xlsx -- 复制单元格
+     *
      * @param oldCell
      * @param newCell
      */

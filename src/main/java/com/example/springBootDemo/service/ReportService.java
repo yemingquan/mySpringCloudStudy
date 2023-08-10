@@ -3,8 +3,8 @@ package com.example.springBootDemo.service;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -16,17 +16,17 @@ import java.util.List;
  * @公司名称
  */
 public interface ReportService {
-    boolean importExcelZthfStock(MultipartFile multipartFile) throws Exception;
+    boolean importExcelZthfStock(InputStream is) throws Exception;
 
-    boolean importExcelZtStock(MultipartFile multipartFile) throws Exception;
+    boolean importExcelZtStock(InputStream is) throws Exception;
 
-    boolean importExcelBdUpStock(MultipartFile multipartFile) throws Exception;
+    boolean importExcelBdUpStock(InputStream is) throws Exception;
 
-    boolean importExcelBdDownStock(MultipartFile multipartFile) throws Exception;
+    boolean importExcelBdDownStock(InputStream is) throws Exception;
 
-    boolean importExcelDtStock(MultipartFile multipartFile) throws Exception;
+    boolean importExcelDtStock(InputStream is) throws Exception;
 
-    boolean importExcelZbStock(MultipartFile multipartFile) throws Exception;
+    boolean importExcelZbStock(InputStream is) throws Exception;
 
     List<ZtReport> getZtReportByDate(String date);
 
