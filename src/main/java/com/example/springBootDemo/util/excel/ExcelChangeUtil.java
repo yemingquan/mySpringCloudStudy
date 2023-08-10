@@ -3,6 +3,7 @@ package com.example.springBootDemo.util.excel;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.write.builder.ExcelWriterBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -57,7 +58,9 @@ public class ExcelChangeUtil {
             List<String[]> lines = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
-                lines.add(line.split("\\t"));
+                if(line.length()>1){
+                    lines.add(line.split("\\t"));
+                }
             }
             int rowIndex = 0;
             int cellIndex;
@@ -66,7 +69,7 @@ public class ExcelChangeUtil {
                 cellIndex = 0;
                 for (String cellData : rowData) {
                     cell = row.createCell(cellIndex++);
-                    cell.setCellValue(cellData);
+                    setCell(cell,cellData);
                 }
             }
             try (FileOutputStream outputStream = new FileOutputStream(xlsxFile)) {
@@ -78,6 +81,27 @@ public class ExcelChangeUtil {
             e.printStackTrace();
         }
         return xlsxFile;
+    }
+
+    private static void setCell(Cell cell, String cellData) {
+        try {
+            if (StringUtils.isEmpty(cellData)||"--".equals(cellData)) {
+                cell.setCellValue("");
+            } else if (cellData.contains("%")){
+                String tempDate = cellData.replace("%","");
+                if(tempDate.matches("\\+?-?[0-9.]*")){
+                    cell.setCellValue(Double.valueOf(tempDate)/100);
+                }else{
+                    cell.setCellValue(cellData);
+                }
+            }else if (cellData.matches("\\+-?[0-9.]*")) {
+                cell.setCellValue(Double.valueOf(cellData));
+            } else {
+                cell.setCellValue(cellData);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
 

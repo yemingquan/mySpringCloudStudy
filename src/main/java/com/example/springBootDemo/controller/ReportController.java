@@ -178,7 +178,7 @@ public class ReportController {
 
     @GetMapping("/exportZtRePort")
     @ApiOperation("涨停报表导出")
-    public void exportZtRePort(@RequestParam(value = "date",required = false) String date,
+    public void exportZtRePort(@RequestParam(value = "date", required = false) String date,
                                HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
 
         String fileName = "涨停1111.xlsx";
@@ -196,7 +196,7 @@ public class ReportController {
 
     @GetMapping("/exportMbRePort")
     @ApiOperation("摸板报表导出")
-    public void exportMbRePort(@RequestParam(value = "date",required = false) String date,
+    public void exportMbRePort(@RequestParam(value = "date", required = false) String date,
                                HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
 
         String fileName = "摸板222.xlsx";
@@ -215,7 +215,7 @@ public class ReportController {
 
     @GetMapping("/exportBdRePort")
     @ApiOperation("波动报表导出")
-    public void exportBdRePort(@RequestParam(value = "date",required = false) String date,
+    public void exportBdRePort(@RequestParam(value = "date", required = false) String date,
                                HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
 
         String fileName = "波动333.xlsx";
@@ -232,29 +232,20 @@ public class ReportController {
 
     @ApiOperation("从文件中读入数据")
     @PostMapping("/importFromFile")
-    public  RespBean importFromFile() throws Exception {
-        String basePath = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
-        for (int i = 1; i <= 1; i++) {
-            File file = new File(basePath + "Table" + i + ".xls");
-            File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
-            reportService.importExcelZbStock(new FileInputStream(tempFile));
-        }
-
-
-//        //初始化一个Workbook类的实例
-//        Workbook workbook = new Workbook();
-//        //加载XLS文件
-//        workbook.loadFromFile("Input.xls");
-//
-//        //将XLS文件保存为XLSX格式
-//        workbook.saveToFile("ToXlsx.xlsx", ExcelVersion.Version2016);
-
+    public RespBean importFromFile() throws Exception {
         try {
-//            List<Student> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), Student.class, importParams);
-//            if (studentService.insertBatch(list)) {
-//                return RespBean.success("导入成功");
-//            }
-            return RespBean.error("导入成功");
+            String basePath = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
+            for (int i = 1; i <= 6; i++) {
+                File file = new File(basePath + "Table" + i + ".xls");
+                File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
+                if (i == 1) reportService.importExcelZtStock(new FileInputStream(tempFile));
+                if (i == 2) reportService.importExcelZthfStock(new FileInputStream(tempFile));
+                if (i == 3) reportService.importExcelZbStock(new FileInputStream(tempFile));
+                if (i == 4) reportService.importExcelDtStock(new FileInputStream(tempFile));
+                if (i == 5) reportService.importExcelBdUpStock(new FileInputStream(tempFile));
+                if (i == 6) reportService.importExcelBdDownStock(new FileInputStream(tempFile));
+            }
+            return RespBean.success("导入成功");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -263,21 +254,20 @@ public class ReportController {
 
     @ApiOperation("复盘初始化")
     @PostMapping("/initFP")
-    public  RespBean initFP() throws IOException {
+    public RespBean initFP() throws IOException {
         //0环境创建-文件夹
         String date = DateUtil.format(new Date(), "yyyy-M-d");
-        File baseDir = new File("D:\\DATA\\手机备份数据\\"+ date);
-        File zsPath = new File(baseDir.getPath()+ "\\走势");
-        File qtPath = new File(baseDir.getPath()+ "\\其他");
-        File wpPath = new File(baseDir.getPath()+ "\\尾盘");
+        File baseDir = new File("D:\\DATA\\手机备份数据\\" + date);
+        File zsPath = new File(baseDir.getPath() + "\\走势");
+        File qtPath = new File(baseDir.getPath() + "\\其他");
+        File wpPath = new File(baseDir.getPath() + "\\尾盘");
         FileUtil.mkdirs(baseDir.getPath());
         FileUtil.mkdirs(zsPath.getPath());
         FileUtil.mkdirs(qtPath.getPath());
         FileUtil.mkdirs(wpPath.getPath());
 
 
-
-            try {
+        try {
 
             return RespBean.error("导入失败");
         } catch (Exception e) {
