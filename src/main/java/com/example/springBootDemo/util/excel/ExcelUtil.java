@@ -821,27 +821,8 @@ public class ExcelUtil<T> implements Serializable {
         for (int i = 0; i < list.size(); i++) {
             ZtReport po = list.get(i);
             String stockCode = po.getStockCode();
-
-            //说明
-            StringBuffer instructions = new StringBuffer(po.getInstructions());
-            if (po.getCirculation() < 30) {
-                instructions.append("小盘；");
-            }
-            if (po.getAmplitude() == 0) {
-                po.setHardenType("一字板");
-                if (po.getYesterdayAmplitude() == 0) {
-                    instructions.append("连续加速；");
-                } else if (DateUtil.format(po.getHardenTime(), "yyyy-MM-dd").equals("9:30:00") && po.getAmplitude() == 0) {
-                    po.setHardenType("T字板");
-                } else {
-                    po.setHardenType("换手板");
-                }
-            }/* else if (DateUtil.getDatePoor3(new Date(), po.getHardenTime()) < 10 && po.getFinalHardenTime() == null) {
-                po.setHardenType("偷袭板");
-            }*/ else {
-                po.setHardenType("换手板");
-            }
-            po.setInstructions(instructions.toString());
+            //涨停报表字段处理
+            ztInstructions(po);
 
             //注解循环
             for (int j = 0; j < fields.size(); j++) {
@@ -872,6 +853,33 @@ public class ExcelUtil<T> implements Serializable {
     }
 
     /**
+     * 涨停报表字段处理
+     *
+     * @param po
+     */
+    private void ztInstructions(ZtReport po) {
+        //说明
+        StringBuffer instructions = new StringBuffer(po.getInstructions());
+        genOprInstructions(po, instructions);
+
+        if (po.getAmplitude() == 0) {
+            po.setHardenType("一字板");
+            if (po.getYesterdayAmplitude() == 0) {
+                instructions.append("连续加速；");
+            } else if (DateUtil.format(po.getHardenTime(), "yyyy-MM-dd").equals("9:30:00") && po.getAmplitude() == 0) {
+                po.setHardenType("T字板");
+            } else {
+                po.setHardenType("换手板");
+            }
+        }/* else if (DateUtil.getDatePoor3(new Date(), po.getHardenTime()) < 10 && po.getFinalHardenTime() == null) {
+            po.setHardenType("偷袭板");
+        }*/ else {
+            po.setHardenType("换手板");
+        }
+        po.setInstructions(instructions.toString());
+    }
+
+    /**
      * 模板报表样式处理
      *
      * @param list
@@ -889,13 +897,7 @@ public class ExcelUtil<T> implements Serializable {
         for (int i = 0; i < list.size(); i++) {
             MbReport po = list.get(i);
             String stockCode = po.getStockCode();
-
-            //说明
-            StringBuffer instructions = new StringBuffer(po.getInstructions());
-            if (po.getCirculation() < 30) {
-                instructions.append("小盘；");
-            }
-            po.setInstructions(instructions.toString());
+            mbInstructions(po);
 
             //注解循环
             for (int j = 0; j < fields.size(); j++) {
@@ -914,9 +916,96 @@ public class ExcelUtil<T> implements Serializable {
                     map.putAll(defaultAnnotationMap);
                 }
 
-
                 generalOpr(po, map);
                 specialOprMbReport(po, f, map);
+
+                //深拷贝后，把映射关系放到map中
+                Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
+                annotationMapping.put(key, afterMap);
+            }
+        }
+        return annotationMapping;
+    }
+
+    /**
+     * 摸板报表样式处理
+     *
+     * @param po
+     */
+    private void mbInstructions(MbReport po) {
+        //说明
+        StringBuffer instructions = new StringBuffer(po.getInstructions());
+        genOprInstructions(po, instructions);
+
+        po.setInstructions(instructions.toString());
+    }
+
+    /**
+     * 说明字段公共部分处理
+     *
+     * @param instructions
+     */
+    private void genOprInstructions(BaseStock po, StringBuffer instructions) {
+        double value = 0;
+        if (po.getCirculation() < 30) {
+            instructions.append("小盘；");
+        }
+        value = po.getAmplitude();
+        if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
+            instructions.append("大长腿；");
+        } else if (value == 0) {
+            instructions.append("加速；");
+        }
+
+        value = po.getChangingHands();
+        if (75 > value && value > 50) {
+            instructions.append("高换手；");
+        } else if (value > 75) {
+            instructions.append("死亡换手；");
+        }
+
+    }
+
+    /**
+     * 波动报表样式处理
+     *
+     * @param list
+     * @return
+     */
+    public Map<String, Map> OprBdReport(List<BdReport> list) throws NoSuchFieldException, IllegalAccessException {
+        //注解和对象的映射关系 key:代码-属性 value:注解配置
+        Map<String, Map> annotationMapping = Maps.newConcurrentMap();
+        //注解只有一个，所以不符合条件的话，要给默认值
+        Map<String, Object> defaultAnnotationMap = Maps.newConcurrentMap();
+        Boolean firstFlag = true;
+        List<Field> fields = getClassFields();
+
+        //集合循环
+        for (int i = 0; i < list.size(); i++) {
+            BdReport po = list.get(i);
+            String stockCode = po.getStockCode();
+            //波动报表说明字段处理
+            bdInstructions(po);
+
+            //注解循环
+            for (int j = 0; j < fields.size(); j++) {
+                Field f = fields.get(j);
+                // 获取注解映射的map对象
+                Map map = getAnnotationMap((T) po, f);
+
+                String key = stockCode + "-" + f.getName();
+                //                Object o = field.get((T) po);
+                //                log.info(i + "-" + key + "-" + o);
+
+                if (firstFlag) {
+                    defaultAnnotationMap = initDefaultAnnotationMap((HashMap<String, Object>) map);
+                    firstFlag = false;
+                } else {
+                    map.putAll(defaultAnnotationMap);
+                }
+
+                generalOpr(po, map);
+                specialOprBdReport(po, f, map);
 
                 //深拷贝后，把映射关系放到map中
                 Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
@@ -1023,71 +1112,30 @@ public class ExcelUtil<T> implements Serializable {
 
 
     /**
-     * 波动报表样式处理
+     * 波动报表说明字段处理
      *
-     * @param list
-     * @return
+     * @param po
      */
-    public Map<String, Map> OprBdReport(List<BdReport> list) throws NoSuchFieldException, IllegalAccessException {
-        //注解和对象的映射关系 key:代码-属性 value:注解配置
-        Map<String, Map> annotationMapping = Maps.newConcurrentMap();
-        //注解只有一个，所以不符合条件的话，要给默认值
-        Map<String, Object> defaultAnnotationMap = Maps.newConcurrentMap();
-        Boolean firstFlag = true;
-        List<Field> fields = getClassFields();
+    private void bdInstructions(BdReport po) {
+        //实体大小
+        BigDecimal a = new BigDecimal(po.getGains()).setScale(2, BigDecimal.ROUND_UP);
+        BigDecimal b = new BigDecimal(po.getStartGains()).setScale(2, BigDecimal.ROUND_UP);
+        BigDecimal result = a.subtract(b);
+        double entitySize = result.doubleValue();
+        po.setEntitySize(entitySize);
 
-        //集合循环
-        for (int i = 0; i < list.size(); i++) {
-            BdReport po = list.get(i);
-            String stockCode = po.getStockCode();
+        //说明
+        StringBuffer instructions = new StringBuffer(po.getInstructions());
+        genOprInstructions(po, instructions);
 
-            //实体大小
-            BigDecimal a = new BigDecimal(po.getGains()).setScale(2, BigDecimal.ROUND_UP);
-            BigDecimal b = new BigDecimal(po.getStartGains()).setScale(2, BigDecimal.ROUND_UP);
-            BigDecimal result = a.subtract(b);
-            double entitySize = result.doubleValue();
-            po.setEntitySize(entitySize);
-            //说明
-            StringBuffer instructions = new StringBuffer(po.getInstructions());
-            if (po.getCirculation() < 30) {
-                instructions.append("小盘;");
-            }
-            if (Math.abs(entitySize) < 2) {
-                instructions.append("十字星;");
-            } else if (entitySize > 6) {
-                instructions.append("大阳线;");
-            } else if (entitySize < -6) {
-                instructions.append("大阴线;");
-            }
-            po.setInstructions(instructions.toString());
-
-            //注解循环
-            for (int j = 0; j < fields.size(); j++) {
-                Field f = fields.get(j);
-                // 获取注解映射的map对象
-                Map map = getAnnotationMap((T) po, f);
-
-                String key = stockCode + "-" + f.getName();
-                //                Object o = field.get((T) po);
-                //                log.info(i + "-" + key + "-" + o);
-
-                if (firstFlag) {
-                    defaultAnnotationMap = initDefaultAnnotationMap((HashMap<String, Object>) map);
-                    firstFlag = false;
-                } else {
-                    map.putAll(defaultAnnotationMap);
-                }
-
-
-                generalOpr(po, map);
-                specialOprBdReport(po, f, map);
-
-                //深拷贝后，把映射关系放到map中
-                Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
-                annotationMapping.put(key, afterMap);
-            }
+        if (Math.abs(entitySize) < 2) {
+            instructions.append("十字星;");
+        } else if (entitySize > 6) {
+            instructions.append("大阳线;");
+        } else if (entitySize < -6) {
+            instructions.append("大阴线;");
         }
-        return annotationMapping;
+        po.setInstructions(instructions.toString());
     }
 
     /**
@@ -1101,7 +1149,6 @@ public class ExcelUtil<T> implements Serializable {
     private void specialOprZtReport(ZtReport po, Field f, Map map, Map colorMap) {
         //根据主业给与背景随机颜色
         map.put("backgroundColor", colorMap.get(po.getMainBusiness()));
-
         //具体
         generalSpecialOpr(po, f, map);
     }
