@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -179,7 +181,7 @@ public class ReportController {
     @GetMapping("/exportZtRePort")
     @ApiOperation("涨停报表导出")
     public void exportZtRePort(@RequestParam(value = "date", required = false) String date,
-                               HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
+                               HttpServletResponse response)  {
 
         String fileName = "涨停1111.xlsx";
         String sheetName = "涨停";
@@ -190,8 +192,13 @@ public class ReportController {
         List<ZtReport> list = reportService.getZtReportByDate(date);
 
         ExcelUtil<ZtReport> excelUtil = new ExcelUtil<>(ZtReport.class);
-        Map<String, Map> annotationMapping = excelUtil.OprZtReport(list);
-        excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
+        Map<String, Map> annotationMapping = null;
+        try {
+            annotationMapping = excelUtil.OprZtReport(list);
+            excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @GetMapping("/exportMbRePort")

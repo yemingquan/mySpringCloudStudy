@@ -87,6 +87,7 @@ public class ReportServiceImpl implements ReportService {
         baseZthfStockService.delete(wrapper);
 
         List<BaseZthfStock> list = ExcelImportUtil.importExcel(is, BaseZthfStock.class, importParams);
+        is.close();
         list.stream().forEach(po -> {
             StringBuffer instructions = new StringBuffer("");
 
@@ -109,6 +110,7 @@ public class ReportServiceImpl implements ReportService {
         baseZtStockService.delete(wrapper);
 
         List<BaseZtStock> list = ExcelImportUtil.importExcel(is, BaseZtStock.class, importParams);
+        is.close();
         list.stream().forEach(po -> {
             datePro(po);
         });
@@ -126,6 +128,7 @@ public class ReportServiceImpl implements ReportService {
         baseBdUpStockService.delete(wrapper);
 
         List<BaseBdUpStock> list = ExcelImportUtil.importExcel(is, BaseBdUpStock.class, importParams);
+        is.close();
         list.stream().forEach(po -> {
             datePro(po);
         });
@@ -143,6 +146,7 @@ public class ReportServiceImpl implements ReportService {
         baseBdDownStockService.delete(wrapper);
 
         List<BaseBdDownStock> list = ExcelImportUtil.importExcel(is, BaseBdDownStock.class, importParams);
+        is.close();
         list.stream().forEach(po -> {
             datePro(po);
         });
@@ -160,6 +164,7 @@ public class ReportServiceImpl implements ReportService {
         baseDtStockService.delete(wrapper);
 
         List<BaseDtStock> list = ExcelImportUtil.importExcel(is, BaseDtStock.class, importParams);
+        is.close();
         list.stream().forEach(po -> {
             datePro(po);
         });
@@ -177,6 +182,7 @@ public class ReportServiceImpl implements ReportService {
         baseZbStockService.delete(wrapper);
 
         List<BaseZbStock> list = ExcelImportUtil.importExcel(is, BaseZbStock.class, importParams);
+        is.close();
         list.stream().forEach(po -> {
             datePro(po);
         });

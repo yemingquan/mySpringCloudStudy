@@ -10,7 +10,6 @@ import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
-import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +27,7 @@ import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -395,7 +395,7 @@ public class ExcelUtil<T> implements Serializable {
                         Field f = fields.get(j);
                         // 获得field.
                         Field field = vo.getClass().getDeclaredField(f.getName());
-                        Field codeField = vo.getClass().getDeclaredField("stockCode");
+//                        Field codeField = vo.getClass().getDeclaredField("stockCode");
                         // 设置实体类私有属性可访问
                         field.setAccessible(true);
                         // 使用反射的方式修改注解的值
@@ -799,13 +799,14 @@ public class ExcelUtil<T> implements Serializable {
      * @throws IllegalAccessException
      * @throws NoSuchFieldException
      */
-    public Map<String, Map> OprZtReport(List<ZtReport> list) throws IllegalAccessException, NoSuchFieldException {
+    public Map<String, Map> OprZtReport(List<ZtReport> list) throws IllegalAccessException, NoSuchFieldException, ParseException {
         //注解和对象的映射关系 key:代码-属性 value:注解配置
         Map<String, Map> annotationMapping = Maps.newConcurrentMap();
         //注解只有一个，所以不符合条件的话，要给默认值
         Map<String, Object> defaultAnnotationMap = Maps.newConcurrentMap();
         Boolean firstFlag = true;
         List<Field> fields = getClassFields();
+
 
         //涨停底色处理
         Map<String, List<ZtReport>> ztMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
@@ -814,6 +815,9 @@ public class ExcelUtil<T> implements Serializable {
         int num = 0;
         for (String str : ztMap.keySet()) {
             colorMap.put(str, colorArr[num++ % colorArr.length]);
+            List<ZtReport> bkList = ztMap.get(str);
+            //设置首版时间
+            setSbTime(bkList);
         }
 
 
@@ -852,28 +856,59 @@ public class ExcelUtil<T> implements Serializable {
         return annotationMapping;
     }
 
+    private void setSbTime(List<ZtReport> bkList) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        //板块涨停时间集合，用于筛选板块首版
+        List<Date> finalTimeSet = Lists.newArrayList();
+        for (ZtReport po : bkList) {
+            Date finalHardenTime = po.getFinalHardenTime();
+            Date hardenTime = po.getHardenTime();
+            if (finalHardenTime != null) {
+                finalTimeSet.add(finalHardenTime);
+            } else if (sdf.parse("09:30:00").equals(hardenTime)) {
+
+            } else {
+                finalTimeSet.add(po.getHardenTime());
+            }
+        }
+        Date sbTime = finalTimeSet.stream().min(Comparator.comparing(x -> x)).orElse(null);
+        for (ZtReport po : bkList) {
+            po.setSBTime(sbTime);
+        }
+    }
+
     /**
      * 涨停报表字段处理
      *
      * @param po
      */
-    private void ztInstructions(ZtReport po) {
+    private void ztInstructions(ZtReport po) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         //说明
         StringBuffer instructions = new StringBuffer(po.getInstructions());
         genOprInstructions(po, instructions);
+        Date finalHardenTime = po.getFinalHardenTime();
+        Date hardenTime = po.getHardenTime();
+        Date finalTime = finalHardenTime == null ? finalHardenTime : hardenTime;
+        Double amplitude = po.getAmplitude();
 
-        if (po.getAmplitude() == 0) {
+        if (amplitude == 0) {
             po.setHardenType("一字板");
             if (po.getYesterdayAmplitude() == 0) {
                 instructions.append("连续加速；");
-            } else if (DateUtil.format(po.getHardenTime(), "yyyy-MM-dd").equals("9:30:00") && po.getAmplitude() == 0) {
-                po.setHardenType("T字板");
-            } else {
-                po.setHardenType("换手板");
+            }else{
+                instructions.append("加速；");
             }
-        }/* else if (DateUtil.getDatePoor3(new Date(), po.getHardenTime()) < 10 && po.getFinalHardenTime() == null) {
+        } else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
+            po.setHardenType("T字板");
+            instructions.append("T字板；");
+        } else if (sdf.parse("09:40:00").before(finalTime)) {
+            po.setHardenType("秒板");
+            instructions.append("秒板；");
+        } else if (sdf.parse("14:40:00").after(finalTime)) {
             po.setHardenType("偷袭板");
-        }*/ else {
+            instructions.append("偷袭板；");
+        } else {
             po.setHardenType("换手板");
         }
         po.setInstructions(instructions.toString());
@@ -936,7 +971,6 @@ public class ExcelUtil<T> implements Serializable {
         //说明
         StringBuffer instructions = new StringBuffer(po.getInstructions());
         genOprInstructions(po, instructions);
-
         po.setInstructions(instructions.toString());
     }
 
@@ -1106,8 +1140,8 @@ public class ExcelUtil<T> implements Serializable {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
                 }
                 break;
-        }
 
+        }
     }
 
 
@@ -1149,6 +1183,27 @@ public class ExcelUtil<T> implements Serializable {
     private void specialOprZtReport(ZtReport po, Field f, Map map, Map colorMap) {
         //根据主业给与背景随机颜色
         map.put("backgroundColor", colorMap.get(po.getMainBusiness()));
+        //具体
+        switch (f.getName()) {
+            //日内龙
+            case "hardenTime":
+                //与通用不同的是，这里需要改变底色
+                Date time = po.getHardenTime();
+                Date sbTime = po.getSBTime();
+                if (sbTime.equals(time)) {
+                    map.put("backgroundColor", IndexedColors.TURQUOISE);
+                }
+                break;
+            //回封龙
+            case "finalHardenTime":
+                //与通用不同的是，这里需要改变底色
+                time = po.getFinalHardenTime();
+                sbTime = po.getSBTime();
+                if (sbTime.equals(time)) {
+                    map.put("backgroundColor", IndexedColors.TURQUOISE);
+                }
+                break;
+        }
         //具体
         generalSpecialOpr(po, f, map);
     }

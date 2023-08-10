@@ -12,10 +12,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -52,13 +49,16 @@ public class ExcelChangeUtil {
             XSSFWorkbook workbook = new XSSFWorkbook();
             //也可以传入sheet的名字，默认是sheet0
             XSSFSheet sheet = workbook.createSheet();
-            //对象声明在循环之外，减少栈空间的使用
+            XSSFCellStyle cellStyle = workbook.createCellStyle();
+            XSSFDataFormat format = workbook.createDataFormat();
+            cellStyle.setDataFormat(format.getFormat("h:mm:ss"));
+
             Row row;
             Cell cell;
             List<String[]> lines = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
-                if(line.length()>1){
+                if (line.length() > 1) {
                     lines.add(line.split("\\t"));
                 }
             }
@@ -69,33 +69,39 @@ public class ExcelChangeUtil {
                 cellIndex = 0;
                 for (String cellData : rowData) {
                     cell = row.createCell(cellIndex++);
-                    setCell(cell,cellData);
+                    setCell(cell, cellData, cellStyle);
                 }
             }
             try (FileOutputStream outputStream = new FileOutputStream(xlsxFile)) {
                 workbook.write(outputStream);
+                outputStream.close();
             }
             //记得删除临时文件，我自己的需求在后面做了处理，不需要在此删除临时文件
-            csvFile.delete();
+//            csvFile.delete();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return xlsxFile;
     }
 
-    private static void setCell(Cell cell, String cellData) {
+    private static void setCell(Cell cell, String cellData, XSSFCellStyle cellStyle) {
         try {
-            if (StringUtils.isEmpty(cellData)||"--".equals(cellData)) {
+            if (StringUtils.isEmpty(cellData) || "--".equals(cellData)) {
                 cell.setCellValue("");
-            } else if (cellData.contains("%")){
-                String tempDate = cellData.replace("%","");
-                if(tempDate.matches("\\+?-?[0-9.]*")){
-                    cell.setCellValue(Double.valueOf(tempDate)/100);
-                }else{
+            } else if (cellData.contains("%")) {
+                String tempDate = cellData.replace("%", "");
+                if (tempDate.matches("\\+?-?[0-9.]*")) {
+                    cell.setCellValue(Double.valueOf(tempDate) / 100);
+                } else {
                     cell.setCellValue(cellData);
                 }
-            }else if (cellData.matches("\\+-?[0-9.]*")) {
+            } else if (cellData.matches("\\+-?[0-9.]*")) {
                 cell.setCellValue(Double.valueOf(cellData));
+            } else if (cellData.contains(":") && cellData.matches("[\\:0-9]*")) {
+                cell.setCellStyle(cellStyle);
+//                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                cell.setCellValue(cellData);
+                cell.setCellStyle(cellStyle);
             } else {
                 cell.setCellValue(cellData);
             }

@@ -68,6 +68,8 @@ public class ZtReport extends BaseStock implements Serializable {
     @Excel(name = "涨停类型")
     private String hardenType;
 
+    //板块首版时间
+    private Date SBTime;
 
     private static final long serialVersionUID = 1L;
 }

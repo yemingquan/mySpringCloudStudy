@@ -20,6 +20,8 @@ import java.util.regex.Pattern;
 
 public class DateUtil {
 
+//    public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
     public static String parseStr(String str) {
         String sDate = "";
         SimpleDateFormat sdf1 = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", Locale.UK);
@@ -1653,5 +1655,26 @@ public class DateUtil {
         cal.add(Calendar.DATE, -1);
         Date time = cal.getTime();
         return time;
+    }
+
+    void testDateCompare2() throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date1 = sdf.parse("2009-12-31");
+        Date date2 = sdf.parse("2019-01-31");
+
+        System.out.println("date1 : " + sdf.format(date1));
+        System.out.println("date2 : " + sdf.format(date2));
+
+        if (date1.after(date2)) {
+            System.out.println("Date1 时间在 Date2 之后");
+        }
+
+        if (date1.before(date2)) {
+            System.out.println("Date1 时间在 Date2 之前");
+        }
+
+        if (date1.equals(date2)) {
+            System.out.println("Date1 时间与 Date2 相等");
+        }
     }
 }
