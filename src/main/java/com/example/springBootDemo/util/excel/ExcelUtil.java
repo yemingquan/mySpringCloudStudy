@@ -992,10 +992,11 @@ public class ExcelUtil<T> implements Serializable {
         if (po.getCirculation() < 30) {
             instructions.append("小盘；");
         }
-        value = po.getAmplitude();
-        if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
-            instructions.append("大长腿；");
-        }
+//        value = po.getAmplitude();
+//        value = po.getEntitySize();
+//        if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
+//            instructions.append("大长腿；");
+//        }
 
         value = po.getChangingHands();
         if (75 > value && value > 50) {

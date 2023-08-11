@@ -35,6 +35,9 @@ public class MbReport extends BaseStock implements Serializable {
     @Excel(name = "名称")
     private String stockName;
 
+    @Excel(name = "说明")
+    private String instructions;
+
     @Excel(name = "摸板时间",dateFormat="HH:mm:ss")
     private Date touchTime;
 
@@ -61,9 +64,6 @@ public class MbReport extends BaseStock implements Serializable {
 
     @Excel(name = "现价")
     private Double currentPrice;
-
-    @Excel(name = "说明")
-    private String instructions;
 
     private static final long serialVersionUID = 1L;
 }

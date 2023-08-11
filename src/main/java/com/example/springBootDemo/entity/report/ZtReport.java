@@ -29,9 +29,6 @@ public class ZtReport extends BaseStock implements Serializable {
     @Excel(name = "细分")
     private String nicheBusiness;
 
-    @Excel(name = "说明")
-    private String instructions;
-
     @Excel(name = "流通市值")
     private Double circulation;
 
@@ -40,6 +37,9 @@ public class ZtReport extends BaseStock implements Serializable {
 
     @Excel(name = "名称")
     private String stockName;
+
+    @Excel(name = "说明")
+    private String instructions;
 
     @Excel(name = "连板")
     private Integer combo;

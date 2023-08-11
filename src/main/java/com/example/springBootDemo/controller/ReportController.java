@@ -253,6 +253,7 @@ public class ReportController {
                 Path directory = Paths.get(basePath);
                 FileUtil.deleteDirectory(directory);
                 baseDir.mkdirs();
+                log.info("导出文件已处理");
             }
 
             //1环境创建-文件夹
@@ -265,6 +266,7 @@ public class ReportController {
             FileUtil.mkdirs(zsPath.getPath());
             FileUtil.mkdirs(qtPath.getPath());
             FileUtil.mkdirs(wpPath.getPath());
+            log.info("图片存储文件夹创立");
 
             //2将导出的同花顺文件转换成xlsx后，导入到数据库中
             //导入前，需要手动填写主业内容，防止生成的时候统计不对
