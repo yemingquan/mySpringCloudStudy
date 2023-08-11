@@ -35,22 +35,22 @@ public class BdReport extends BaseStock implements Serializable {
     @Excel(name = "代码")
     private String stockCode;
 
-    @Excel(name = "名称")
+    @Excel(name = "名称", bold = true)
     private String stockName;
 
     @Excel(name = "说明")
     private String instructions;
 
-    @Excel(name = "实体大小", suffix = "%")
+    @Excel(name = "实体大小", suffix = "%", bold = true)
     private Double entitySize;
 
     @Excel(name = "昨日涨幅", suffix = "%")
     private Double yesterdayGains;
 
-    @Excel(name = "开盘涨幅", suffix = "%")
+    @Excel(name = "开盘涨幅", suffix = "%", bold = true)
     private Double startGains;
 
-    @Excel(name = "涨幅", suffix = "%")
+    @Excel(name = "涨幅", suffix = "%", bold = true)
     private Double gains;
 
     @Excel(name = "振幅", suffix = "%")
@@ -64,7 +64,6 @@ public class BdReport extends BaseStock implements Serializable {
 
     @Excel(name = "昨日换手", suffix = "%")
     private Double yesterdayChangingHands;
-
 
 
     private static final long serialVersionUID = 1L;

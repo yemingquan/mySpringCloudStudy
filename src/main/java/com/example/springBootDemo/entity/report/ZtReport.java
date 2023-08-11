@@ -35,7 +35,7 @@ public class ZtReport extends BaseStock implements Serializable {
     @Excel(name = "代码")
     private String stockCode;
 
-    @Excel(name = "名称")
+    @Excel(name = "名称", bold = true)
     private String stockName;
 
     @Excel(name = "说明")

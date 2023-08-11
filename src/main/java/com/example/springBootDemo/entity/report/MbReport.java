@@ -32,7 +32,7 @@ public class MbReport extends BaseStock implements Serializable {
     @Excel(name = "代码")
     private String stockCode;
 
-    @Excel(name = "名称")
+    @Excel(name = "名称", bold = true)
     private String stockName;
 
     @Excel(name = "说明")
@@ -41,7 +41,7 @@ public class MbReport extends BaseStock implements Serializable {
     @Excel(name = "摸板时间",dateFormat="HH:mm:ss")
     private Date touchTime;
 
-    @Excel(name = "涨幅",suffix="%")
+    @Excel(name = "涨幅",suffix="%", bold = true)
     private Double gains;
 
     @Excel(name = "振幅",suffix="%")

@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 
 /**
  * 自定义导出Excel数据注解
- *
+ *  所有动态配置，大家不一样的东西，都要在导出这里 initDefaultAnnotationMap 配置一下
  * @author ruoyi
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -61,7 +61,7 @@ public @interface Excel {
     /**
      * 导出时在excel中每个列的高度 单位为字符
      */
-    public double height() default 14;
+    public double height() default 16;
 
     /**
      * 导出时在excel中每个列的宽 单位为字符

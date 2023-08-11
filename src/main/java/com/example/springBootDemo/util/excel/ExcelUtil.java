@@ -387,15 +387,9 @@ public class ExcelUtil<T> implements Serializable {
                     // 得到导出对象.
                     T vo = (T) list.get(i);
                     for (int j = 0; j < fields.size(); j++) {
-//                        // 获得field.
-//                        Field field = fields.get(j);
-//                        // 设置实体类私有属性可访问
-//                        field.setAccessible(true);
-//                        Excel attr = field.getAnnotation(Excel.class);
                         Field f = fields.get(j);
                         // 获得field.
                         Field field = vo.getClass().getDeclaredField(f.getName());
-//                        Field codeField = vo.getClass().getDeclaredField("stockCode");
                         // 设置实体类私有属性可访问
                         field.setAccessible(true);
                         // 使用反射的方式修改注解的值
@@ -418,14 +412,15 @@ public class ExcelUtil<T> implements Serializable {
                                 Object o = field.get(vo);
                                 String readConverterExp = attr.readConverterExp();
                                 if (StringUtils.isNotEmpty(dateFormat) && o != null) {
-                                    cell.setCellValue(new SimpleDateFormat(dateFormat).format((Date) field.get(vo)));
+//                                    cell.setCellValue(new SimpleDateFormat(dateFormat).format((Date) field.get(vo)));
+                                    cell.setCellValue((Date)o);
                                 } else if (StringUtils.isNotEmpty(readConverterExp) && o != null) {
                                     cell.setCellValue(convertByExp(String.valueOf(field.get(vo)), readConverterExp));
-                                } else {
-                                    cell.setCellType(CellType.STRING);
+                                }else {
                                     // 如果数据存在就填入,不存在填入空格.
                                     String value = field.get(vo) == null ? attr.defaultValue() : field.get(vo) + attr.suffix();
                                     cell.setCellValue(value);
+                                    cell.setCellType(CellType.STRING);
                                 }
                             }
                         } catch (Exception e) {
@@ -538,11 +533,6 @@ public class ExcelUtil<T> implements Serializable {
                     Object stockCode = codeField.get(vo);
 
                     for (int j = 0; j < fields.size(); j++) {
-//                        // 获得field.
-//                        Field field = fields.get(j);
-//                        // 设置实体类私有属性可访问
-//                        field.setAccessible(true);
-//                        Excel attr = field.getAnnotation(Excel.class);
                         Field f = fields.get(j);
                         // 获得field.
                         Field field = vo.getClass().getDeclaredField(f.getName());
@@ -575,14 +565,15 @@ public class ExcelUtil<T> implements Serializable {
                                 Object o = field.get(vo);
                                 String readConverterExp = attr.readConverterExp();
                                 if (StringUtils.isNotEmpty(dateFormat) && o != null) {
-                                    cell.setCellValue(new SimpleDateFormat(dateFormat).format((Date) field.get(vo)));
+//                                    cell.setCellValue(new SimpleDateFormat(dateFormat).format((Date) field.get(vo)));
+                                    cell.setCellValue((Date)o);
                                 } else if (StringUtils.isNotEmpty(readConverterExp) && o != null) {
                                     cell.setCellValue(convertByExp(String.valueOf(field.get(vo)), readConverterExp));
-                                } else {
-                                    cell.setCellType(CellType.STRING);
+                                }else {
                                     // 如果数据存在就填入,不存在填入空格.
                                     String value = field.get(vo) == null ? attr.defaultValue() : field.get(vo) + attr.suffix();
                                     cell.setCellValue(value);
+                                    cell.setCellType(CellType.STRING);
                                 }
                             }
                         } catch (Exception e) {
@@ -625,13 +616,15 @@ public class ExcelUtil<T> implements Serializable {
         }
     }
 
-    private void setRowStyle(XSSFWorkbook workbook, XSSFCell cell, Excel attr, boolean isHead) {
+    private XSSFCellStyle setRowStyle(XSSFWorkbook workbook, XSSFCell cell, Excel attr, boolean isHead) {
         //样式
         XSSFCellStyle cellStyle = workbook.createCellStyle();
         //字体
         XSSFFont font = workbook.createFont();
 
         if (isHead) {
+            font.setBold(true);
+            font.setFontHeightInPoints((short)14);
             //导出列头字体颜色
             font.setColor(attr.headerColor().index);
             //导出列头背景颜色
@@ -648,6 +641,12 @@ public class ExcelUtil<T> implements Serializable {
             cellStyle.setBottomBorderColor(attr.backgroundColor().index);
             //背景色
             cellStyle.setFillForegroundColor(attr.backgroundColor().index);
+
+            String dateFormat = attr.dateFormat();
+            if(StringUtils.isNotEmpty(dateFormat)){
+                XSSFDataFormat format = workbook.createDataFormat();
+                cellStyle.setDataFormat(format.getFormat(dateFormat));
+            }
         }
 
         //背景色填充模式
@@ -660,6 +659,7 @@ public class ExcelUtil<T> implements Serializable {
         //自动换行
         cellStyle.setWrapText(true);
         cell.setCellStyle(cellStyle);
+        return cellStyle;
     }
 
     /**
@@ -709,11 +709,9 @@ public class ExcelUtil<T> implements Serializable {
             color = IndexedColors.RED;
         }
 
-        boolean bold = false;
         map.put("fontUnderLine", fontUnderLine);
         map.put("strikeout", strikeout);
         map.put("color", color);
-        map.put("bold", bold);
 
         //底色
         String source = po.getSource();
@@ -727,6 +725,8 @@ public class ExcelUtil<T> implements Serializable {
         String plate = po.getPlate();
         if (!"主板".equals(plate)) {
             map.put("bold", true);
+        }else{
+            map.put("bold", false);
         }
 //            if (i % 2 == 1) {
 //                //单数 浅灰
@@ -743,11 +743,13 @@ public class ExcelUtil<T> implements Serializable {
      * @return
      */
     private Map<String, Object> initDefaultAnnotationMap(HashMap<String, Object> map) {
+        //所有动态配置，大家不一样的东西，都要在这里配置一下
         Map<String, Object> defaultAnnotationMap;
         defaultAnnotationMap = SerializationUtils.clone(map);
         defaultAnnotationMap.remove("name");
         defaultAnnotationMap.remove("dateFormat");
         defaultAnnotationMap.remove("suffix");
+        defaultAnnotationMap.remove("bold");
         return defaultAnnotationMap;
     }
 
