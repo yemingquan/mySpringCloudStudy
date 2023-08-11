@@ -276,7 +276,7 @@ public class ReportController {
 
         try {
 
-            return RespBean.error("导入失败");
+            return RespBean.success("初始化成功");
         } catch (Exception e) {
             e.printStackTrace();
         }

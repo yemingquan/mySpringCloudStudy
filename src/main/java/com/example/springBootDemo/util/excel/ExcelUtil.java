@@ -811,13 +811,17 @@ public class ExcelUtil<T> implements Serializable {
         //涨停底色处理
         Map<String, List<ZtReport>> ztMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
         Map<String, Object> colorMap = Maps.newConcurrentMap();
-        IndexedColors[] colorArr = {IndexedColors.LIGHT_GREEN, IndexedColors.WHITE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_YELLOW, IndexedColors.LIGHT_TURQUOISE};
+        IndexedColors[] colorArr = {IndexedColors.LIGHT_GREEN, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_YELLOW, IndexedColors.LIGHT_TURQUOISE};
         int num = 0;
         for (String str : ztMap.keySet()) {
-            colorMap.put(str, colorArr[num++ % colorArr.length]);
             List<ZtReport> bkList = ztMap.get(str);
             //设置首版时间
             setSbTime(bkList);
+            if (str.contains("最")) {
+                colorMap.put(str, IndexedColors.WHITE);
+            } else {
+                colorMap.put(str, colorArr[num++ % colorArr.length]);
+            }
         }
 
 
@@ -857,21 +861,25 @@ public class ExcelUtil<T> implements Serializable {
     }
 
     private void setSbTime(List<ZtReport> bkList) throws ParseException {
+        if (bkList.size() < 2) {
+            return;
+        }
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         //板块涨停时间集合，用于筛选板块首版
-        List<Date> finalTimeSet = Lists.newArrayList();
+        List<Date> finalTimeList = Lists.newArrayList();
         for (ZtReport po : bkList) {
             Date finalHardenTime = po.getFinalHardenTime();
             Date hardenTime = po.getHardenTime();
             if (finalHardenTime != null) {
-                finalTimeSet.add(finalHardenTime);
+                finalTimeList.add(finalHardenTime);
             } else if (sdf.parse("09:30:00").equals(hardenTime)) {
 
             } else {
-                finalTimeSet.add(po.getHardenTime());
+                finalTimeList.add(po.getHardenTime());
             }
         }
-        Date sbTime = finalTimeSet.stream().min(Comparator.comparing(x -> x)).orElse(null);
+        Date sbTime = finalTimeList.stream().min(Comparator.comparing(x -> x)).orElse(null);
+
         for (ZtReport po : bkList) {
             po.setSBTime(sbTime);
         }
@@ -889,23 +897,23 @@ public class ExcelUtil<T> implements Serializable {
         genOprInstructions(po, instructions);
         Date finalHardenTime = po.getFinalHardenTime();
         Date hardenTime = po.getHardenTime();
-        Date finalTime = finalHardenTime == null ? finalHardenTime : hardenTime;
+        Date finalTime = (finalHardenTime != null ? finalHardenTime : hardenTime);
         Double amplitude = po.getAmplitude();
 
         if (amplitude == 0) {
             po.setHardenType("一字板");
             if (po.getYesterdayAmplitude() == 0) {
                 instructions.append("连续加速；");
-            }else{
+            } else {
                 instructions.append("加速；");
             }
         } else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
             po.setHardenType("T字板");
             instructions.append("T字板；");
-        } else if (sdf.parse("09:40:00").before(finalTime)) {
+        } else if (sdf.parse("09:40:00").after(finalTime)) {
             po.setHardenType("秒板");
             instructions.append("秒板；");
-        } else if (sdf.parse("14:40:00").after(finalTime)) {
+        } else if (sdf.parse("14:40:00").before(finalTime)) {
             po.setHardenType("偷袭板");
             instructions.append("偷袭板；");
         } else {
@@ -987,8 +995,6 @@ public class ExcelUtil<T> implements Serializable {
         value = po.getAmplitude();
         if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
             instructions.append("大长腿；");
-        } else if (value == 0) {
-            instructions.append("加速；");
         }
 
         value = po.getChangingHands();
@@ -1095,6 +1101,7 @@ public class ExcelUtil<T> implements Serializable {
                 } else if (value > 6) {
                     map.put("backgroundColor", IndexedColors.CORNFLOWER_BLUE);
                 }
+                break;
                 //换手
             case "changingHands":
                 value = po.getChangingHands();
@@ -1190,7 +1197,7 @@ public class ExcelUtil<T> implements Serializable {
                 //与通用不同的是，这里需要改变底色
                 Date time = po.getHardenTime();
                 Date sbTime = po.getSBTime();
-                if (sbTime.equals(time)) {
+                if (sbTime != null && sbTime.equals(time)) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
                 }
                 break;
@@ -1199,7 +1206,7 @@ public class ExcelUtil<T> implements Serializable {
                 //与通用不同的是，这里需要改变底色
                 time = po.getFinalHardenTime();
                 sbTime = po.getSBTime();
-                if (sbTime.equals(time)) {
+                if (sbTime != null && sbTime.equals(time)) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
                 }
                 break;

@@ -3,19 +3,19 @@ package com.example.springBootDemo.util.excel;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.write.builder.ExcelWriterBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.*;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +27,7 @@ import java.util.List;
  * @Copyright (c) 2020 inc. all rights reserved<p>
  * @公司名称
  */
+@Slf4j
 public class ExcelChangeUtil {
 
     /**
@@ -53,8 +54,8 @@ public class ExcelChangeUtil {
             XSSFDataFormat format = workbook.createDataFormat();
             cellStyle.setDataFormat(format.getFormat("h:mm:ss"));
 
-            Row row;
-            Cell cell;
+            XSSFRow row;
+            XSSFCell cell;
             List<String[]> lines = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -84,7 +85,7 @@ public class ExcelChangeUtil {
         return xlsxFile;
     }
 
-    private static void setCell(Cell cell, String cellData, XSSFCellStyle cellStyle) {
+    private static void setCell(XSSFCell cell, String cellData, XSSFCellStyle cellStyle) {
         try {
             if (StringUtils.isEmpty(cellData) || "--".equals(cellData)) {
                 cell.setCellValue("");
@@ -99,9 +100,9 @@ public class ExcelChangeUtil {
                 cell.setCellValue(Double.valueOf(cellData));
             } else if (cellData.contains(":") && cellData.matches("[\\:0-9]*")) {
                 cell.setCellStyle(cellStyle);
-//                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-                cell.setCellValue(cellData);
-                cell.setCellStyle(cellStyle);
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                cell.setCellValue(sdf.parse(cellData));
+//                log.info("cellType:{}",cell.getCellType());
             } else {
                 cell.setCellValue(cellData);
             }
