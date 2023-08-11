@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -181,7 +183,7 @@ public class ReportController {
     @GetMapping("/exportZtRePort")
     @ApiOperation("涨停报表导出")
     public void exportZtRePort(@RequestParam(value = "date", required = false) String date,
-                               HttpServletResponse response)  {
+                               HttpServletResponse response) {
 
         String fileName = "涨停1111.xlsx";
         String sheetName = "涨停";
@@ -237,11 +239,39 @@ public class ReportController {
         excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
     }
 
-    @ApiOperation("从文件中读入数据")
-    @PostMapping("/importFromFile")
-    public RespBean importFromFile() throws Exception {
+
+    @ApiOperation("复盘初始化")
+    @PostMapping("/initFP")
+    public RespBean initFP(@RequestParam(value = "clearFlag", required = false) String clearFlag,
+                           @RequestParam(value = "importDateFlag", required = false) String importDateFlag) {
+
+        String basePath = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
         try {
-            String basePath = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
+            //0清理工作-调试阶段不用开启
+            if ("1".equals(clearFlag)) {
+                File baseDir = new File(basePath);
+                Path directory = Paths.get(basePath);
+                FileUtil.deleteDirectory(directory);
+                baseDir.mkdirs();
+            }
+
+            //1环境创建-文件夹
+            String date = DateUtil.format(new Date(), "yyyy-M-d");
+            File baseDir = new File("D:\\DATA\\手机备份数据\\" + date);
+            File zsPath = new File(baseDir.getPath() + "\\走势");
+            File qtPath = new File(baseDir.getPath() + "\\其他");
+            File wpPath = new File(baseDir.getPath() + "\\尾盘");
+            FileUtil.mkdirs(baseDir.getPath());
+            FileUtil.mkdirs(zsPath.getPath());
+            FileUtil.mkdirs(qtPath.getPath());
+            FileUtil.mkdirs(wpPath.getPath());
+
+            //2将导出的同花顺文件转换成xlsx后，导入到数据库中
+            //导入前，需要手动填写主业内容，防止生成的时候统计不对
+            if(StringUtils.isEmpty(importDateFlag)){
+                return RespBean.success("处理到文件导入前");
+            }
+
             for (int i = 1; i <= 6; i++) {
                 File file = new File(basePath + "Table" + i + ".xls");
                 File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
@@ -253,30 +283,6 @@ public class ReportController {
                 if (i == 6) reportService.importExcelBdDownStock(new FileInputStream(tempFile));
             }
             return RespBean.success("导入成功");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-    @ApiOperation("复盘初始化")
-    @PostMapping("/initFP")
-    public RespBean initFP() throws IOException {
-        //0环境创建-文件夹
-        String date = DateUtil.format(new Date(), "yyyy-M-d");
-        File baseDir = new File("D:\\DATA\\手机备份数据\\" + date);
-        File zsPath = new File(baseDir.getPath() + "\\走势");
-        File qtPath = new File(baseDir.getPath() + "\\其他");
-        File wpPath = new File(baseDir.getPath() + "\\尾盘");
-        FileUtil.mkdirs(baseDir.getPath());
-        FileUtil.mkdirs(zsPath.getPath());
-        FileUtil.mkdirs(qtPath.getPath());
-        FileUtil.mkdirs(wpPath.getPath());
-
-
-        try {
-
-            return RespBean.success("初始化成功");
         } catch (Exception e) {
             e.printStackTrace();
         }

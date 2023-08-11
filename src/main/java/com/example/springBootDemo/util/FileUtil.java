@@ -4,6 +4,9 @@ import com.example.springBootDemo.config.components.enums.FileTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.Scanner;
 
 /**
@@ -187,6 +190,12 @@ public class FileUtil {
         writer.close();
     }
 
+    public static void deleteDirectory(Path directory) throws IOException {
+        Files.walk(directory)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+    }
 }
 
 //    private MultipartFile getMultipartFile(File file) {

@@ -3,6 +3,7 @@ package com.example.springBootDemo.util.excel;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.write.builder.ExcelWriterBuilder;
+import com.example.springBootDemo.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -43,7 +44,9 @@ public class ExcelChangeUtil {
         if (null == csvFile) {
             throw new Exception("文件生成失败");
         }
-        File xlsxFile = new File(csvFile.getParent() + File.separator + fileName.replace(".xls", ".xlsx"));
+        File dir = new File(csvFile.getParent() + File.separator + "gen");
+        FileUtil.mkdirs(dir.getPath());
+        File xlsxFile = new File(dir + File.separator + fileName.replace(".xls", ".xlsx"));
         xlsxFile.createNewFile();
         //后面的编码格式要和生成csv文件的时候保持一致，否则会出现乱码问题
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(csvFile), "GBK"))) {
