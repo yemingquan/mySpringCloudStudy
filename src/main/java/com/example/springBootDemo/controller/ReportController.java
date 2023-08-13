@@ -4,10 +4,12 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.system.session.RespBean;
+import com.example.springBootDemo.entity.BaseBond;
 import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
+import com.example.springBootDemo.service.BaseBondService;
 import com.example.springBootDemo.service.ReportService;
 import com.example.springBootDemo.service.StudentService;
 import com.example.springBootDemo.util.DateUtil;
@@ -22,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,6 +53,37 @@ public class ReportController {
     ReportService reportService;
     @Autowired
     StudentService studentService;
+    @Resource
+    private BaseBondService baseBondService;
+
+    @ApiOperation("导出可转债信息")
+    @PostMapping("/imporBaseBond")
+    public RespBean imporBaseBond(MultipartFile multipartFile) {
+        try {
+            //设置导入参数
+            ImportParams importParams = new ImportParams();
+            importParams.setHeadRows(1); //表头占1行，默认1
+            //导入前先删除当天的数据
+            EntityWrapper<BaseBond> wrapper = new EntityWrapper<>();
+            wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
+            baseBondService.delete(wrapper);
+
+            List<BaseBond> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseBond.class, importParams);
+//            is.close();
+//            list.stream().forEach(po -> {
+//                StringBuffer instructions = new StringBuffer("");
+//
+//
+//
+//                datePro(po);
+//            });
+            baseBondService.insertBatch(list, list.size());
+            return RespBean.success("导入成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
 
     @ApiOperation("导入波动向上Excel数据")
     @PostMapping("/importExcelBdUpStock")

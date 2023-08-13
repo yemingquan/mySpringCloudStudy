@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springBootDemo.dao.mapper.BaseBondDao">
+
+    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseBond">
+        <!--@Table base_bond-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="tsCode" column="ts_code" jdbcType="VARCHAR"/>
+        <result property="bondFullName" column="bond_full_name" jdbcType="VARCHAR"/>
+        <result property="gains" column="gains" jdbcType="NUMERIC"/>
+        <result property="par" column="par" jdbcType="NUMERIC"/>
+        <result property="stkShortName" column="stk_short_name" jdbcType="VARCHAR"/>
+        <result property="stockPrice" column="stock_price" jdbcType="NUMERIC"/>
+        <result property="stockPar" column="stock_par" jdbcType="NUMERIC"/>
+        <result property="convPrice" column="conv_price" jdbcType="NUMERIC"/>
+        <result property="cbOverRate" column="cb_over_rate" jdbcType="NUMERIC"/>
+        <result property="bondOverRate" column="bond_over_rate" jdbcType="NUMERIC"/>
+        <result property="amplitude" column="amplitude" jdbcType="NUMERIC"/>
+        <result property="arbitrageSpace" column="arbitrage_space" jdbcType="NUMERIC"/>
+        <result property="convRate" column="conv_rate" jdbcType="NUMERIC"/>
+        <result property="remainSize" column="remain_size" jdbcType="NUMERIC"/>
+        <result property="issueSize" column="issue_size" jdbcType="NUMERIC"/>
+        <result property="maturityDate" column="maturity_date" jdbcType="TIMESTAMP"/>
+        <result property="convStartDate" column="conv_start_date" jdbcType="TIMESTAMP"/>
+        <result property="callPrice" column="call_price" jdbcType="NUMERIC"/>
+        <result property="repoPrice" column="repo_price" jdbcType="NUMERIC"/>
+        <result property="listDate" column="list_date" jdbcType="TIMESTAMP"/>
+        <result property="entitySize" column="entity_size" jdbcType="NUMERIC"/>
+        <result property="plate" column="plate" jdbcType="VARCHAR"/>
+        <result property="nicheBusiness" column="niche_business" jdbcType="VARCHAR"/>
+        <result property="trendType" column="trend_type" jdbcType="VARCHAR"/>
+        <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
+        <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
+        <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+        <result property="modifedDate" column="modifed_date" jdbcType="TIMESTAMP"/>
+        <result property="modifedBy" column="modifed_by" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+</mapper>
+
