@@ -413,10 +413,10 @@ public class ExcelUtil<T> implements Serializable {
                                 String readConverterExp = attr.readConverterExp();
                                 if (StringUtils.isNotEmpty(dateFormat) && o != null) {
 //                                    cell.setCellValue(new SimpleDateFormat(dateFormat).format((Date) field.get(vo)));
-                                    cell.setCellValue((Date)o);
+                                    cell.setCellValue((Date) o);
                                 } else if (StringUtils.isNotEmpty(readConverterExp) && o != null) {
                                     cell.setCellValue(convertByExp(String.valueOf(field.get(vo)), readConverterExp));
-                                }else {
+                                } else {
                                     // 如果数据存在就填入,不存在填入空格.
                                     String value = field.get(vo) == null ? attr.defaultValue() : field.get(vo) + attr.suffix();
                                     cell.setCellValue(value);
@@ -566,10 +566,10 @@ public class ExcelUtil<T> implements Serializable {
                                 String readConverterExp = attr.readConverterExp();
                                 if (StringUtils.isNotEmpty(dateFormat) && o != null) {
 //                                    cell.setCellValue(new SimpleDateFormat(dateFormat).format((Date) field.get(vo)));
-                                    cell.setCellValue((Date)o);
+                                    cell.setCellValue((Date) o);
                                 } else if (StringUtils.isNotEmpty(readConverterExp) && o != null) {
                                     cell.setCellValue(convertByExp(String.valueOf(field.get(vo)), readConverterExp));
-                                }else {
+                                } else {
                                     // 如果数据存在就填入,不存在填入空格.
                                     String value = field.get(vo) == null ? attr.defaultValue() : field.get(vo) + attr.suffix();
                                     cell.setCellValue(value);
@@ -624,7 +624,7 @@ public class ExcelUtil<T> implements Serializable {
 
         if (isHead) {
             font.setBold(true);
-            font.setFontHeightInPoints((short)14);
+            font.setFontHeightInPoints((short) 12);
             //导出列头字体颜色
             font.setColor(attr.headerColor().index);
             //导出列头背景颜色
@@ -643,7 +643,7 @@ public class ExcelUtil<T> implements Serializable {
             cellStyle.setFillForegroundColor(attr.backgroundColor().index);
 
             String dateFormat = attr.dateFormat();
-            if(StringUtils.isNotEmpty(dateFormat)){
+            if (StringUtils.isNotEmpty(dateFormat)) {
                 XSSFDataFormat format = workbook.createDataFormat();
                 cellStyle.setDataFormat(format.getFormat(dateFormat));
             }
@@ -725,7 +725,7 @@ public class ExcelUtil<T> implements Serializable {
         String plate = po.getPlate();
         if (!"主板".equals(plate)) {
             map.put("bold", true);
-        }else{
+        } else {
             map.put("bold", false);
         }
 //            if (i % 2 == 1) {
@@ -813,7 +813,7 @@ public class ExcelUtil<T> implements Serializable {
         //涨停底色处理
         Map<String, List<ZtReport>> ztMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
         Map<String, Object> colorMap = Maps.newConcurrentMap();
-        IndexedColors[] colorArr = {IndexedColors.LIGHT_GREEN, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_YELLOW, IndexedColors.LIGHT_TURQUOISE};
+        IndexedColors[] colorArr = {IndexedColors.LIGHT_ORANGE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE};
         int num = 0;
         for (String str : ztMap.keySet()) {
             List<ZtReport> bkList = ztMap.get(str);
@@ -901,6 +901,9 @@ public class ExcelUtil<T> implements Serializable {
         Date hardenTime = po.getHardenTime();
         Date finalTime = (finalHardenTime != null ? finalHardenTime : hardenTime);
         Double amplitude = po.getAmplitude();
+        double value = po.getAmplitude();
+        double yesterdayGains = po.getYesterdayGains();
+        Double yestedayEntitySize = po.getYestedayEntitySize();
 
         if (amplitude == 0) {
             po.setHardenType("一字板");
@@ -909,6 +912,9 @@ public class ExcelUtil<T> implements Serializable {
             } else {
                 instructions.append("加速；");
             }
+        } else if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
+            po.setHardenType("大长腿");
+            instructions.append("大长腿；");
         } else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
             po.setHardenType("T字板");
             instructions.append("T字板；");
@@ -920,6 +926,13 @@ public class ExcelUtil<T> implements Serializable {
             instructions.append("偷袭板；");
         } else {
             po.setHardenType("换手板");
+        }
+
+        //弱修复|弱转强
+        if (yesterdayGains < -6) {
+            instructions.append("弱修复；");
+        } else if (yestedayEntitySize != null) {
+            instructions.append("弱转强；");
         }
         po.setInstructions(instructions.toString());
     }
@@ -994,11 +1007,7 @@ public class ExcelUtil<T> implements Serializable {
         if (po.getCirculation() < 30) {
             instructions.append("小盘；");
         }
-//        value = po.getAmplitude();
-//        value = po.getEntitySize();
-//        if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
-//            instructions.append("大长腿；");
-//        }
+
 
         value = po.getChangingHands();
         if (75 > value && value > 50) {
@@ -1105,7 +1114,7 @@ public class ExcelUtil<T> implements Serializable {
                     map.put("backgroundColor", IndexedColors.CORNFLOWER_BLUE);
                 }
                 break;
-                //换手
+            //换手
             case "changingHands":
                 value = po.getChangingHands();
                 if (value == 0) {
@@ -1144,13 +1153,17 @@ public class ExcelUtil<T> implements Serializable {
                 break;
             //股票名称
             case "stockName":
+                map.put("color", IndexedColors.RED);
                 //辨识度标的逻辑
                 String valueStr = po.getStockName();
                 if (BSD_STOCK_LIST.contains(valueStr)) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
                 }
                 break;
-
+            //说明
+            case "instructions":
+                map.put("color", IndexedColors.RED);
+                break;
         }
     }
 

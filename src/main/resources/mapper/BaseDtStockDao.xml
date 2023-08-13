@@ -30,14 +30,17 @@
         <result property="modifedBy" column="modifed_by" jdbcType="VARCHAR"/>
         <result property="trendType" column="trend_type" jdbcType="VARCHAR"/>
         <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result column="entity_size" jdbcType="INTEGER" property="entitySize"/>
+        <result column="yesteday_entity_size" jdbcType="INTEGER" property="yestedayEntitySize"/>
     </resultMap>
 
     <select id="getMbReportByDate" resultType="com.example.springBootDemo.entity.report.MbReport" parameterType="java.lang.String">
         select
-          id, stock_code, stock_name, plate, main_business, niche_business, circulation, instructions, combo, touch_time, yesterday_gains, start_gains, gains, amplitude, changing_hands, yesterday_amplitude, yesterday_changing_hands, average_Price10, average_Price5, current_Price, create_date, create_by, modifed_date, modifed_by, trend_type, remark,
+          /*id, stock_code, stock_name, plate, main_business, niche_business, circulation, instructions, combo, touch_time, yesterday_gains, start_gains, gains, amplitude, changing_hands, yesterday_amplitude, yesterday_changing_hands, average_Price10, average_Price5, current_Price, create_date, create_by, modifed_date, modifed_by, trend_type, remark,*/
+          dt.*,
           4 source
-        from base_dt_stock
-        where create_date = #{date}
+        from base_dt_stock dt
+        where dt.create_date = #{date}
     </select>
 </mapper>
 

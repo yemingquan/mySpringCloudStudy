@@ -154,5 +154,8 @@ public class BaseZtStock extends BaseStock implements Serializable {
      */
     private String remark;
 
+    @Excel(name = "实体涨幅", orderNum = "14")
+    private Double entitySize;
+
     private static final long serialVersionUID = 1L;
 }

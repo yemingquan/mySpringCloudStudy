@@ -127,6 +127,9 @@ public class BaseDtStock extends BaseStock implements Serializable {
      */
     @Excel(name = "现价", orderNum = "17")
     private Double currentPrice;
+
+    @Excel(name = "实体涨幅", orderNum = "18")
+    private Double entitySize;
     /**
      * 创建时间
      */

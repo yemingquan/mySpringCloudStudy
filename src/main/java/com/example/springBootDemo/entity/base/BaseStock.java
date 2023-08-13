@@ -130,5 +130,7 @@ public class BaseStock implements Serializable {
     private String source;
 
     private Double entitySize;
+
+    private Double yestedayEntitySize;
 }
 

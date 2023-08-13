@@ -21,7 +21,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 @ApiModel(description = "")
 @TableName("base_zthf_stock")
 public class BaseZthfStock extends BaseStock implements Serializable {
@@ -131,6 +131,9 @@ public class BaseZthfStock extends BaseStock implements Serializable {
      */
     @Excel(name = "昨日换手", orderNum = "14")
     private Double yesterdayChangingHands;
+
+    @Excel(name = "实体涨幅", orderNum = "15")
+    private Double entitySize;
 
     /**
      * 创建时间

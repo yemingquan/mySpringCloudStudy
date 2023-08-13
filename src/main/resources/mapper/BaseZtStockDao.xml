@@ -26,17 +26,22 @@
         <result column="modifed_by" jdbcType="CHAR" property="modifedBy"/>
         <result column="remark" jdbcType="CHAR" property="remark"/>
         <result column="circulation" jdbcType="INTEGER" property="circulation"/>
+        <result column="entity_size" jdbcType="INTEGER" property="entitySize"/>
+        <result column="yesteday_entity_size" jdbcType="INTEGER" property="yestedayEntitySize"/>
     </resultMap>
 
-    <select id="getZtReportByDate" resultType="com.example.springBootDemo.entity.report.ZtReport" parameterType="java.lang.String">
+    <select id="getZtReportByDate" resultType="com.example.springBootDemo.entity.report.ZtReport"
+            parameterType="java.lang.String">
         select
-          id, stock_code, stock_name, plate, main_business, niche_business, circulation, instructions, combo, harden_time, final_harden_time, harden_type, reason, gains, yesterday_gains, amplitude, yesterday_amplitude, changing_hands, yesterday_changing_hands, create_date, create_by, modifed_date, modifed_by, remark,
-          2 source
-        from base_zt_stock
-        where create_date = #{date}
+          zt.*,
+          2 source,
+          zb.entity_Size yestedayEntitySize
+        from base_zt_stock zt
+        left join base_zb_stock zb on zt.stock_code = zb.stock_code and  zb.create_date = zt.create_date-1
+        where zt.create_date = #{date}
     </select>
 
-    <select id="testDB" resultType="java.lang.String" >
+    <select id="testDB" resultType="java.lang.String">
         SELECT
           id
         FROM base_zt_stock

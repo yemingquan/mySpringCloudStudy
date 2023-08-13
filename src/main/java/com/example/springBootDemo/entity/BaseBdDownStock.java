@@ -118,6 +118,9 @@ public class BaseBdDownStock extends BaseStock implements Serializable {
      */
     @Excel(name = "现价", orderNum = "16")
     private Double currentPrice;
+
+    @Excel(name = "实体涨幅", orderNum = "17")
+    private Double entitySize;
     /**
      * 创建时间
      */

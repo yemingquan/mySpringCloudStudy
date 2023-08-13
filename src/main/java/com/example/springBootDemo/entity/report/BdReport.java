@@ -41,7 +41,7 @@ public class BdReport extends BaseStock implements Serializable {
     @Excel(name = "说明")
     private String instructions;
 
-    @Excel(name = "实体大小", suffix = "%", bold = true)
+    @Excel(name = "实体涨幅", suffix = "%", bold = true)
     private Double entitySize;
 
     @Excel(name = "昨日涨幅", suffix = "%")
