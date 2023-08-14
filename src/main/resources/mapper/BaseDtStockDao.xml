@@ -38,8 +38,10 @@
         select
           /*id, stock_code, stock_name, plate, main_business, niche_business, circulation, instructions, combo, touch_time, yesterday_gains, start_gains, gains, amplitude, changing_hands, yesterday_amplitude, yesterday_changing_hands, average_Price10, average_Price5, current_Price, create_date, create_by, modifed_date, modifed_by, trend_type, remark,*/
           dt.*,
-          4 source
+          4 source,
+          b.bond_full_name bond,b.instructions bondInstructions
         from base_dt_stock dt
+        LEFT JOIN base_bond b on b.stk_short_name = dt.stock_name
         where dt.create_date = #{date}
     </select>
 </mapper>

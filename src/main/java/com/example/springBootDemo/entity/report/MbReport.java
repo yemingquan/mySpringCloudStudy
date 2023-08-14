@@ -3,6 +3,7 @@ package com.example.springBootDemo.entity.report;
 import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.util.excel.Excel;
 import lombok.*;
+import org.apache.poi.ss.usermodel.IndexedColors;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -41,6 +42,9 @@ public class MbReport extends BaseStock implements Serializable {
     @Excel(name = "摸板时间",dateFormat="HH:mm:ss", bold = true)
     private Date touchTime;
 
+    @Excel(name = "实体涨幅", suffix = "%", bold = true, color = IndexedColors.RED)
+    private Double entitySize;
+
     @Excel(name = "涨幅",suffix="%", bold = true)
     private Double gains;
 
@@ -64,6 +68,12 @@ public class MbReport extends BaseStock implements Serializable {
 
     @Excel(name = "现价")
     private Double currentPrice;
+
+    @Excel(name = "可转债")
+    private String bond;
+
+    @Excel(name = "可转债说明")
+    private String bondInstructions;
 
     private static final long serialVersionUID = 1L;
 }

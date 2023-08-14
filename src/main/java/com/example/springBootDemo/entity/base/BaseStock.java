@@ -132,5 +132,15 @@ public class BaseStock implements Serializable {
     private Double entitySize;
 
     private Double yestedayEntitySize;
+
+    /**
+     * 可转债
+     */
+    private String bond;
+
+    /**
+     * 可转债说明
+     */
+    private String bondInstructions;
 }
 

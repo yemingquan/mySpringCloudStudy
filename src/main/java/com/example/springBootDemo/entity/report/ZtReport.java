@@ -65,7 +65,7 @@ public class ZtReport extends BaseStock implements Serializable {
     @Excel(name = "昨日换手",suffix="%")
     private Double yesterdayChangingHands;
 
-    @Excel(name = "涨停类型")
+//    @Excel(name = "涨停类型")
     private String hardenType;
 
 //    @Excel(name = "昨天实体涨幅")
@@ -73,6 +73,12 @@ public class ZtReport extends BaseStock implements Serializable {
 
     //板块首版时间
     private Date SBTime;
+
+    @Excel(name = "可转债")
+    private String bond;
+
+    @Excel(name = "可转债说明")
+    private String bondInstructions;
 
     private static final long serialVersionUID = 1L;
 }

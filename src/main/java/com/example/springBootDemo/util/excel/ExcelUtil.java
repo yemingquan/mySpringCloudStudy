@@ -1106,7 +1106,12 @@ public class ExcelUtil<T> implements Serializable {
                     map.put("backgroundColor", IndexedColors.CORNFLOWER_BLUE);
                 }
                 break;
+            //涨幅
+            case "gains":
+                map.put("color", IndexedColors.RED);
+                break;
             case "entitySize":
+                map.put("color", IndexedColors.RED);
                 value = po.getEntitySize();
                 if (value < -6) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);

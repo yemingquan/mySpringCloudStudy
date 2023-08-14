@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -56,27 +57,48 @@ public class ReportController {
     @Resource
     private BaseBondService baseBondService;
 
-    @ApiOperation("导出可转债信息")
+    @ApiOperation("文件导入可转债信息")
     @PostMapping("/imporBaseBond")
-    public RespBean imporBaseBond(MultipartFile multipartFile) {
+    public RespBean imporBaseBond() {
         try {
+            String basePath = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
+            File file = new File(basePath + "Table_kzz.xls");
+            File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
+
             //设置导入参数
             ImportParams importParams = new ImportParams();
             importParams.setHeadRows(1); //表头占1行，默认1
             //导入前先删除当天的数据
             EntityWrapper<BaseBond> wrapper = new EntityWrapper<>();
-            wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
+//            wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
             baseBondService.delete(wrapper);
 
-            List<BaseBond> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseBond.class, importParams);
+            List<BaseBond> list = ExcelImportUtil.importExcel(new FileInputStream(tempFile), BaseBond.class, importParams);
 //            is.close();
-//            list.stream().forEach(po -> {
-//                StringBuffer instructions = new StringBuffer("");
-//
-//
-//
-//                datePro(po);
-//            });
+            list.stream().forEach(po -> {
+                //如果没有涨幅说明转债有问题
+                if(po.getGains()==null){
+
+                }else{
+                    StringBuffer instructions = new StringBuffer("");
+                    //转股起始日
+                    Date convStartDate = po.getConvStartDate();
+                    //债券余额(万元)
+                    Double remainSize = po.getRemainSize()/10000;
+                    //转股溢价
+                    Double cbOverRate = po.getCbOverRate()*100;
+
+                    if(cbOverRate>30){
+                        instructions.append("溢价率:"+new BigDecimal(cbOverRate).setScale(2, BigDecimal.ROUND_UP)+"%;");
+                    }
+                    if(new Date().after(convStartDate)&&remainSize<3){
+                        instructions.append("规模:"+new BigDecimal(remainSize).setScale(2, BigDecimal.ROUND_UP) +"亿;");
+                    }else if(new Date().before(convStartDate)){
+                        instructions.append("次新债;");
+                    }
+                    po.setInstructions(instructions.toString());
+                }
+            });
             baseBondService.insertBatch(list, list.size());
             return RespBean.success("导入成功");
         } catch (Exception e) {

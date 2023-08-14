@@ -99,6 +99,11 @@ public class ExcelChangeUtil {
                 } else {
                     cell.setCellValue(cellData);
                 }
+             //20年开头，并且8位数字，转数字
+            } else if (cellData.startsWith("20") && cellData.matches("[0-9]{8}")) {
+                cell.setCellStyle(cellStyle);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+                cell.setCellValue(sdf.parse(cellData));
             } else if (cellData.matches("\\+-?[0-9.]*")) {
                 cell.setCellValue(Double.valueOf(cellData));
             } else if (cellData.contains(":") && cellData.matches("[\\:0-9]*")) {

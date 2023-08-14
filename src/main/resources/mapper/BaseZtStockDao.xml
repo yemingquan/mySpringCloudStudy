@@ -35,9 +35,11 @@
         select
           zt.*,
           2 source,
-          zb.entity_Size yestedayEntitySize
+          zb.entity_Size yestedayEntitySize,
+          b.bond_full_name bond,b.instructions bondInstructions
         from base_zt_stock zt
         left join base_zb_stock zb on zt.stock_code = zb.stock_code and  zb.create_date = zt.create_date-1
+        LEFT JOIN base_bond b on b.stk_short_name = zt.stock_name
         where zt.create_date = #{date}
     </select>
 

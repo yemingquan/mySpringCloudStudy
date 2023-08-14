@@ -101,12 +101,12 @@ public class BaseBond implements Serializable {
     /**
      * 债券余额（万元）
      */
-    @Excel(name = "债券余额（万元）")
+    @Excel(name = "债券余额(万元)")
     private Double remainSize;
     /**
      * 债券规模（亿元）
      */
-    @Excel(name = "债券规模（亿元）")
+    @Excel(name = "债券规模(亿元)")
     private Double issueSize;
     /**
      * 到期日期
