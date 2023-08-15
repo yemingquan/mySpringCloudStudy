@@ -24,7 +24,6 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -831,8 +830,6 @@ public class ExcelUtil<T> implements Serializable {
         for (int i = 0; i < list.size(); i++) {
             ZtReport po = list.get(i);
             String stockCode = po.getStockCode();
-            //涨停报表字段处理
-            ztInstructions(po);
 
             //注解循环
             for (int j = 0; j < fields.size(); j++) {
@@ -887,55 +884,7 @@ public class ExcelUtil<T> implements Serializable {
         }
     }
 
-    /**
-     * 涨停报表字段处理
-     *
-     * @param po
-     */
-    private void ztInstructions(ZtReport po) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        //说明
-        StringBuffer instructions = new StringBuffer(po.getInstructions());
-        genOprInstructions(po, instructions);
-        Date finalHardenTime = po.getFinalHardenTime();
-        Date hardenTime = po.getHardenTime();
-        Date finalTime = (finalHardenTime != null ? finalHardenTime : hardenTime);
-        Double amplitude = po.getAmplitude();
-        double value = po.getAmplitude();
-        double yesterdayGains = po.getYesterdayGains();
-        Double yestedayEntitySize = po.getYestedayEntitySize();
 
-        if (amplitude == 0) {
-            po.setHardenType("一字板");
-            if (po.getYesterdayAmplitude() == 0) {
-                instructions.append("连续加速；");
-            } else {
-                instructions.append("加速；");
-            }
-        } else if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
-            po.setHardenType("大长腿");
-            instructions.append("大长腿；");
-        } else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
-            po.setHardenType("T字板");
-            instructions.append("T字板；");
-        } else if (sdf.parse("09:40:00").after(finalTime)) {
-            po.setHardenType("秒板");
-            instructions.append("秒板；");
-        } else if (sdf.parse("14:40:00").before(finalTime)) {
-            po.setHardenType("偷袭板");
-            instructions.append("偷袭板；");
-        } else {
-            po.setHardenType("换手板");
-        }
-
-        //弱修复|弱转强
-        if (yesterdayGains < -6) {
-            instructions.append("弱修复；");
-        } else if (yestedayEntitySize != null) {
-            instructions.append("弱转强；");
-        }
-        po.setInstructions(instructions.toString());
-    }
 
     /**
      * 模板报表样式处理
@@ -955,7 +904,6 @@ public class ExcelUtil<T> implements Serializable {
         for (int i = 0; i < list.size(); i++) {
             MbReport po = list.get(i);
             String stockCode = po.getStockCode();
-            mbInstructions(po);
 
             //注解循环
             for (int j = 0; j < fields.size(); j++) {
@@ -985,38 +933,9 @@ public class ExcelUtil<T> implements Serializable {
         return annotationMapping;
     }
 
-    /**
-     * 摸板报表样式处理
-     *
-     * @param po
-     */
-    private void mbInstructions(MbReport po) {
-        //说明
-        StringBuffer instructions = new StringBuffer(po.getInstructions());
-        genOprInstructions(po, instructions);
-        po.setInstructions(instructions.toString());
-    }
-
-    /**
-     * 说明字段公共部分处理
-     *
-     * @param instructions
-     */
-    private void genOprInstructions(BaseStock po, StringBuffer instructions) {
-        double value = 0;
-        if (po.getCirculation() < 30) {
-            instructions.append("小盘；");
-        }
 
 
-        value = po.getChangingHands();
-        if (75 > value && value > 50) {
-            instructions.append("高换手；");
-        } else if (value > 75) {
-            instructions.append("死亡换手；");
-        }
 
-    }
 
     /**
      * 波动报表样式处理
@@ -1036,8 +955,7 @@ public class ExcelUtil<T> implements Serializable {
         for (int i = 0; i < list.size(); i++) {
             BdReport po = list.get(i);
             String stockCode = po.getStockCode();
-            //波动报表说明字段处理
-            bdInstructions(po);
+
 
             //注解循环
             for (int j = 0; j < fields.size(); j++) {
@@ -1173,32 +1091,7 @@ public class ExcelUtil<T> implements Serializable {
     }
 
 
-    /**
-     * 波动报表说明字段处理
-     *
-     * @param po
-     */
-    private void bdInstructions(BdReport po) {
-        //实体大小
-        BigDecimal a = new BigDecimal(po.getGains()).setScale(2, BigDecimal.ROUND_UP);
-        BigDecimal b = new BigDecimal(po.getStartGains()).setScale(2, BigDecimal.ROUND_UP);
-        BigDecimal result = a.subtract(b);
-        double entitySize = result.doubleValue();
-        po.setEntitySize(entitySize);
 
-        //说明
-        StringBuffer instructions = new StringBuffer(po.getInstructions());
-        genOprInstructions(po, instructions);
-
-        if (Math.abs(entitySize) < 2) {
-            instructions.append("十字星;");
-        } else if (entitySize > 6) {
-            instructions.append("大阳线;");
-        } else if (entitySize < -6) {
-            instructions.append("大阴线;");
-        }
-        po.setInstructions(instructions.toString());
-    }
 
     /**
      * 导出样式特殊处理

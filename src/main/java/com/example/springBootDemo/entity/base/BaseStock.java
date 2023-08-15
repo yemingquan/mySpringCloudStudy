@@ -142,5 +142,14 @@ public class BaseStock implements Serializable {
      * 可转债说明
      */
     private String bondInstructions;
+
+    //    @Excel(name = "涨停类型")
+    private String hardenType;
+
+//    @Excel(name = "首次时间",dateFormat="HH:mm:ss")
+    private Date hardenTime;
+
+//    @Excel(name = "最终时间" ,dateFormat="HH:mm:ss")
+    private Date finalHardenTime;
 }
 
