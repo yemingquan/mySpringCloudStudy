@@ -179,6 +179,9 @@ public class ReportServiceImpl implements ReportService {
         list.stream().forEach(po -> {
             datePro(po);
             mbInstructions(po);
+            StringBuffer instructions = new StringBuffer(po.getInstructions());
+            instructions.append("曾跌停;");
+            po.setInstructions(instructions.toString());
         });
         return baseDtStockService.insertBatch(list, list.size());
     }
@@ -198,6 +201,9 @@ public class ReportServiceImpl implements ReportService {
         list.stream().forEach(po -> {
             datePro(po);
             mbInstructions(po);
+            StringBuffer instructions = new StringBuffer(po.getInstructions());
+            instructions.append("炸板;");
+            po.setInstructions(instructions.toString());
         });
         return baseZbStockService.insertBatch(list, list.size());
     }
@@ -217,7 +223,9 @@ public class ReportServiceImpl implements ReportService {
 //                po.setYesterdayChangingHands(po.getYesterdayChangingHands() * 100);
         if (po.getGains() != null) po.setGains(po.getGains() * 100);
         if (po.getStartGains() != null) po.setStartGains(po.getStartGains() * 100);
-        double entitySize = po.getEntitySize();
+        if (po.getEntitySize() != null)po.setEntitySize(po.getEntitySize() * 100);
+
+
 
         double value = 0;
         if (po.getCirculation() < 30) {
@@ -231,12 +239,9 @@ public class ReportServiceImpl implements ReportService {
             instructions.append("死亡换手;");
         }
 
-        if (Math.abs(entitySize) < 2) {
-            instructions.append("十字星;");
-        } else if (entitySize > 6) {
-            instructions.append("大阳线;");
-        } else if (entitySize < -6) {
-            instructions.append("大阴线;");
+        value = po.getAmplitude();
+        if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
+            instructions.append("大长腿;");
         }
 
         po.setInstructions(instructions.toString());
@@ -258,8 +263,14 @@ public class ReportServiceImpl implements ReportService {
 
         //说明
         StringBuffer instructions = new StringBuffer(po.getInstructions());
-
-
+        double entitySize = po.getEntitySize();
+        if (Math.abs(entitySize) < 2) {
+            instructions.append("十字星;");
+        } else if (entitySize > 7) {
+            instructions.append("大阳线;");
+        } else if (entitySize < -7) {
+            instructions.append("负反馈;");
+        }
         po.setInstructions(instructions.toString());
     }
 
@@ -278,9 +289,10 @@ public class ReportServiceImpl implements ReportService {
         Date hardenTime = po.getHardenTime();
         Date finalTime = (finalHardenTime != null ? finalHardenTime : hardenTime);
         Double amplitude = po.getAmplitude();
-        double value = po.getAmplitude();
         double yesterdayGains = po.getYesterdayGains();
         Double yestedayEntitySize = po.getYestedayEntitySize();
+
+
 
         if (amplitude == 0) {
             po.setHardenType("一字板");
@@ -289,10 +301,7 @@ public class ReportServiceImpl implements ReportService {
             } else {
                 instructions.append("加速;");
             }
-        } else if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
-            po.setHardenType("大长腿");
-            instructions.append("大长腿;");
-        } else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
+        }else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
             po.setHardenType("T字板");
             instructions.append("T字板;");
         } else if (sdf.parse("09:40:00").after(finalTime)) {
@@ -322,6 +331,15 @@ public class ReportServiceImpl implements ReportService {
     private void mbInstructions(BaseStock po) {
         //说明
         StringBuffer instructions = new StringBuffer(po.getInstructions());
+        double entitySize = po.getEntitySize();
+        if (Math.abs(entitySize) < 2) {
+            instructions.append("十字星;");
+        } else if (entitySize > 7) {
+            instructions.append("大阳线;");
+        } else if (entitySize < -7) {
+            instructions.append("负反馈;");
+        }
+//        instructions.append("曾跌停;");
         po.setInstructions(instructions.toString());
     }
 }

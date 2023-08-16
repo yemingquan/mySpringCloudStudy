@@ -29,9 +29,6 @@ public class BdReport extends BaseStock implements Serializable {
     @Excel(name = "细分")
     private String nicheBusiness;
 
-    @Excel(name = "流通市值")
-    private Double circulation;
-
     @Excel(name = "代码")
     private String stockCode;
 
@@ -52,6 +49,9 @@ public class BdReport extends BaseStock implements Serializable {
 
     @Excel(name = "涨幅", suffix = "%", bold = true)
     private Double gains;
+
+    @Excel(name = "流通市值")
+    private Double circulation;
 
     @Excel(name = "振幅", suffix = "%")
     private Double amplitude;

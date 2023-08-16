@@ -812,7 +812,7 @@ public class ExcelUtil<T> implements Serializable {
         //涨停底色处理
         Map<String, List<ZtReport>> ztMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
         Map<String, Object> colorMap = Maps.newConcurrentMap();
-        IndexedColors[] colorArr = {IndexedColors.LIGHT_ORANGE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE};
+        IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE};
         int num = 0;
         for (String str : ztMap.keySet()) {
             List<ZtReport> bkList = ztMap.get(str);
@@ -1113,6 +1113,7 @@ public class ExcelUtil<T> implements Serializable {
                 Date sbTime = po.getSBTime();
                 if (sbTime != null && sbTime.equals(time)) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
+                    po.setInstructions( po.getInstructions()+"日内龙;");
                 }
                 break;
             //回封龙
@@ -1122,6 +1123,7 @@ public class ExcelUtil<T> implements Serializable {
                 sbTime = po.getSBTime();
                 if (sbTime != null && sbTime.equals(time)) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
+                    po.setInstructions( po.getInstructions()+"回封龙;");
                 }
                 break;
         }

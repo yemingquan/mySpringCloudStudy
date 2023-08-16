@@ -9,9 +9,7 @@ import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
-import com.example.springBootDemo.service.BaseBondService;
-import com.example.springBootDemo.service.ReportService;
-import com.example.springBootDemo.service.StudentService;
+import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.FileUtil;
 import com.example.springBootDemo.util.excel.ExcelChangeUtil;
@@ -54,6 +52,16 @@ public class ReportController {
     ReportService reportService;
     @Autowired
     StudentService studentService;
+    @Autowired
+    BaseZtStockService baseZtStockService;
+    @Autowired
+    BaseZthfStockService baseZthfStockService;
+    @Autowired
+    BaseZbStockService baseZbStockService;
+    @Autowired
+    BaseDtStockService baseDtStockService;
+    @Autowired
+    BaseBdDownStockService baseBdDownStockService;
     @Resource
     private BaseBondService baseBondService;
 
