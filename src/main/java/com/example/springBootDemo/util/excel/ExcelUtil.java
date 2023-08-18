@@ -812,7 +812,7 @@ public class ExcelUtil<T> implements Serializable {
         //涨停底色处理
         Map<String, List<ZtReport>> ztMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
         Map<String, Object> colorMap = Maps.newConcurrentMap();
-        IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE};
+        IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME};
         int num = 0;
         for (String str : ztMap.keySet()) {
             List<ZtReport> bkList = ztMap.get(str);

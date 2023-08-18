@@ -11,6 +11,7 @@ import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,7 @@ import java.util.List;
  * @公司名称
  */
 @Service
+@Slf4j
 public class ReportServiceImpl implements ReportService {
 
     @Autowired
@@ -183,6 +185,10 @@ public class ReportServiceImpl implements ReportService {
             instructions.append("曾跌停;");
             po.setInstructions(instructions.toString());
         });
+        if (list.size() == 0) {
+            log.info("无数据需要处理");
+            return true;
+        }
         return baseDtStockService.insertBatch(list, list.size());
     }
 
@@ -209,7 +215,6 @@ public class ReportServiceImpl implements ReportService {
     }
 
 
-
     private void datePro(BaseStock po) {
         StringBuffer instructions = new StringBuffer("");
 
@@ -223,8 +228,7 @@ public class ReportServiceImpl implements ReportService {
 //                po.setYesterdayChangingHands(po.getYesterdayChangingHands() * 100);
         if (po.getGains() != null) po.setGains(po.getGains() * 100);
         if (po.getStartGains() != null) po.setStartGains(po.getStartGains() * 100);
-        if (po.getEntitySize() != null)po.setEntitySize(po.getEntitySize() * 100);
-
+        if (po.getEntitySize() != null) po.setEntitySize(po.getEntitySize() * 100);
 
 
         double value = 0;
@@ -275,7 +279,6 @@ public class ReportServiceImpl implements ReportService {
     }
 
 
-
     /**
      * 涨停报表字段处理
      *
@@ -293,7 +296,6 @@ public class ReportServiceImpl implements ReportService {
         Double yestedayEntitySize = po.getYestedayEntitySize();
 
 
-
         if (amplitude == 0) {
             po.setHardenType("一字板");
             if (po.getYesterdayAmplitude() == 0) {
@@ -301,7 +303,7 @@ public class ReportServiceImpl implements ReportService {
             } else {
                 instructions.append("加速;");
             }
-        }else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
+        } else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
             po.setHardenType("T字板");
             instructions.append("T字板;");
         } else if (sdf.parse("09:40:00").after(finalTime)) {

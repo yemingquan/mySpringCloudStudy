@@ -10,7 +10,5 @@ import java.util.List;
 @Mapper
 public interface BaseZtStockDao extends BaseMapper<BaseZtStock> {
 
-    String testDB();
-
     List<ZtReport> getZtReportByDate(String date);
 }

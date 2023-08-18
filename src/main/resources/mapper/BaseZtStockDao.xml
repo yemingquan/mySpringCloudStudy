@@ -43,10 +43,4 @@
         where zt.create_date = #{date}
     </select>
 
-    <select id="testDB" resultType="java.lang.String">
-        SELECT
-          id
-        FROM base_zt_stock
-         LIMIT 1
-    </select>
 </mapper>
