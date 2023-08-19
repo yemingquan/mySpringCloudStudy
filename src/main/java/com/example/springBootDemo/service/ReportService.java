@@ -17,7 +17,11 @@ import java.util.List;
  * @公司名称
  */
 public interface ReportService {
+    void saveMbInstructions(List<MbReport> list);
+
     void saveZtInstructions(List<ZtReport> list);
+
+    void saveBdInstructions(List<BdReport> list);
 
     boolean importExcelZthfStock(InputStream is) throws Exception;
 
@@ -38,4 +42,8 @@ public interface ReportService {
     List<BdReport> getBdReportByDate(String s);
 
     void oprZtDate(List<ZtReport> list) throws ParseException;
+
+    void oprMbDate(List<MbReport> list);
+
+    void oprBdDate(List<BdReport> list);
 }

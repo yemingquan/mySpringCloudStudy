@@ -14,6 +14,7 @@ import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -86,8 +87,22 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public void oprZtDate(List<ZtReport> list) throws ParseException {
-        Map<String, List<ZtReport>> ztMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
+        //最高板逻辑
+        Integer maxCombo = list.stream().filter(po -> po.getCombo() > 3).mapToInt(ZtReport::getCombo).max().getAsInt();
+        if (maxCombo != null) {
+            List<ZtReport> maxComboList = list.stream().filter(po -> po.getCombo() == maxCombo).collect(Collectors.toList());
+            for (ZtReport zr : maxComboList) {
+                String instructions = zr.getInstructions();
+                if (!instructions.contains("最高板")) {
+                    zr.setInstructions(instructions + "最高板;");
+                }
+                //设置次新
+                setCx(zr);
+            }
+        }
 
+        //日内龙逻辑
+        Map<String, List<ZtReport>> ztMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
         for (String str : ztMap.keySet()) {
             List<ZtReport> bkList = ztMap.get(str);
             //设置首版时间
@@ -95,6 +110,29 @@ public class ReportServiceImpl implements ReportService {
         }
     }
 
+    @Override
+    public void oprMbDate(List<MbReport> list) {
+        for (MbReport zr : list) {
+            //设置次新
+            setCx(zr);
+        }
+    }
+
+    @Override
+    public void oprBdDate(List<BdReport> list) {
+        for (BdReport zr : list) {
+            //设置次新
+            setCx(zr);
+        }
+    }
+
+    private void setCx(BaseStock bs) {
+        String cx = bs.getCxFlag();
+        String instructions = bs.getInstructions();
+        if (StringUtils.isNotBlank(cx) && !instructions.contains("次新")) {
+            bs.setInstructions(instructions + cx);
+        }
+    }
 
     @Override
     public void saveZtInstructions(List<ZtReport> list) {
@@ -103,6 +141,24 @@ public class ReportServiceImpl implements ReportService {
 
         baseZtStockService.updateBatchById(BeanUtil.copyToList(list1, BaseZtStock.class));
         baseZthfStockService.updateBatchById(BeanUtil.copyToList(list2, BaseZthfStock.class));
+    }
+
+    @Override
+    public void saveMbInstructions(List<MbReport> list) {
+        List<MbReport> list1 = list.stream().filter(po -> "3".equals(po.getSource())).collect(Collectors.toList());
+        List<MbReport> list2 = list.stream().filter(po -> "4".equals(po.getSource())).collect(Collectors.toList());
+
+        baseZbStockService.updateBatchById(BeanUtil.copyToList(list1, BaseZbStock.class));
+        baseDtStockService.updateBatchById(BeanUtil.copyToList(list2, BaseDtStock.class));
+    }
+
+    @Override
+    public void saveBdInstructions(List<BdReport> list) {
+        List<BdReport> list1 = list.stream().filter(po -> "5".equals(po.getSource())).collect(Collectors.toList());
+        List<BdReport> list2 = list.stream().filter(po -> "6".equals(po.getSource())).collect(Collectors.toList());
+
+        baseBdUpStockService.updateBatchById(BeanUtil.copyToList(list1, BaseBdUpStock.class));
+        baseBdDownStockService.updateBatchById(BeanUtil.copyToList(list2, BaseBdDownStock.class));
     }
 
     @Override
@@ -375,15 +431,18 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private void setSbTime(List<ZtReport> bkList) throws ParseException {
+
         if (bkList.size() < 2) {
             return;
         }
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         //板块涨停时间集合，用于筛选板块首版
         List<Date> finalTimeList = Lists.newArrayList();
+        Integer maxCo = 3;
         for (ZtReport po : bkList) {
             Date finalHardenTime = po.getFinalHardenTime();
             Date hardenTime = po.getHardenTime();
+            Integer combo = po.getCombo();
             if (finalHardenTime != null) {
                 finalTimeList.add(finalHardenTime);
             } else if (sdf.parse("09:30:00").equals(hardenTime)) {
@@ -391,17 +450,30 @@ public class ReportServiceImpl implements ReportService {
             } else {
                 finalTimeList.add(po.getHardenTime());
             }
+            if (combo > maxCo) {
+                maxCo = combo;
+            }
         }
         Date sbTime = finalTimeList.stream().min(Comparator.comparing(x -> x)).orElse(null);
 
         for (ZtReport po : bkList) {
+            String instructions = po.getInstructions();
             Date time1 = po.getHardenTime();
             Date time2 = po.getFinalHardenTime();
-            if (sbTime != null && time2 == null && sbTime.equals(time1)) {
-                po.setInstructions(po.getInstructions() + "日内龙;");
-            } else if (sbTime != null && sbTime.equals(time2)) {
-                po.setInstructions(po.getInstructions() + "回封龙;");
+            Integer combo = po.getCombo();
+            String mb = po.getMainBusiness();
+
+            if (sbTime != null && time2 == null && sbTime.equals(time1) && !instructions.contains("日内龙")) {
+                instructions = instructions + "日内龙;";
+            } else if (sbTime != null && sbTime.equals(time2) && !instructions.contains("回封龙")) {
+                instructions = instructions + "回封龙;";
             }
+
+            if (maxCo == combo && !instructions.contains(maxCo.toString())) {
+                instructions = instructions + mb + maxCo + ";";
+            }
+
+            po.setInstructions(instructions);
         }
     }
 }

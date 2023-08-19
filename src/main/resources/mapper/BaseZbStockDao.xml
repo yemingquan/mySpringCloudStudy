@@ -39,9 +39,13 @@
           /*id, stock_code, stock_name, plate, main_business, niche_business, circulation, instructions, combo, touch_time, yesterday_gains, start_gains, gains, amplitude, changing_hands, yesterday_amplitude, yesterday_changing_hands, average_Price10, average_Price5, current_Price, create_date, create_by, modifed_date, modifed_by, trend_type, remark,*/
           zd.*,
           3 source,
-          b.bond_full_name bond,b.instructions bondInstructions
+          b.bond_full_name bond,b.instructions bondInstructions,
+           CASE WHEN cs.stock_code is not null THEN '次新;'
+                 ELSE  ''
+                  END AS cxFlag
         from base_zb_stock zd
         LEFT JOIN base_bond b on b.stk_short_name = zd.stock_name
+        LEFT JOIN conf_cx_stock cs on cs.stock_code = zd.stock_code
         where zd.create_date = #{date}
     </select>
 </mapper>

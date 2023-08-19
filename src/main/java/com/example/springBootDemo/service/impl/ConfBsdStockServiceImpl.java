@@ -35,10 +35,11 @@ public class ConfBsdStockServiceImpl extends ServiceImpl<ConfBsdStockDao, ConfBs
 
     @Override
     public List<ConfBsdStock> genConfBsdStock(String date) {
-            List checkList = Lists.newArrayList("死亡换手","大长腿","负反馈","加速","A杀","重点监控","高度板","日内龙","回封龙");
-            List checkAttrList = Lists.newArrayList("小盘","低位","低价","次新");
+        List checkList = Lists.newArrayList("补涨龙", "死亡换手",/*"大长腿","负反馈",*/"加速", "A杀", "重点监控", "最高板", "日内龙", "回封龙");
+        List checkAttrList = Lists.newArrayList("小盘", "低位", "低价", "次新");
 
-
+        EntityWrapper ew = new EntityWrapper<ConfBsdStock>();
+        confBsdStockService.delete(ew);
         List<ConfBsdStock> list = confBsdStockDao.queryStockMonth(date);
 //        辨识度标的
 //        走势：加速、天地板、大长腿、地天、A杀、重点监控、高度板
@@ -46,6 +47,7 @@ public class ConfBsdStockServiceImpl extends ServiceImpl<ConfBsdStockDao, ConfBs
 //        地位：日内龙、回封龙
 
         list = list.stream().filter(po -> {
+            Boolean flag = false;
             String mainBusiness = po.getMainBusiness();
             String[] mArr = mainBusiness.replaceAll("最-", "").split(";");
             Set mSet = Sets.newHashSet(mArr);
@@ -61,12 +63,15 @@ public class ConfBsdStockServiceImpl extends ServiceImpl<ConfBsdStockDao, ConfBs
 //            log.info(instructions);
             if (StringUtils.isBlank(instructions)) return false;
             Set<String> iSet = Sets.newHashSet(instructions.split(";"));
+            iSet.remove(";");
+            iSet.remove("");
 
             List attrList = Lists.newArrayList();
             List iList = Lists.newArrayList();
             for (String str : iSet) {
-                if (checkList.contains(str)) {
+                if (checkList.contains(str) || str.matches(".*[0-9]{1,2}")) {
                     iList.add(str);
+                    flag = true;
                 } else if (checkAttrList.contains(str)) {
                     attrList.add(str);
                 }
@@ -74,10 +79,10 @@ public class ConfBsdStockServiceImpl extends ServiceImpl<ConfBsdStockDao, ConfBs
             po.setAttr(attrList.toString());
             po.setInstructions(iList.toString());
 
-            if (mArr.length > 3) {
-                return true;
+            if (mArr.length > 4) {
+                flag = true;
             }
-            return false;
+            return flag;
         }).collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(list)) confBsdStockService.insertBatch(list, list.size());
@@ -88,9 +93,9 @@ public class ConfBsdStockServiceImpl extends ServiceImpl<ConfBsdStockDao, ConfBs
     @Override
     public List<String> getBsdList() {
         EntityWrapper<ConfBsdStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("state","1");
+        wrapper.eq("state", "1");
         List<ConfBsdStock> list = confBsdStockService.selectList(wrapper);
-        return list.stream().map(po->po.getStockName()).collect(Collectors.toList());
+        return list.stream().map(po -> po.getStockName()).collect(Collectors.toList());
     }
 
 }

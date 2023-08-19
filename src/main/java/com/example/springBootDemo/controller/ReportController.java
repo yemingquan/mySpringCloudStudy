@@ -4,8 +4,6 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.system.session.RespBean;
-import com.example.springBootDemo.entity.BaseBond;
-import com.example.springBootDemo.entity.ConfCxStock;
 import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
@@ -28,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -53,96 +50,18 @@ public class ReportController {
     ReportService reportService;
     @Autowired
     StudentService studentService;
-    @Autowired
-    BaseZtStockService baseZtStockService;
-    @Autowired
-    BaseZthfStockService baseZthfStockService;
-    @Autowired
-    BaseZbStockService baseZbStockService;
-    @Autowired
-    BaseDtStockService baseDtStockService;
+//    @Autowired
+//    BaseZtStockService baseZtStockService;
+//    @Autowired
+//    BaseZthfStockService baseZthfStockService;
+//    @Autowired
+//    BaseZbStockService baseZbStockService;
+//    @Autowired
+//    BaseDtStockService baseDtStockService;
     @Autowired
     BaseBdDownStockService baseBdDownStockService;
     @Resource
-    private BaseBondService baseBondService;
-    @Resource
     private ConfBsdStockService confBsdStockService;
-    @Resource
-    private ConfCxStockService confCxStockService;
-
-    @ApiOperation("文件导入次新信息")
-    @PostMapping("/imporCXG")
-    public RespBean imporCXG() {
-        try {
-            String basePath = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
-            File file = new File(basePath + "Table_cx.xls");
-            File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
-
-            //设置导入参数
-            ImportParams importParams = new ImportParams();
-            importParams.setHeadRows(1); //表头占1行，默认1
-            //导入前先删除当天的数据
-            EntityWrapper<ConfCxStock> wrapper = new EntityWrapper<>();
-            confCxStockService.delete(wrapper);
-
-            List<ConfCxStock> list = ExcelImportUtil.importExcel(new FileInputStream(tempFile), ConfCxStock.class, importParams);
-//            is.close();
-            confCxStockService.insertBatch(list, list.size());
-            return RespBean.success("导入成功");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-    @ApiOperation("文件导入可转债信息")
-    @PostMapping("/imporKZZ")
-    public RespBean imporKZZ() {
-        try {
-            String basePath = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
-            File file = new File(basePath + "Table_kzz.xls");
-            File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
-
-            //设置导入参数
-            ImportParams importParams = new ImportParams();
-            importParams.setHeadRows(1); //表头占1行，默认1
-            //导入前先删除当天的数据
-            EntityWrapper<BaseBond> wrapper = new EntityWrapper<>();
-            baseBondService.delete(wrapper);
-
-            List<BaseBond> list = ExcelImportUtil.importExcel(new FileInputStream(tempFile), BaseBond.class, importParams);
-//            is.close();
-            list.stream().forEach(po -> {
-                //如果没有涨幅说明转债有问题
-                if(po.getGains()==null){
-
-                }else{
-                    StringBuffer instructions = new StringBuffer("");
-                    //转股起始日
-                    Date convStartDate = po.getConvStartDate();
-                    //债券余额(万元)
-                    Double remainSize = po.getRemainSize()/10000;
-                    //转股溢价
-                    Double cbOverRate = po.getCbOverRate()*100;
-
-                    if(cbOverRate>30){
-                        instructions.append("溢价率:"+new BigDecimal(cbOverRate).setScale(2, BigDecimal.ROUND_UP)+"%;");
-                    }
-                    if(new Date().after(convStartDate)&&remainSize<3){
-                        instructions.append("规模:"+new BigDecimal(remainSize).setScale(2, BigDecimal.ROUND_UP) +"亿;");
-                    }else if(new Date().before(convStartDate)){
-                        instructions.append("次新债;");
-                    }
-                    po.setInstructions(instructions.toString());
-                }
-            });
-            baseBondService.insertBatch(list, list.size());
-            return RespBean.success("导入成功");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
 
     @ApiOperation("导入波动向上Excel数据")
     @PostMapping("/importExcelBdUpStock")
@@ -399,10 +318,18 @@ public class ReportController {
             date = DateUtil.format(new Date(), "yyyy-MM-dd");
         }
 
-        List<ZtReport> list = reportService.getZtReportByDate(date);
+        List<ZtReport> list1 = reportService.getZtReportByDate(date);
+        List<MbReport> list2 = reportService.getMbReportByDate(date);
+        List<BdReport> list3 = reportService.getBdReportByDate(date);
         try {
-            reportService.oprZtDate(list);
-            reportService.saveZtInstructions(list);
+            reportService.oprZtDate(list1);
+            reportService.oprMbDate(list2);
+            reportService.oprBdDate(list3);
+
+
+            reportService.saveZtInstructions(list1);
+            reportService.saveMbInstructions(list2);
+            reportService.saveBdInstructions(list3);
         } catch (Exception e) {
             e.printStackTrace();
         }

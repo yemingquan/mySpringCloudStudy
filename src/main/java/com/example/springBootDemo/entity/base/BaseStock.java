@@ -138,11 +138,13 @@ public class BaseStock implements Serializable {
     /**
      * 可转债
      */
+    @TableField(exist = false)
     private String bond;
 
     /**
      * 可转债说明
      */
+    @TableField(exist = false)
     private String bondInstructions;
 
     //    @Excel(name = "涨停类型")
@@ -153,5 +155,11 @@ public class BaseStock implements Serializable {
 
 //    @Excel(name = "最终时间" ,dateFormat="HH:mm:ss")
     private Date finalHardenTime;
+
+    /**
+     * 是否次新
+     */
+    @TableField(exist = false)
+    private String cxFlag;
 }
 
