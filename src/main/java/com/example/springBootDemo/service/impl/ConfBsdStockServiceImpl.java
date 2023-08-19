@@ -1,5 +1,6 @@
 package com.example.springBootDemo.service.impl;
 
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.dao.mapper.ConfBsdStockDao;
 import com.example.springBootDemo.entity.ConfBsdStock;
@@ -73,7 +74,7 @@ public class ConfBsdStockServiceImpl extends ServiceImpl<ConfBsdStockDao, ConfBs
             po.setAttr(attrList.toString());
             po.setInstructions(iList.toString());
 
-            if (mArr.length > 4) {
+            if (mArr.length > 3) {
                 return true;
             }
             return false;
@@ -83,4 +84,13 @@ public class ConfBsdStockServiceImpl extends ServiceImpl<ConfBsdStockDao, ConfBs
 
         return list;
     }
+
+    @Override
+    public List<String> getBsdList() {
+        EntityWrapper<ConfBsdStock> wrapper = new EntityWrapper<>();
+        wrapper.eq("state","1");
+        List<ConfBsdStock> list = confBsdStockService.selectList(wrapper);
+        return list.stream().map(po->po.getStockName()).collect(Collectors.toList());
+    }
+
 }

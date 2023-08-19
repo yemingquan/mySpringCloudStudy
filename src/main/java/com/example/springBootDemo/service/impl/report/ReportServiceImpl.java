@@ -1,7 +1,9 @@
 package com.example.springBootDemo.service.impl.report;
 
+
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.entity.*;
 import com.example.springBootDemo.entity.base.BaseStock;
@@ -19,8 +21,11 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @所属模块<p>
@@ -79,6 +84,26 @@ public class ReportServiceImpl implements ReportService {
         return list;
     }
 
+    @Override
+    public void oprZtDate(List<ZtReport> list) throws ParseException {
+        Map<String, List<ZtReport>> ztMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
+
+        for (String str : ztMap.keySet()) {
+            List<ZtReport> bkList = ztMap.get(str);
+            //设置首版时间
+            setSbTime(bkList);
+        }
+    }
+
+
+    @Override
+    public void saveZtInstructions(List<ZtReport> list) {
+        List<ZtReport> list1 = list.stream().filter(po -> "1".equals(po.getSource())).collect(Collectors.toList());
+        List<ZtReport> list2 = list.stream().filter(po -> "2".equals(po.getSource())).collect(Collectors.toList());
+
+        baseZtStockService.updateBatchById(BeanUtil.copyToList(list1, BaseZtStock.class));
+        baseZthfStockService.updateBatchById(BeanUtil.copyToList(list2, BaseZthfStock.class));
+    }
 
     @Override
     public boolean importExcelZthfStock(InputStream is) throws Exception {
@@ -292,16 +317,20 @@ public class ReportServiceImpl implements ReportService {
         Date hardenTime = po.getHardenTime();
         Date finalTime = (finalHardenTime != null ? finalHardenTime : hardenTime);
         Double amplitude = po.getAmplitude();
-        double yesterdayGains = po.getYesterdayGains();
+        Double yesterdayGains = po.getYesterdayGains();
         Double yestedayEntitySize = po.getYestedayEntitySize();
-
+        Double yesterdayAmplitude = po.getYesterdayAmplitude();
+        Double changingHands = po.getChangingHands();
+        Double yesterdayChangingHands = po.getYesterdayChangingHands();
 
         if (amplitude == 0) {
             po.setHardenType("一字板");
-            if (po.getYesterdayAmplitude() == 0) {
+            if (changingHands <= yesterdayChangingHands && yesterdayAmplitude != null && yesterdayAmplitude == 0) {
                 instructions.append("连续加速;");
-            } else {
+            } else if (changingHands <= yesterdayChangingHands) {
                 instructions.append("加速;");
+            } else {
+                instructions.append("一字分歧;");
             }
         } else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
             po.setHardenType("T字板");
@@ -317,7 +346,7 @@ public class ReportServiceImpl implements ReportService {
         }
 
         //弱修复|弱转强
-        if (yesterdayGains < -6) {
+        if (yesterdayGains != null && yesterdayGains < -6) {
             instructions.append("弱修复;");
         } else if (yestedayEntitySize != null) {
             instructions.append("弱转强;");
@@ -343,5 +372,36 @@ public class ReportServiceImpl implements ReportService {
         }
 //        instructions.append("曾跌停;");
         po.setInstructions(instructions.toString());
+    }
+
+    private void setSbTime(List<ZtReport> bkList) throws ParseException {
+        if (bkList.size() < 2) {
+            return;
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        //板块涨停时间集合，用于筛选板块首版
+        List<Date> finalTimeList = Lists.newArrayList();
+        for (ZtReport po : bkList) {
+            Date finalHardenTime = po.getFinalHardenTime();
+            Date hardenTime = po.getHardenTime();
+            if (finalHardenTime != null) {
+                finalTimeList.add(finalHardenTime);
+            } else if (sdf.parse("09:30:00").equals(hardenTime)) {
+
+            } else {
+                finalTimeList.add(po.getHardenTime());
+            }
+        }
+        Date sbTime = finalTimeList.stream().min(Comparator.comparing(x -> x)).orElse(null);
+
+        for (ZtReport po : bkList) {
+            Date time1 = po.getHardenTime();
+            Date time2 = po.getFinalHardenTime();
+            if (sbTime != null && time2 == null && sbTime.equals(time1)) {
+                po.setInstructions(po.getInstructions() + "日内龙;");
+            } else if (sbTime != null && sbTime.equals(time2)) {
+                po.setInstructions(po.getInstructions() + "回封龙;");
+            }
+        }
     }
 }

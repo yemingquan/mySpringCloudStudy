@@ -34,7 +34,7 @@
             parameterType="java.lang.String">
         select
           zt.*,
-          2 source,
+          1 source,
           zb.entity_Size yestedayEntitySize,
           b.bond_full_name bond,b.instructions bondInstructions
         from base_zt_stock zt

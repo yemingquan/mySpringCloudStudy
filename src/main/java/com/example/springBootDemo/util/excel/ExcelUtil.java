@@ -27,7 +27,6 @@ import java.lang.reflect.Proxy;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -815,9 +814,6 @@ public class ExcelUtil<T> implements Serializable {
         IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME};
         int num = 0;
         for (String str : ztMap.keySet()) {
-            List<ZtReport> bkList = ztMap.get(str);
-            //设置首版时间
-            setSbTime(bkList);
             if (str.contains("最")) {
                 colorMap.put(str, IndexedColors.WHITE);
             } else {
@@ -858,32 +854,6 @@ public class ExcelUtil<T> implements Serializable {
         }
         return annotationMapping;
     }
-
-    private void setSbTime(List<ZtReport> bkList) throws ParseException {
-        if (bkList.size() < 2) {
-            return;
-        }
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        //板块涨停时间集合，用于筛选板块首版
-        List<Date> finalTimeList = Lists.newArrayList();
-        for (ZtReport po : bkList) {
-            Date finalHardenTime = po.getFinalHardenTime();
-            Date hardenTime = po.getHardenTime();
-            if (finalHardenTime != null) {
-                finalTimeList.add(finalHardenTime);
-            } else if (sdf.parse("09:30:00").equals(hardenTime)) {
-
-            } else {
-                finalTimeList.add(po.getHardenTime());
-            }
-        }
-        Date sbTime = finalTimeList.stream().min(Comparator.comparing(x -> x)).orElse(null);
-
-        for (ZtReport po : bkList) {
-            po.setSBTime(sbTime);
-        }
-    }
-
 
 
     /**
@@ -932,9 +902,6 @@ public class ExcelUtil<T> implements Serializable {
         }
         return annotationMapping;
     }
-
-
-
 
 
     /**
@@ -999,7 +966,7 @@ public class ExcelUtil<T> implements Serializable {
             //流通盘大小
             case "circulation":
                 //与通用不同的是，这里需要改变底色
-                double value = po.getCirculation();
+                Double value = po.getCirculation();
                 if (value < 30) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
                 } else if (value > 400) {
@@ -1009,6 +976,7 @@ public class ExcelUtil<T> implements Serializable {
             //昨日涨幅
             case "yesterdayGains":
                 value = po.getYesterdayGains();
+                if (value == null) break;
                 if (value < -5) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
                 } else if (value > 9) {
@@ -1050,6 +1018,7 @@ public class ExcelUtil<T> implements Serializable {
             case "yesterdayChangingHands":
                 //辨识度标的逻辑
                 value = po.getYesterdayChangingHands();
+                if (value == null) break;
                 if (value == 0) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
                 } else if (value > 50) {
@@ -1068,6 +1037,7 @@ public class ExcelUtil<T> implements Serializable {
             //昨日振幅
             case "yesterdayAmplitude":
                 value = po.getYesterdayAmplitude();
+                if (value == null) break;
                 if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
                 } else if (value == 0) {
@@ -1091,8 +1061,6 @@ public class ExcelUtil<T> implements Serializable {
     }
 
 
-
-
     /**
      * 导出样式特殊处理
      *
@@ -1109,21 +1077,17 @@ public class ExcelUtil<T> implements Serializable {
             //日内龙
             case "hardenTime":
                 //与通用不同的是，这里需要改变底色
-                Date time = po.getHardenTime();
-                Date sbTime = po.getSBTime();
-                if (sbTime != null && sbTime.equals(time)) {
+                String str = po.getInstructions();
+                if (StringUtils.isNoneBlank(str) && str.contains("日内龙")) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
-                    po.setInstructions( po.getInstructions()+"日内龙;");
                 }
                 break;
             //回封龙
             case "finalHardenTime":
                 //与通用不同的是，这里需要改变底色
-                time = po.getFinalHardenTime();
-                sbTime = po.getSBTime();
-                if (sbTime != null && sbTime.equals(time)) {
+                str = po.getInstructions();
+                if (StringUtils.isNoneBlank(str) && str.contains("回封龙")) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
-                    po.setInstructions( po.getInstructions()+"回封龙;");
                 }
                 break;
         }

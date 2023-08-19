@@ -5,6 +5,7 @@ import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -16,6 +17,8 @@ import java.util.List;
  * @公司名称
  */
 public interface ReportService {
+    void saveZtInstructions(List<ZtReport> list);
+
     boolean importExcelZthfStock(InputStream is) throws Exception;
 
     boolean importExcelZtStock(InputStream is) throws Exception;
@@ -33,4 +36,6 @@ public interface ReportService {
     List<MbReport> getMbReportByDate(String s);
 
     List<BdReport> getBdReportByDate(String s);
+
+    void oprZtDate(List<ZtReport> list) throws ParseException;
 }

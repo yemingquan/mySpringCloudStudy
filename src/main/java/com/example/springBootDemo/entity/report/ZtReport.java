@@ -72,7 +72,7 @@ public class ZtReport extends BaseStock implements Serializable {
     private Double yestedayEntitySize;
 
     //板块首版时间
-    private Date SBTime;
+//    private Date SBTime;
 
     @Excel(name = "可转债")
     private String bond;

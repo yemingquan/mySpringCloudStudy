@@ -17,4 +17,5 @@ public interface ConfBsdStockService extends IService<ConfBsdStock>{
 
     List<ConfBsdStock> genConfBsdStock(String date);
 
+    List<String> getBsdList();
 }

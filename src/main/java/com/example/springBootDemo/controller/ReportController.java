@@ -5,6 +5,7 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.BaseBond;
+import com.example.springBootDemo.entity.ConfCxStock;
 import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
@@ -64,10 +65,39 @@ public class ReportController {
     BaseBdDownStockService baseBdDownStockService;
     @Resource
     private BaseBondService baseBondService;
+    @Resource
+    private ConfBsdStockService confBsdStockService;
+    @Resource
+    private ConfCxStockService confCxStockService;
+
+    @ApiOperation("文件导入次新信息")
+    @PostMapping("/imporCXG")
+    public RespBean imporCXG() {
+        try {
+            String basePath = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
+            File file = new File(basePath + "Table_cx.xls");
+            File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
+
+            //设置导入参数
+            ImportParams importParams = new ImportParams();
+            importParams.setHeadRows(1); //表头占1行，默认1
+            //导入前先删除当天的数据
+            EntityWrapper<ConfCxStock> wrapper = new EntityWrapper<>();
+            confCxStockService.delete(wrapper);
+
+            List<ConfCxStock> list = ExcelImportUtil.importExcel(new FileInputStream(tempFile), ConfCxStock.class, importParams);
+//            is.close();
+            confCxStockService.insertBatch(list, list.size());
+            return RespBean.success("导入成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
 
     @ApiOperation("文件导入可转债信息")
-    @PostMapping("/imporBaseBond")
-    public RespBean imporBaseBond() {
+    @PostMapping("/imporKZZ")
+    public RespBean imporKZZ() {
         try {
             String basePath = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
             File file = new File(basePath + "Table_kzz.xls");
@@ -78,7 +108,6 @@ public class ReportController {
             importParams.setHeadRows(1); //表头占1行，默认1
             //导入前先删除当天的数据
             EntityWrapper<BaseBond> wrapper = new EntityWrapper<>();
-//            wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
             baseBondService.delete(wrapper);
 
             List<BaseBond> list = ExcelImportUtil.importExcel(new FileInputStream(tempFile), BaseBond.class, importParams);
@@ -258,6 +287,7 @@ public class ReportController {
         List<ZtReport> list = reportService.getZtReportByDate(date);
 
         ExcelUtil<ZtReport> excelUtil = new ExcelUtil<>(ZtReport.class);
+        excelUtil.BSD_STOCK_LIST = confBsdStockService.getBsdList();
         Map<String, Map> annotationMapping = null;
         try {
             annotationMapping = excelUtil.OprZtReport(list);
@@ -282,6 +312,7 @@ public class ReportController {
         List<MbReport> list = reportService.getMbReportByDate(date);
 
         ExcelUtil<MbReport> excelUtil = new ExcelUtil<>(MbReport.class);
+        excelUtil.BSD_STOCK_LIST = confBsdStockService.getBsdList();
         Map<String, Map> annotationMapping = excelUtil.OprMbReport(list);
         excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
     }
@@ -298,7 +329,9 @@ public class ReportController {
         }
         List<BdReport> list = reportService.getBdReportByDate(date);
 
+
         ExcelUtil<BdReport> excelUtil = new ExcelUtil<>(BdReport.class);
+        excelUtil.BSD_STOCK_LIST = confBsdStockService.getBsdList();
         Map<String, Map> annotationMapping = excelUtil.OprBdReport(list);
         excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
     }
@@ -353,5 +386,25 @@ public class ReportController {
             e.printStackTrace();
         }
         return RespBean.error("导入失败");
+    }
+
+    @GetMapping("/exportBKReport")
+    @ApiOperation("板块报表导出")
+    public void exportBKReport(@RequestParam(value = "date", required = false) String date,
+                               HttpServletResponse response) {
+
+        String fileName = "板块0000.xlsx";
+        String sheetName = "板块";
+        if (StringUtils.isEmpty(date)) {
+            date = DateUtil.format(new Date(), "yyyy-MM-dd");
+        }
+
+        List<ZtReport> list = reportService.getZtReportByDate(date);
+        try {
+            reportService.oprZtDate(list);
+            reportService.saveZtInstructions(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

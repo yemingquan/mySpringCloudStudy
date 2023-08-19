@@ -159,7 +159,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-<!--		<dependency>-->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.7.7</version>
+        </dependency>
+        <!--		<dependency>-->
 <!--			<groupId>e-iceblue</groupId>-->
 <!--			<artifactId>spire.xls</artifactId>-->
 <!--			<version>13.7.3</version>-->

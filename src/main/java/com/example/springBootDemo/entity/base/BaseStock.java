@@ -1,5 +1,6 @@
 package com.example.springBootDemo.entity.base;
 
+import com.baomidou.mybatisplus.annotations.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -127,6 +128,7 @@ public class BaseStock implements Serializable {
     /**
      * 类型:1 涨停 2 涨停回封 3炸板 4跌停 5向上波动 6向下波动
      */
+    @TableField(exist = false)
     private String source;
 
     private Double entitySize;
