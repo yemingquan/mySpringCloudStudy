@@ -36,7 +36,7 @@ public class ConfBsdStockServiceImpl extends ServiceImpl<ConfBsdStockDao, ConfBs
     @Override
     public List<ConfBsdStock> genConfBsdStock(String date) {
         List checkList = Lists.newArrayList("补涨龙", "死亡换手",/*"大长腿","负反馈",*/"加速", "A杀", "重点监控", "最高板", "日内龙", "回封龙");
-        List checkAttrList = Lists.newArrayList("小盘", "低位", "低价", "次新");
+        List checkAttrList = Lists.newArrayList("小盘", "低位", "低价", "次新", "含zz");
 
         EntityWrapper ew = new EntityWrapper<ConfBsdStock>();
         confBsdStockService.delete(ew);

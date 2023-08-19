@@ -62,6 +62,10 @@ public class ReportServiceImpl implements ReportService {
         List<ZtReport> list2 = baseZthfStockService.getZtReportByDate(date);
         list.addAll(list1);
         list.addAll(list2);
+        //多重排序
+        list = list.stream() .sorted(Comparator.comparing(ZtReport::getHardenTime))
+                .sorted(Comparator.comparing(ZtReport::getCombo,Comparator.reverseOrder()))
+                .sorted(Comparator.comparing(ZtReport::getMainBusiness,Comparator.reverseOrder())).collect(Collectors.toList());
         return list;
     }
 
@@ -72,6 +76,9 @@ public class ReportServiceImpl implements ReportService {
         List<MbReport> list2 = baseDtStockService.getMbReportByDate(date);
         list.addAll(list1);
         list.addAll(list2);
+        //多重排序
+        list = list.stream() .sorted(Comparator.comparing(MbReport::getMainBusiness,Comparator.reverseOrder()))
+                .sorted(Comparator.comparing(MbReport::getHardenTime)).collect(Collectors.toList());
         return list;
     }
 
@@ -82,6 +89,9 @@ public class ReportServiceImpl implements ReportService {
         List<BdReport> list2 = baseBdDownStockService.getBdReportByDate(date);
         list.addAll(list1);
         list.addAll(list2);
+        //多重排序
+        list = list.stream() .sorted(Comparator.comparing(BdReport::getEntitySize,Comparator.reverseOrder()))
+                .sorted(Comparator.comparing(BdReport::getMainBusiness,Comparator.reverseOrder())).collect(Collectors.toList());
         return list;
     }
 
@@ -98,6 +108,8 @@ public class ReportServiceImpl implements ReportService {
                 }
                 //设置次新
                 setCx(zr);
+                //设置转债
+                setZz(zr);
             }
         }
 
@@ -115,6 +127,8 @@ public class ReportServiceImpl implements ReportService {
         for (MbReport zr : list) {
             //设置次新
             setCx(zr);
+            //设置转债
+            setZz(zr);
         }
     }
 
@@ -123,6 +137,8 @@ public class ReportServiceImpl implements ReportService {
         for (BdReport zr : list) {
             //设置次新
             setCx(zr);
+            //设置转债
+            setZz(zr);
         }
     }
 
@@ -133,6 +149,15 @@ public class ReportServiceImpl implements ReportService {
             bs.setInstructions(instructions + cx);
         }
     }
+
+    private void setZz(BaseStock bs) {
+        String bond = bs.getBond();
+        String instructions = bs.getInstructions();
+        if (StringUtils.isNotBlank(bond) && !instructions.contains("含zz")) {
+            bs.setInstructions(instructions + "含zz;");
+        }
+    }
+
 
     @Override
     public void saveZtInstructions(List<ZtReport> list) {
