@@ -1,14 +1,14 @@
 package com.example.springBootDemo.controller;
 
-import cn.afterturn.easypoi.excel.ExcelImportUtil;
-import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
-import com.example.springBootDemo.service.*;
+import com.example.springBootDemo.service.ConfBsdStockService;
+import com.example.springBootDemo.service.ReportService;
+import com.example.springBootDemo.service.StudentService;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.FileUtil;
 import com.example.springBootDemo.util.excel.ExcelChangeUtil;
@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -58,124 +57,10 @@ public class ReportController {
 //    BaseZbStockService baseZbStockService;
 //    @Autowired
 //    BaseDtStockService baseDtStockService;
-    @Autowired
-    BaseBdDownStockService baseBdDownStockService;
+//    @Autowired
+//    BaseBdDownStockService baseBdDownStockService;
     @Resource
     private ConfBsdStockService confBsdStockService;
-
-    @ApiOperation("导入波动向上Excel数据")
-    @PostMapping("/importExcelBdUpStock")
-    public RespBean importExcelBdUpStock(MultipartFile multipartFile) {
-        try {
-            boolean flag = reportService.importExcelBdUpStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-
-    @ApiOperation("导入波动向下Excel数据")
-    @PostMapping("/importExcelBdDownStock")
-    public RespBean importExcelBdDownStock(MultipartFile multipartFile) {
-        try {
-            boolean flag = reportService.importExcelBdDownStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-    @ApiOperation("导入曾跌停Excel数据")
-    @PostMapping("/importExcelDtStock")
-    public RespBean importExcelDtStock(MultipartFile multipartFile) {
-        try {
-            boolean flag = reportService.importExcelDtStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-
-    @ApiOperation("导入炸板Excel数据")
-    @PostMapping("/importExcelZbStock")
-    public RespBean importExcelZbStock(MultipartFile multipartFile) {
-        try {
-            boolean flag = reportService.importExcelZbStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-
-    @ApiOperation("导入涨停Excel数据")
-    @PostMapping("/importExcelZtStock")
-    public RespBean importExcelZtStock(MultipartFile multipartFile) {
-        try {
-            boolean flag = reportService.importExcelZtStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-
-    @ApiOperation("导入涨停回封Excel数据")
-    @PostMapping("/importExcelZthfStock")
-    public RespBean importExcelZthfStock(MultipartFile multipartFile) {
-        try {
-            boolean flag = reportService.importExcelZthfStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-    @ApiOperation("Excel导入测试")
-    @PostMapping("/import")
-    public RespBean importExcel(MultipartFile multipartFile) throws IOException {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
-
-        try {
-            List<Student> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), Student.class, importParams);
-            if (studentService.insertBatch(list)) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
 
     @ApiOperation("Excel导出测试")
     @GetMapping("/export")

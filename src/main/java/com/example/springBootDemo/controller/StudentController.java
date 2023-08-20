@@ -14,7 +14,7 @@ import java.util.List;
 //MVC层  json格式
 @RestController
 @RequestMapping("/ssm")
-@Api(tags = {"学生类"})
+@Api(tags = {"测试-学生"})
 public class StudentController {
 
     @Autowired

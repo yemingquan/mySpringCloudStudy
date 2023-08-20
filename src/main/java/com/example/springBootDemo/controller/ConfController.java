@@ -32,7 +32,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("conf")
-@Api(tags = "业务配置")
+@Api(tags = "基础数据-配置")
 public class ConfController {
 
     @Resource
