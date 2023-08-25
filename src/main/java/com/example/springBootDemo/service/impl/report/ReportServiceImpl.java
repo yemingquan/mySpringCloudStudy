@@ -63,9 +63,9 @@ public class ReportServiceImpl implements ReportService {
         list.addAll(list1);
         list.addAll(list2);
         //多重排序
-        list = list.stream() .sorted(Comparator.comparing(ZtReport::getHardenTime))
-                .sorted(Comparator.comparing(ZtReport::getCombo,Comparator.reverseOrder()))
-                .sorted(Comparator.comparing(ZtReport::getMainBusiness,Comparator.reverseOrder())).collect(Collectors.toList());
+        list = list.stream().sorted(Comparator.comparing(ZtReport::getHardenTime))
+                .sorted(Comparator.comparing(ZtReport::getCombo, Comparator.reverseOrder()))
+                .sorted(Comparator.comparing(ZtReport::getMainBusiness, Comparator.reverseOrder())).collect(Collectors.toList());
         return list;
     }
 
@@ -77,8 +77,8 @@ public class ReportServiceImpl implements ReportService {
         list.addAll(list1);
         list.addAll(list2);
         //多重排序
-        list = list.stream() .sorted(Comparator.comparing(MbReport::getMainBusiness,Comparator.reverseOrder()))
-                .sorted(Comparator.comparing(MbReport::getHardenTime)).collect(Collectors.toList());
+        list = list.stream().sorted(Comparator.comparing(MbReport::getMainBusiness, Comparator.reverseOrder()))
+                .sorted(Comparator.comparing(MbReport::getTouchTime, Comparator.nullsLast(Date::compareTo))).collect(Collectors.toList());
         return list;
     }
 
@@ -90,13 +90,20 @@ public class ReportServiceImpl implements ReportService {
         list.addAll(list1);
         list.addAll(list2);
         //多重排序
-        list = list.stream() .sorted(Comparator.comparing(BdReport::getEntitySize,Comparator.reverseOrder()))
-                .sorted(Comparator.comparing(BdReport::getMainBusiness,Comparator.reverseOrder())).collect(Collectors.toList());
+        list = list.stream().sorted(Comparator.comparing(BdReport::getEntitySize, Comparator.reverseOrder()))
+                .sorted(Comparator.comparing(BdReport::getMainBusiness, Comparator.reverseOrder())).collect(Collectors.toList());
         return list;
     }
 
     @Override
     public void oprZtDate(List<ZtReport> list) throws ParseException {
+        for (ZtReport zt : list) {
+            //设置次新
+            setCx(zt);
+            //设置转债
+            setZz(zt);
+        }
+
         //最高板逻辑
         Integer maxCombo = list.stream().filter(po -> po.getCombo() > 3).mapToInt(ZtReport::getCombo).max().getAsInt();
         if (maxCombo != null) {
@@ -106,10 +113,6 @@ public class ReportServiceImpl implements ReportService {
                 if (!instructions.contains("最高板")) {
                     zr.setInstructions(instructions + "最高板;");
                 }
-                //设置次新
-                setCx(zr);
-                //设置转债
-                setZz(zr);
             }
         }
 
@@ -373,9 +376,14 @@ public class ReportServiceImpl implements ReportService {
 
         //说明
         StringBuffer instructions = new StringBuffer(po.getInstructions());
-        double entitySize = po.getEntitySize();
+        Double entitySize = po.getEntitySize();
+        Double amplitude = po.getAmplitude();
         if (Math.abs(entitySize) < 2) {
-            instructions.append("十字星;");
+            if (Math.abs(amplitude) > 9) {
+                instructions.append("大分歧;");
+            } else {
+                instructions.append("十字星;");
+            }
         } else if (entitySize > 7) {
             instructions.append("大阳线;");
         } else if (entitySize < -7) {
@@ -443,21 +451,25 @@ public class ReportServiceImpl implements ReportService {
     private void mbInstructions(BaseStock po) {
         //说明
         StringBuffer instructions = new StringBuffer(po.getInstructions());
-        double entitySize = po.getEntitySize();
+        Double entitySize = po.getEntitySize();
+        Double amplitude = po.getAmplitude();
         if (Math.abs(entitySize) < 2) {
-            instructions.append("十字星;");
+            if (Math.abs(amplitude) > 9) {
+                instructions.append("大分歧;");
+            } else {
+                instructions.append("十字星;");
+            }
         } else if (entitySize > 7) {
             instructions.append("大阳线;");
         } else if (entitySize < -7) {
             instructions.append("负反馈;");
         }
-//        instructions.append("曾跌停;");
         po.setInstructions(instructions.toString());
     }
 
     private void setSbTime(List<ZtReport> bkList) throws ParseException {
 
-        if (bkList.size() < 2) {
+        if (bkList.size() < 3) {
             return;
         }
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");

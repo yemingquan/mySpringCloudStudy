@@ -133,6 +133,7 @@ public class BaseStock implements Serializable {
 
     private Double entitySize;
 
+    @TableField(exist = false)
     private Double yestedayEntitySize;
 
     /**
