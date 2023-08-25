@@ -2,7 +2,7 @@ package com.example.springBootDemo.service;
 
 
 import com.baomidou.mybatisplus.service.IService;
-import com.example.springBootDemo.entity.BaseZbStock;
+import com.example.springBootDemo.entity.input.BaseZbStock;
 import com.example.springBootDemo.entity.report.MbReport;
 
 import java.util.List;

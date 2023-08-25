@@ -1,6 +1,6 @@
 package com.example.springBootDemo.service;
 
-import com.example.springBootDemo.entity.BaseBdDownStock;
+import com.example.springBootDemo.entity.input.BaseBdDownStock;
 import com.baomidou.mybatisplus.service.IService;
 import com.example.springBootDemo.entity.report.BdReport;
 

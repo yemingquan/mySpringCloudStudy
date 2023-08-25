@@ -2,7 +2,7 @@ package com.example.springBootDemo.service.impl;
 
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.dao.mapper.BaseBondDao;
-import com.example.springBootDemo.entity.BaseBond;
+import com.example.springBootDemo.entity.input.BaseBond;
 import com.example.springBootDemo.service.BaseBondService;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.example.springBootDemo.entity;
+package com.example.springBootDemo.entity.input;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotations.TableId;

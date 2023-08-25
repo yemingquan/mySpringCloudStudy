@@ -1,4 +1,4 @@
-package com.example.springBootDemo.entity;
+package com.example.springBootDemo.entity.input;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotations.TableId;
@@ -12,18 +12,20 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * base_zt_stock
+ * (BaseZthfStock)实体类
  *
- * @author
+ * @author makejava
+ * @since 2023-08-05 23:59:59
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 @ApiModel(description = "")
-@TableName("base_zt_stock")
-public class BaseZtStock extends BaseStock implements Serializable {
+@TableName("base_zthf_stock")
+public class BaseZthfStock extends BaseStock implements Serializable {
+    private static final long serialVersionUID = -43872664651186314L;
     /**
      * 主键
      */
@@ -82,6 +84,7 @@ public class BaseZtStock extends BaseStock implements Serializable {
     /**
      * 最终涨停时间
      */
+    @Excel(name = "最终时间", orderNum = "9")
     private Date finalHardenTime;
 
     /**
@@ -102,32 +105,35 @@ public class BaseZtStock extends BaseStock implements Serializable {
     /**
      * 昨日涨幅
      */
-    @Excel(name = "昨日涨幅", orderNum = "11")
+    @Excel(name = "昨日涨幅", orderNum = "12")
     private Double yesterdayGains;
 
     /**
      * 振幅
      */
-    @Excel(name = "振幅", orderNum = "9")
+    @Excel(name = "振幅", orderNum = "10")
     private Double amplitude;
 
     /**
      * 昨日振幅
      */
-    @Excel(name = "昨日振幅", orderNum = "12")
+    @Excel(name = "昨日振幅", orderNum = "13")
     private Double yesterdayAmplitude;
 
     /**
      * 换手
      */
-    @Excel(name = "换手", orderNum = "10")
+    @Excel(name = "换手", orderNum = "11")
     private Double changingHands;
 
     /**
      * 昨日换手
      */
-    @Excel(name = "昨日换手", orderNum = "13")
+    @Excel(name = "昨日换手", orderNum = "14")
     private Double yesterdayChangingHands;
+
+    @Excel(name = "实体涨幅", orderNum = "15")
+    private Double entitySize;
 
     /**
      * 创建时间
@@ -153,9 +159,5 @@ public class BaseZtStock extends BaseStock implements Serializable {
      * 备注说明
      */
     private String remark;
-
-    @Excel(name = "实体涨幅", orderNum = "14")
-    private Double entitySize;
-
-    private static final long serialVersionUID = 1L;
 }
+

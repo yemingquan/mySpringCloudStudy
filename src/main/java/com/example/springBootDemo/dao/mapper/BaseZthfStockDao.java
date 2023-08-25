@@ -2,7 +2,7 @@ package com.example.springBootDemo.dao.mapper;
 
 
 import com.baomidou.mybatisplus.mapper.BaseMapper;
-import com.example.springBootDemo.entity.BaseZthfStock;
+import com.example.springBootDemo.entity.input.BaseZthfStock;
 import com.example.springBootDemo.entity.report.ZtReport;
 import org.apache.ibatis.annotations.Mapper;
 
