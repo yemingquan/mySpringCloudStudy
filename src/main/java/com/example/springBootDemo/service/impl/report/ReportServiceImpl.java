@@ -105,8 +105,8 @@ public class ReportServiceImpl implements ReportService {
         }
 
         //最高板逻辑
-        Integer maxCombo = list.stream().filter(po -> po.getCombo() > 3).mapToInt(ZtReport::getCombo).max().getAsInt();
-        if (maxCombo != null) {
+        Integer maxCombo = list.stream().mapToInt(ZtReport::getCombo).max().getAsInt();
+        if (maxCombo != null && maxCombo > 2) {
             List<ZtReport> maxComboList = list.stream().filter(po -> po.getCombo() == maxCombo).collect(Collectors.toList());
             for (ZtReport zr : maxComboList) {
                 String instructions = zr.getInstructions();
