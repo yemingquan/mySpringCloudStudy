@@ -669,6 +669,11 @@ public class ExcelUtil<T> implements Serializable {
         //自动换行
         cellStyle.setWrapText(true);
         cell.setCellStyle(cellStyle);
+
+        cellStyle.setBorderBottom(BorderStyle.THIN); //下边框
+        cellStyle.setBorderLeft(BorderStyle.THIN);//左边框
+        cellStyle.setBorderTop(BorderStyle.THIN);//上边框
+        cellStyle.setBorderRight(BorderStyle.THIN);//右边框
         return cellStyle;
     }
 
