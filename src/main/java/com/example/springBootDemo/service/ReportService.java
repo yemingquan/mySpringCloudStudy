@@ -2,6 +2,7 @@ package com.example.springBootDemo.service;
 
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
+import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 
 import java.text.ParseException;
@@ -33,4 +34,6 @@ public interface ReportService {
     void oprMbDate(List<MbReport> list);
 
     void oprBdDate(List<BdReport> list);
+
+    List<SubjectReport> getSubjectReport(String date);
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
+import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.ConfBsdStockService;
 import com.example.springBootDemo.service.ReportService;
@@ -74,7 +75,7 @@ public class ReportController {
 
 
     @GetMapping("/exportZtRePort")
-    @ApiOperation("涨停报表导出")
+    @ApiOperation("1-涨停报表导出")
     public void exportZtRePort(@RequestParam(value = "date", required = false) String date,
                                HttpServletResponse response) {
 
@@ -98,7 +99,7 @@ public class ReportController {
     }
 
     @GetMapping("/exportMbRePort")
-    @ApiOperation("摸板报表导出")
+    @ApiOperation("2-摸板报表导出")
     public void exportMbRePort(@RequestParam(value = "date", required = false) String date,
                                HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
 
@@ -118,7 +119,7 @@ public class ReportController {
     }
 
     @GetMapping("/exportBdRePort")
-    @ApiOperation("波动报表导出")
+    @ApiOperation("3-波动报表导出")
     public void exportBdRePort(@RequestParam(value = "date", required = false) String date,
                                HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
 
@@ -137,7 +138,7 @@ public class ReportController {
     }
 
     @GetMapping("/exportBKReport")
-    @ApiOperation("板块报表导出")
+    @ApiOperation("0-板块报表导出")
     public void exportBKReport(@RequestParam(value = "date", required = false) String date,
                                HttpServletResponse response) {
 
@@ -159,6 +160,11 @@ public class ReportController {
             reportService.saveZtInstructions(list1);
             reportService.saveMbInstructions(list2);
             reportService.saveBdInstructions(list3);
+
+
+            List<SubjectReport> list = reportService.getSubjectReport(date);
+            ExcelUtil<SubjectReport> excelUtil = new ExcelUtil<>(SubjectReport.class);
+            excelUtil.exportCustomExcel_bak(list, fileName, sheetName, response);
         } catch (Exception e) {
             e.printStackTrace();
         }

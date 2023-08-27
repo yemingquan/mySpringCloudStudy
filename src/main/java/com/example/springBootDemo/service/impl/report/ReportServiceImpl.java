@@ -6,6 +6,7 @@ import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.input.*;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
+import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.*;
 import com.google.common.collect.Lists;
@@ -170,6 +171,10 @@ public class ReportServiceImpl implements ReportService {
         baseBdDownStockService.updateBatchById(BeanUtil.copyToList(list2, BaseBdDownStock.class));
     }
 
+    @Override
+    public List<SubjectReport> getSubjectReport(String date) {
+        return baseSubjectLineDetailService.getSubjectReport(date);
+    }
     private void setCx(BaseStock bs) {
         String cx = bs.getCxFlag();
         String instructions = bs.getInstructions();

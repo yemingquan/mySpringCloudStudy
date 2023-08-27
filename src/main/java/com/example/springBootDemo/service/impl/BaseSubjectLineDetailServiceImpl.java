@@ -3,10 +3,12 @@ package com.example.springBootDemo.service.impl;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.dao.mapper.BaseSubjectLineDetailDao;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
+import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.service.BaseSubjectLineDetailService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 
 /**
@@ -20,4 +22,8 @@ public class BaseSubjectLineDetailServiceImpl extends ServiceImpl<BaseSubjectLin
     @Resource
     private BaseSubjectLineDetailDao baseSubjectLineDetailDao;
 
+    @Override
+    public List<SubjectReport> getSubjectReport(String date) {
+        return baseSubjectLineDetailDao.getSubjectReport(date);
+    }
 }
