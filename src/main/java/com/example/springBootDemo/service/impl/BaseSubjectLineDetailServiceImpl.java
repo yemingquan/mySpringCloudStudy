@@ -1,13 +1,16 @@
 package com.example.springBootDemo.service.impl;
 
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.dao.mapper.BaseSubjectLineDetailDao;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.service.BaseSubjectLineDetailService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 
@@ -25,5 +28,28 @@ public class BaseSubjectLineDetailServiceImpl extends ServiceImpl<BaseSubjectLin
     @Override
     public List<SubjectReport> getSubjectReport(String date) {
         return baseSubjectLineDetailDao.getSubjectReport(date);
+    }
+
+    @Override
+    public List<BaseSubjectLineDetail> getBaseSubjectLineDetailList(BaseSubjectLineDetail detail) {
+        EntityWrapper<BaseSubjectLineDetail> detailWr = new EntityWrapper<>();
+        String subLineName = detail.getSubLineName();
+        Date createDate = detail.getCreateDate();
+        if(StringUtils.isNoneBlank(subLineName)){
+            detailWr.eq("SUB_LINE_NAME", subLineName);
+        }
+
+        if(createDate !=null){
+            detailWr.eq("create_date", createDate);
+        }
+        detailWr.eq("STATE", "1");
+        return selectList(detailWr);
+    }
+
+    @Override
+    public void deleteBaseSubjectLineDetailByDateList(List<Date> imputList) {
+        EntityWrapper<BaseSubjectLineDetail> detailWr = new EntityWrapper();
+        detailWr.in("create_date", imputList);
+        delete(detailWr);
     }
 }

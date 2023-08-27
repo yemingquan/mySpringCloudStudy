@@ -43,6 +43,12 @@ public class SubjectReport implements Serializable {
     @Excel(name = "辨识度")
     private String helpName;
 
+    @Excel(name = "涨停数")
+    private Integer countZt;
+
+    @Excel(name = "回封数")
+    private Integer countZthf;
+
 //    @Excel(name = "模式")
     private String model;
 

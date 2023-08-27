@@ -1,6 +1,9 @@
 package com.example.springBootDemo.service;
 
+import com.example.springBootDemo.entity.input.BaseSubjectDetail;
+
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * @所属模块<p>
@@ -24,4 +27,6 @@ public interface InputService {
     boolean importExcelZbStock(InputStream is) throws Exception;
 
     boolean importSubjectDetail(InputStream inputStream) throws Exception;
+
+    void genSubjectDate(List<BaseSubjectDetail> imputList);
 }

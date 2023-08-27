@@ -1,5 +1,6 @@
 package com.example.springBootDemo.service;
 
+import com.example.springBootDemo.entity.input.BaseSubjectDetail;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.SubjectReport;
@@ -36,4 +37,6 @@ public interface ReportService {
     void oprBdDate(List<BdReport> list);
 
     List<SubjectReport> getSubjectReport(String date);
+
+    List<BaseSubjectDetail> genBaseSubjectDetail(List<ZtReport> list1, List<MbReport> list2, List<BdReport> list3);
 }

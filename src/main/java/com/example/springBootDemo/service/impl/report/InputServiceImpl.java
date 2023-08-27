@@ -17,6 +17,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -209,15 +210,70 @@ public class InputServiceImpl implements InputService {
 
         //导入前先删除当天的数据
         List<Date> createDateList = imputList.stream().map(BaseSubjectDetail::getCreateDate).collect(Collectors.toList());
-        detailWr = new EntityWrapper();
-        detailWr.in("create_date", createDateList);
-        baseSubjectLineDetailService.delete(detailWr);
+        baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(createDateList);
 
+        //插入并自动生成题材其他数据
+        genSubjectDate(imputList);
+
+        return true;
+    }
+
+
+    @Override
+    public void genSubjectDate(List<BaseSubjectDetail> imputList) {
         //这里需要拆分成多个对象：题材对象和题材线对象都是统计后新增或修改，而明细对象是直接新增的
         List<BaseSubjectLineDetail> importDetailList = BeanUtil.copyToList(imputList, BaseSubjectLineDetail.class);
         baseSubjectLineDetailService.insertBatch(importDetailList, importDetailList.size());
+        //自动生成SubLine数据
+        genSubLine(imputList);
+        //自动生成Sub数据
+        genSub(imputList);
+    }
 
-        //题材线逻辑处理
+    private void genSub(List<BaseSubjectDetail> imputList) {
+        EntityWrapper<BaseSubject> subjectWr;
+        EntityWrapper<BaseSubjectLine> subjectLineWr;//查询所有明细数据，更新line对象数据
+        Map<String, List<BaseSubjectDetail>> subNameMap = imputList.stream().collect(Collectors.groupingBy(BaseSubjectDetail::getSubName));
+        //根据分支线去整理数据
+        for (String str : subNameMap.keySet()) {
+            BaseSubjectDetail detail = subNameMap.get(str).get(0);
+
+            //先查一下是不是第一次新增
+            subjectWr = new EntityWrapper<>();
+            subjectWr.eq("SUB_NAME", str);
+            subjectWr.eq("STATE", "1");
+            BaseSubject sub = baseSubjectService.selectOne(subjectWr);
+
+            //如果是第一次新增，先弄个对象
+            if (sub == null) {
+                sub = BaseSubject.builder()
+                        .subName(detail.getSubName())
+                        .state("1")
+                        .build();
+            }
+            //添加非空字段
+            if(StringUtils.isNotBlank(detail.getSubInstructions())){
+                sub.setInstructions(detail.getSubInstructions());
+            }
+            subjectLineWr = new EntityWrapper<>();
+            subjectLineWr.eq("SUB_NAME", str);
+            subjectLineWr.eq("STATE", "1");
+            List<BaseSubjectLine> lineList = baseSubjectLineService.selectList(subjectLineWr);
+
+            Date startDate = lineList.stream().min(Comparator.comparing(BaseSubjectLine::getDurationStart, Comparator.nullsFirst(Date::compareTo))).map(BaseSubjectLine::getDurationStart).get();
+            Date endDate = lineList.stream().max(Comparator.comparing(BaseSubjectLine::getDurationEnd, Comparator.nullsFirst(Date::compareTo))).map(BaseSubjectLine::getDurationEnd).get();
+            sub.setDurationStart(startDate);
+            sub.setDurationEnd(endDate);
+
+            Integer combo = lineList.stream().max(Comparator.comparing(BaseSubjectLine::getCombo, Comparator.nullsFirst(Integer::compareTo))).map(BaseSubjectLine::getCombo).orElse(0);
+            sub.setCombo(combo);
+            baseSubjectService.insertOrUpdate(sub);
+        }
+    }
+
+    private void genSubLine(List<BaseSubjectDetail> imputList) {
+        EntityWrapper<BaseSubjectLine> subjectLineWr;
+        EntityWrapper<BaseSubjectLineDetail> detailWr;//题材线逻辑处理
         Map<String, List<BaseSubjectDetail>> subLineNameMap = imputList.stream().collect(Collectors.groupingBy(BaseSubjectDetail::getSubLineName));
         //根据分支线去整理数据
         for (String str : subLineNameMap.keySet()) {
@@ -233,18 +289,13 @@ public class InputServiceImpl implements InputService {
 
             //如果是第一次新增，先弄个对象
             if (line == null) {
-                line = BaseSubjectLine.builder()
-                        .subLineName(str)
-                        .subName(detail.getSubName())
-                        .state("1")
-                        .build();
+                line = BaseSubjectLine.builder().state("1").build();
             }
+            BeanUtils.copyProperties(detail, line, BaseSubjectLine.class);
 
             //查询所有明细数据，更新line对象数据
-            detailWr = new EntityWrapper<>();
-            detailWr.eq("SUB_LINE_NAME", str);
-            detailWr.eq("STATE", "1");
-            List<BaseSubjectLineDetail> detailList = baseSubjectLineDetailService.selectList(detailWr);
+            BaseSubjectLineDetail queryDetail = BaseSubjectLineDetail.builder().subLineName(str).build();
+            List<BaseSubjectLineDetail> detailList = baseSubjectLineDetailService.getBaseSubjectLineDetailList(queryDetail);
 
             Date startDate = detailList.stream().min(Comparator.comparing(BaseSubjectLineDetail::getCreateDate, Comparator.nullsFirst(Date::compareTo))).map(BaseSubjectLineDetail::getCreateDate).get();
             Date endDate = detailList.stream().max(Comparator.comparing(BaseSubjectLineDetail::getCreateDate, Comparator.nullsFirst(Date::compareTo))).map(BaseSubjectLineDetail::getCreateDate).get();
@@ -274,41 +325,6 @@ public class InputServiceImpl implements InputService {
             line.setCombo(combo);
             baseSubjectLineService.insertOrUpdate(line);
         }
-
-        //查询所有明细数据，更新line对象数据
-        Map<String, List<BaseSubjectDetail>> subNameMap = imputList.stream().collect(Collectors.groupingBy(BaseSubjectDetail::getSubName));
-        //根据分支线去整理数据
-        for (String str : subNameMap.keySet()) {
-            BaseSubjectDetail detail = subNameMap.get(str).get(0);
-
-            //先查一下是不是第一次新增
-            subjectWr = new EntityWrapper<>();
-            subjectWr.eq("SUB_NAME", str);
-            subjectWr.eq("STATE", "1");
-            BaseSubject sub = baseSubjectService.selectOne(subjectWr);
-
-            //如果是第一次新增，先弄个对象
-            if (sub == null) {
-                sub = BaseSubject.builder()
-                        .subName(detail.getSubName())
-                        .state("1")
-                        .build();
-            }
-            subjectLineWr = new EntityWrapper<>();
-            subjectLineWr.eq("SUB_NAME", str);
-            subjectLineWr.eq("STATE", "1");
-            List<BaseSubjectLine> lineList = baseSubjectLineService.selectList(subjectLineWr);
-
-            Date startDate = lineList.stream().min(Comparator.comparing(BaseSubjectLine::getDurationStart, Comparator.nullsFirst(Date::compareTo))).map(BaseSubjectLine::getDurationStart).get();
-            Date endDate = lineList.stream().max(Comparator.comparing(BaseSubjectLine::getDurationEnd, Comparator.nullsFirst(Date::compareTo))).map(BaseSubjectLine::getDurationEnd).get();
-            sub.setDurationStart(startDate);
-            sub.setDurationEnd(endDate);
-
-            Integer combo = lineList.stream().max(Comparator.comparing(BaseSubjectLine::getCombo, Comparator.nullsFirst(Integer::compareTo))).map(BaseSubjectLine::getCombo).orElse(0);
-            sub.setCombo(combo);
-            baseSubjectService.insertOrUpdate(sub);
-        }
-        return true;
     }
 
 

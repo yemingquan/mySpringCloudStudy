@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.service.IService;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.report.SubjectReport;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -16,4 +17,8 @@ import java.util.List;
 public interface BaseSubjectLineDetailService extends IService<BaseSubjectLineDetail>{
 
     List<SubjectReport> getSubjectReport(String date);
+
+    List<BaseSubjectLineDetail> getBaseSubjectLineDetailList(BaseSubjectLineDetail detail);
+
+    void deleteBaseSubjectLineDetailByDateList(List<Date> imputList);
 }

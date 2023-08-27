@@ -49,6 +49,14 @@ public class BaseSubjectLineDetail implements Serializable {
      */
     private String helpName;
     /**
+     * 涨停数
+     */
+    private Integer countZt;
+    /**
+     * 回封数
+     */
+    private Integer countZthf;
+    /**
      * 出现的模式 ;分隔
      */
     private String model;

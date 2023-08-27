@@ -9,6 +9,7 @@ import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.*;
+import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -175,6 +176,89 @@ public class ReportServiceImpl implements ReportService {
     public List<SubjectReport> getSubjectReport(String date) {
         return baseSubjectLineDetailService.getSubjectReport(date);
     }
+
+    @Override
+    public List<BaseSubjectDetail> genBaseSubjectDetail(List<ZtReport> list1, List<MbReport> list2, List<BdReport> list3) {
+        List<BaseSubjectDetail> genList = Lists.newArrayList();
+        Map<String, List<ZtReport>> ztMap = list1.stream().filter(po -> !po.getMainBusiness().contains("最-")).collect(Collectors.groupingBy(ZtReport::getMainBusiness));
+        Map<String, List<MbReport>> mbMap = list2.stream().collect(Collectors.groupingBy(MbReport::getMainBusiness));
+        Map<String, List<BdReport>> bdMap = list3.stream().collect(Collectors.groupingBy(BdReport::getMainBusiness));
+
+        //涨停数量统计
+//        Map<String, List<ZtReport>> ztMap = ztMap.s
+
+        for (String str : ztMap.keySet()) {
+            List<ZtReport> ztList = ztMap.get(str);
+            List<ZtReport> mbList = ztMap.get(str);
+            List<ZtReport> bdList = ztMap.get(str);
+
+            Integer countZt = ztList.stream().filter(po -> "1".equals(po.getSource())).collect(Collectors.toList()).size();
+            Integer countZthf = ztList.stream().filter(po -> "2".equals(po.getSource())).collect(Collectors.toList()).size();
+
+            ZtReport zt = ztList.get(0);
+            String date = DateUtil.format(zt.getCreateDate(), "yyyyMMdd");
+
+            List<ZtReport> coreNameList = ztList.stream().filter(po -> {
+                        String instructions = po.getInstructions();
+                        if (instructions.contains("龙") || instructions.contains("高度") || instructions.contains("中军")) {
+                            return true;
+                        }
+                        return false;
+                    }
+            ).collect(Collectors.toList());
+            String coreName = coreNameList.stream().map(ZtReport::getStockName).collect(Collectors.joining(","));
+
+            //高潮
+            String helpName = "";
+//            int count = ztList.size() / 4;
+            List<ZtReport> helpNameList = Lists.newArrayList();
+//            if (ztList.size() > 12) {
+            helpNameList = ztList.stream().sorted(Comparator.comparing(ZtReport::getCombo, Comparator.nullsFirst(Integer::compareTo)))
+                    .sorted(Comparator.comparing(ZtReport::getFinalHardenTime, Comparator.nullsFirst(Date::compareTo)))
+                    .filter(po -> {
+                                String instructions = po.getInstructions();
+                                if ((instructions.contains("加速") && !instructions.contains("高度")) || po.getCombo() > 1) {
+                                    return true;
+                                }
+                                return false;
+                            }
+                    ).collect(Collectors.toList());
+//            } else {
+//                helpNameList = ztList.stream().sorted(Comparator.comparing(ZtReport::getFinalHardenTime, Comparator.nullsFirst(Date::compareTo)))
+//                        .filter(po -> {
+//                                    int i = 0;
+//                                    if (i++ < count) {
+//                                        return true;
+//                                    }
+//                                    return false;
+//                                }
+//                        ).collect(Collectors.toList());
+//            }
+            helpName = helpNameList.stream().map(ZtReport::getStockName).collect(Collectors.joining((",")));
+
+            //如果只有助攻数据，那么自动提高一级
+            if (StringUtils.isBlank(coreName) && StringUtils.isNotBlank(helpName)) {
+                coreName = helpName;
+                helpName = "";
+            }
+
+            BaseSubjectDetail detail = BaseSubjectDetail.builder()
+                    .subName("未定义")
+                    .subLineName(date + zt.getMainBusiness())
+                    .mainBusiness(zt.getMainBusiness())
+                    .createDate(zt.getCreateDate())
+                    .coreName(coreName)
+                    .helpName(helpName)
+                    .countZt(countZt)
+                    .countZthf(countZthf)
+                    .build();
+            genList.add(detail);
+        }
+
+
+        return genList;
+    }
+
     private void setCx(BaseStock bs) {
         String cx = bs.getCxFlag();
         String instructions = bs.getInstructions();

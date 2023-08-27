@@ -1,19 +1,21 @@
 package com.example.springBootDemo.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.Student;
+import com.example.springBootDemo.entity.input.BaseSubjectDetail;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.entity.report.ZtReport;
-import com.example.springBootDemo.service.ConfBsdStockService;
-import com.example.springBootDemo.service.ReportService;
-import com.example.springBootDemo.service.StudentService;
+import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,21 +45,15 @@ import java.util.Map;
 public class ReportController {
 
     @Autowired
+    InputService inputService;
+    @Autowired
     ReportService reportService;
     @Autowired
     StudentService studentService;
-//    @Autowired
-//    BaseZtStockService baseZtStockService;
-//    @Autowired
-//    BaseZthfStockService baseZthfStockService;
-//    @Autowired
-//    BaseZbStockService baseZbStockService;
-//    @Autowired
-//    BaseDtStockService baseDtStockService;
-//    @Autowired
-//    BaseBdDownStockService baseBdDownStockService;
     @Resource
     private ConfBsdStockService confBsdStockService;
+    @Autowired
+    BaseSubjectLineDetailService baseSubjectLineDetailService;
 
     @ApiOperation("Excel导出测试")
     @GetMapping("/export")
@@ -140,6 +136,7 @@ public class ReportController {
     @GetMapping("/exportBKReport")
     @ApiOperation("0-板块报表导出")
     public void exportBKReport(@RequestParam(value = "date", required = false) String date,
+                               @RequestParam(value = "clearFlag", required = false) String clearFlag,
                                HttpServletResponse response) {
 
         String fileName = "板块0000.xlsx";
@@ -151,6 +148,11 @@ public class ReportController {
         List<ZtReport> list1 = reportService.getZtReportByDate(date);
         List<MbReport> list2 = reportService.getMbReportByDate(date);
         List<BdReport> list3 = reportService.getBdReportByDate(date);
+
+        if(CollectionUtils.isEmpty(list3)){
+            log.info("{} 当天没有生成任何数据",date);
+            return;
+        }
         try {
             reportService.oprZtDate(list1);
             reportService.oprMbDate(list2);
@@ -161,6 +163,22 @@ public class ReportController {
             reportService.saveMbInstructions(list2);
             reportService.saveBdInstructions(list3);
 
+
+
+            //导入前先删除当天的数据
+            if(StringUtils.isNotBlank(clearFlag)){
+                baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(Lists.newArrayList(DateUtil.parseDate(date)));
+            }
+
+            //查询所有明细数据，更新line对象数据
+            BaseSubjectLineDetail queryDetail = BaseSubjectLineDetail.builder().createDate(DateUtil.parseDate(date)).build();
+            List<BaseSubjectLineDetail> detailList = baseSubjectLineDetailService.getBaseSubjectLineDetailList(queryDetail);
+
+            //如果当天没有插入,则自动生成默认数据
+            if(CollectionUtils.isEmpty(detailList)&&CollectionUtils.isNotEmpty(list1)){
+                List<BaseSubjectDetail> genList = reportService.genBaseSubjectDetail(list1,list2,list3);
+                inputService.genSubjectDate(genList);
+            }
 
             List<SubjectReport> list = reportService.getSubjectReport(date);
             ExcelUtil<SubjectReport> excelUtil = new ExcelUtil<>(SubjectReport.class);

@@ -9,6 +9,8 @@
         <result property="mainBusiness" column="main_business" jdbcType="VARCHAR"/>
         <result property="coreName" column="core_name" jdbcType="VARCHAR"/>
         <result property="helpName" column="help_name" jdbcType="VARCHAR"/>
+        <result property="countZt" column="count_zt" jdbcType="INTEGER"/>
+        <result property="countZthf" column="count_zthf" jdbcType="INTEGER"/>
         <result property="model" column="model" jdbcType="VARCHAR"/>
         <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
         <result property="expect" column="expect" jdbcType="VARCHAR"/>
@@ -21,7 +23,7 @@
     <select id="getSubjectReport" resultType="com.example.springBootDemo.entity.report.SubjectReport" parameterType="java.lang.String">
         select s.sub_name,s.instructions subInstructions,
             rsl.sub_line_name,rsl.combo,rsl.duration_start,rsl.duration_end,
-            sld.main_business,sld.core_name,sld.help_name,sld.model,sld.instructions,sld.create_date
+            sld.main_business,sld.core_name,sld.help_name,sld.model,sld.instructions,sld.create_date,sld.count_zt, sld.count_zthf
         from base_subject s
         left join base_subject_line rsl on rsl.sub_name=s.sub_name and rsl.state=1
         left join base_subject_line_detail sld on sld.sub_line_name=rsl.sub_line_name and rsl.state=1
