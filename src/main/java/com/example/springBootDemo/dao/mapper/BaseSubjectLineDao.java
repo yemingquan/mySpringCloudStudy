@@ -13,7 +13,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface BaseSubjectLineDao extends BaseMapper<BaseSubjectLine>{
 
-
-
+    void clearSubDate();
 }
 

@@ -12,4 +12,5 @@ import com.example.springBootDemo.entity.BaseSubject;
  */
 public interface BaseSubjectService extends IService<BaseSubject>{
 
+    void clearSubDate();
 }

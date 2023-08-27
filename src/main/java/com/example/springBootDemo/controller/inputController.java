@@ -204,7 +204,7 @@ public class inputController {
         return RespBean.error("导入失败");
     }
 
-    @ApiOperation("1-题材明细导入")
+    @ApiOperation("1-题材明细导入(只导入指定日期的数据，其他日期的数据不完整时，建议删除)")
     @PostMapping("/importSubjectDetail")
     public RespBean importSubjectDetail(MultipartFile multipartFile) {
         try {

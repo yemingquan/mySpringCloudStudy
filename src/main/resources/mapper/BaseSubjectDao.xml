@@ -16,6 +16,17 @@
         <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
     </resultMap>
 
-
+    <delete id="clearSubDate">
+       delete from base_subject
+        where id in
+        (
+            select * from (
+                SELECT s.id
+                FROM base_subject s
+                LEFT JOIN base_subject_line sl ON sl.sub_name=s.sub_name
+                WHERE sl.id IS null
+            ) temp
+        )
+    </delete>
 </mapper>
 

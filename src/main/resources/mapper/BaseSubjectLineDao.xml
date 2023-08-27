@@ -14,6 +14,17 @@
         <result property="state" column="state" jdbcType="VARCHAR"/>
     </resultMap>
 
-
+    <delete id="clearSubDate">
+        DELETE FROM base_subject_line
+        WHERE id IN
+        (
+            SELECT * FROM (
+                SELECT sl.id
+                FROM base_subject_line sl
+                LEFT JOIN base_subject_line_detail sld ON sld.sub_line_name=sl.sub_line_name
+                WHERE sld.id IS NULL
+            ) temp
+        )
+    </delete>
 </mapper>
 

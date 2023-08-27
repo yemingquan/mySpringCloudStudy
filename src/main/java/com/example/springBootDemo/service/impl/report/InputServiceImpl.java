@@ -228,6 +228,13 @@ public class InputServiceImpl implements InputService {
         genSubLine(imputList);
         //自动生成Sub数据
         genSub(imputList);
+        //清除无用关联
+        clearSubDate();
+    }
+
+    private void clearSubDate() {
+        baseSubjectLineService.clearSubDate();
+        baseSubjectService.clearSubDate();
     }
 
     private void genSub(List<BaseSubjectDetail> imputList) {

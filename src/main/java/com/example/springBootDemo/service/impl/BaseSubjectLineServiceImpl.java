@@ -20,4 +20,9 @@ import javax.annotation.Resource;
 public class BaseSubjectLineServiceImpl extends ServiceImpl<BaseSubjectLineDao, BaseSubjectLine> implements BaseSubjectLineService {
     @Resource
     private BaseSubjectLineDao baseSubjectLineDao;
+
+    @Override
+    public void clearSubDate() {
+        baseSubjectLineDao.clearSubDate();
+    }
 }
