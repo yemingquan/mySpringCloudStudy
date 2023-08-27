@@ -14,52 +14,48 @@ import java.util.Date;
 
 
 /**
- * 题材线明细(BaseSubjectLineDetail)实体类
+ * 题材配置化(BaseSubject)实体类
  *
  * @author makejava
- * @since 2023-08-25 17:39:58
+ * @since 2023-08-26 15:36:36
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel(description = "题材线明细")
-@TableName("base_subject_line_detail")
-public class BaseSubjectLineDetail implements Serializable {
-    private static final long serialVersionUID = -63101766358407601L;
+@ApiModel(description = "题材配置化")
+@TableName("base_subject")
+public class BaseSubject implements Serializable {
+    private static final long serialVersionUID = -49845591799490370L;
     /**
      * 主键
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
     /**
-     * 题材线名称，比如开开实业-主升
+     * 题材名称 A-B，比如汇率-下降
      */
-    private String subLineName;
+    private String subName;
     /**
-     * 主要行业或结构
+     * 背景说明，用于分析模式
      */
-    private String mainBusiness;
+    private String backGround;
     /**
-     * 核心名称;分隔
-     */
-    private String coreName;
-    /**
-     * 跟风名称;分隔
-     */
-    private String helpName;
-    /**
-     * 出现的模式 ;分隔
-     */
-    private String model;
-    /**
-     * 说明，当天板块和市场的情况。核心的表现，助攻的表现
+     * 说明，对市场的影响，喜好的分析
      */
     private String instructions;
     /**
-     * 预期
+     * 开始持续时间
      */
-    private String expect;
+    private Date durationStart;
+    /**
+     * 开始持续时间
+     */
+    private Date durationEnd;
+    /**
+     * 最高板
+     */
+    private Integer combo;
     /**
      * 状态，有效1，无效0
      */
@@ -72,10 +68,6 @@ public class BaseSubjectLineDetail implements Serializable {
      * 创建者
      */
     private String createBy;
-    /**
-     * 备注
-     */
-    private String remark;
 
 
 }

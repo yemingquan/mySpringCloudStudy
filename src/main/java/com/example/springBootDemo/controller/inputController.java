@@ -4,7 +4,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.Student;
-import com.example.springBootDemo.service.ReportService;
+import com.example.springBootDemo.service.InputService;
 import com.example.springBootDemo.service.StudentService;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.FileUtil;
@@ -36,7 +36,7 @@ import java.util.List;
 public class inputController {
 
     @Autowired
-    ReportService reportService;
+    InputService inputService;
     @Autowired
     StudentService studentService;
 
@@ -44,7 +44,7 @@ public class inputController {
     @PostMapping("/importExcelBdUpStock")
     public RespBean importExcelBdUpStock(MultipartFile multipartFile) {
         try {
-            boolean flag = reportService.importExcelBdUpStock(multipartFile.getInputStream());
+            boolean flag = inputService.importExcelBdUpStock(multipartFile.getInputStream());
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -60,7 +60,7 @@ public class inputController {
     @PostMapping("/importExcelBdDownStock")
     public RespBean importExcelBdDownStock(MultipartFile multipartFile) {
         try {
-            boolean flag = reportService.importExcelBdDownStock(multipartFile.getInputStream());
+            boolean flag = inputService.importExcelBdDownStock(multipartFile.getInputStream());
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -75,7 +75,7 @@ public class inputController {
     @PostMapping("/importExcelDtStock")
     public RespBean importExcelDtStock(MultipartFile multipartFile) {
         try {
-            boolean flag = reportService.importExcelDtStock(multipartFile.getInputStream());
+            boolean flag = inputService.importExcelDtStock(multipartFile.getInputStream());
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -91,7 +91,7 @@ public class inputController {
     @PostMapping("/importExcelZbStock")
     public RespBean importExcelZbStock(MultipartFile multipartFile) {
         try {
-            boolean flag = reportService.importExcelZbStock(multipartFile.getInputStream());
+            boolean flag = inputService.importExcelZbStock(multipartFile.getInputStream());
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -107,7 +107,7 @@ public class inputController {
     @PostMapping("/importExcelZtStock")
     public RespBean importExcelZtStock(MultipartFile multipartFile) {
         try {
-            boolean flag = reportService.importExcelZtStock(multipartFile.getInputStream());
+            boolean flag = inputService.importExcelZtStock(multipartFile.getInputStream());
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -123,7 +123,7 @@ public class inputController {
     @PostMapping("/importExcelZthfStock")
     public RespBean importExcelZthfStock(MultipartFile multipartFile) {
         try {
-            boolean flag = reportService.importExcelZthfStock(multipartFile.getInputStream());
+            boolean flag = inputService.importExcelZthfStock(multipartFile.getInputStream());
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -153,7 +153,7 @@ public class inputController {
         return RespBean.error("导入失败");
     }
 
-    @ApiOperation("复盘初始化")
+    @ApiOperation("0-复盘初始化")
     @PostMapping("/initFP")
     public RespBean initFP(@RequestParam(value = "clearFlag", required = false) String clearFlag,
                            @RequestParam(value = "importDateFlag", required = false) String importDateFlag) {
@@ -190,14 +190,29 @@ public class inputController {
             for (int i = 1; i <= 6; i++) {
                 File file = new File(basePath + "Table" + i + ".xls");
                 File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
-                if (i == 1) reportService.importExcelZtStock(new FileInputStream(tempFile));
-                if (i == 2) reportService.importExcelZthfStock(new FileInputStream(tempFile));
-                if (i == 3) reportService.importExcelZbStock(new FileInputStream(tempFile));
-                if (i == 4) reportService.importExcelDtStock(new FileInputStream(tempFile));
-                if (i == 5) reportService.importExcelBdUpStock(new FileInputStream(tempFile));
-                if (i == 6) reportService.importExcelBdDownStock(new FileInputStream(tempFile));
+                if (i == 1) inputService.importExcelZtStock(new FileInputStream(tempFile));
+                if (i == 2) inputService.importExcelZthfStock(new FileInputStream(tempFile));
+                if (i == 3) inputService.importExcelZbStock(new FileInputStream(tempFile));
+                if (i == 4) inputService.importExcelDtStock(new FileInputStream(tempFile));
+                if (i == 5) inputService.importExcelBdUpStock(new FileInputStream(tempFile));
+                if (i == 6) inputService.importExcelBdDownStock(new FileInputStream(tempFile));
             }
             return RespBean.success("导入成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
+    @ApiOperation("1-题材明细导入")
+    @PostMapping("/importSubjectDetail")
+    public RespBean importSubjectDetail(MultipartFile multipartFile) {
+        try {
+            boolean flag = inputService.importSubjectDetail(multipartFile.getInputStream());
+            if (flag) {
+                return RespBean.success("导入成功");
+            }
+            return RespBean.error("导入失败");
         } catch (Exception e) {
             e.printStackTrace();
         }

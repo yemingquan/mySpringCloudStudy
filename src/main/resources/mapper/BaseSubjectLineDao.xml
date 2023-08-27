@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springBootDemo.dao.mapper.BaseSubjectLineDao">
+
+    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseSubjectLine">
+        <!--@Table base_subject_line-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="subName" column="sub_name" jdbcType="VARCHAR"/>
+        <result property="combo" column="combo" jdbcType="INTEGER"/>
+        <result property="subLineName" column="sub_line_name" jdbcType="VARCHAR"/>
+        <result property="lineState" column="line_state" jdbcType="VARCHAR"/>
+        <result property="durationStart" column="duration_start" jdbcType="TIMESTAMP"/>
+        <result property="durationEnd" column="duration_end" jdbcType="TIMESTAMP"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+</mapper>
+

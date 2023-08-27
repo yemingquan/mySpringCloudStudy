@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Date;
 
 
 /**
@@ -50,6 +51,6 @@ public class BaseSubjectDetail implements Serializable {
     private String instructions;
 
     @Excel(name = "日期")
-    private String createDate;
+    private Date createDate;
 }
 

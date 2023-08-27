@@ -2,6 +2,7 @@ package com.example.springBootDemo.service;
 
 
 import com.baomidou.mybatisplus.service.IService;
+import com.example.springBootDemo.entity.dto.QueryStockDto;
 import com.example.springBootDemo.entity.input.BaseZtStock;
 import com.example.springBootDemo.entity.report.ZtReport;
 
@@ -16,4 +17,6 @@ import java.util.List;
 public interface BaseZtStockService  extends IService<BaseZtStock> {
 
     List<ZtReport> getZtReportByDate(String date);
+
+    Integer getMaxCombo(QueryStockDto queryStock);
 }

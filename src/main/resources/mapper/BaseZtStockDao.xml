@@ -47,4 +47,20 @@
         where zt.create_date = #{date}
     </select>
 
+
+    <select id="getMaxCombo" resultType="java.lang.Integer"
+            parameterType="com.example.springBootDemo.entity.dto.QueryStockDto">
+        select
+            max(combo)
+        from (
+            select stock_Name,combo,create_date from base_zt_stock
+            union
+            select stock_Name,combo,create_date from base_zthf_stock
+        ) a
+        where create_date BETWEEN #{dto.startDate} and #{dto.endDate}
+        AND stock_Name in
+        <foreach collection="dto.stockNameList" item="item" open="(" close=")" separator=",">  
+          #{item}  
+        </foreach>
+    </select>
 </mapper>

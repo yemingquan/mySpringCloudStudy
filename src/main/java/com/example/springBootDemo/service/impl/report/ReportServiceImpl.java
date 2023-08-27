@@ -1,25 +1,19 @@
 package com.example.springBootDemo.service.impl.report;
 
 
-import cn.afterturn.easypoi.excel.ExcelImportUtil;
-import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.input.*;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.*;
-import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
@@ -41,8 +35,6 @@ import java.util.stream.Collectors;
 public class ReportServiceImpl implements ReportService {
 
     @Autowired
-    StudentService studentService;
-    @Autowired
     BaseZtStockService baseZtStockService;
     @Autowired
     BaseZthfStockService baseZthfStockService;
@@ -54,6 +46,12 @@ public class ReportServiceImpl implements ReportService {
     BaseBdDownStockService baseBdDownStockService;
     @Autowired
     BaseBdUpStockService baseBdUpStockService;
+    @Autowired
+    BaseSubjectService baseSubjecService;
+    @Autowired
+    BaseSubjectLineService baseSubjectLineService;
+    @Autowired
+    BaseSubjectLineDetailService baseSubjectLineDetailService;
 
     @Override
     public List<ZtReport> getZtReportByDate(String date) {
@@ -145,23 +143,6 @@ public class ReportServiceImpl implements ReportService {
         }
     }
 
-    private void setCx(BaseStock bs) {
-        String cx = bs.getCxFlag();
-        String instructions = bs.getInstructions();
-        if (StringUtils.isNotBlank(cx) && !instructions.contains("次新")) {
-            bs.setInstructions(instructions + cx);
-        }
-    }
-
-    private void setZz(BaseStock bs) {
-        String bond = bs.getBond();
-        String instructions = bs.getInstructions();
-        if (StringUtils.isNotBlank(bond) && !instructions.contains("含zz")) {
-            bs.setInstructions(instructions + "含zz;");
-        }
-    }
-
-
     @Override
     public void saveZtInstructions(List<ZtReport> list) {
         List<ZtReport> list1 = list.stream().filter(po -> "1".equals(po.getSource())).collect(Collectors.toList());
@@ -189,282 +170,20 @@ public class ReportServiceImpl implements ReportService {
         baseBdDownStockService.updateBatchById(BeanUtil.copyToList(list2, BaseBdDownStock.class));
     }
 
-    @Override
-    public boolean importExcelZthfStock(InputStream is) throws Exception {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
-        //导入前先删除当天的数据
-        EntityWrapper<BaseZthfStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
-        baseZthfStockService.delete(wrapper);
-
-        List<BaseZthfStock> list = ExcelImportUtil.importExcel(is, BaseZthfStock.class, importParams);
-        is.close();
-        list.stream().forEach(po -> {
-            datePro(po);
-            try {
-                ztInstructions(po);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        });
-        return baseZthfStockService.insertBatch(list, list.size());
-    }
-
-
-    @Override
-    public boolean importExcelZtStock(InputStream is) throws Exception {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
-        //导入前先删除当天的数据
-        EntityWrapper<BaseZtStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
-        baseZtStockService.delete(wrapper);
-
-        List<BaseZtStock> list = ExcelImportUtil.importExcel(is, BaseZtStock.class, importParams);
-        is.close();
-        list.stream().forEach(po -> {
-            datePro(po);
-            try {
-                ztInstructions(po);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        });
-        return baseZtStockService.insertBatch(list, list.size());
-    }
-
-    @Override
-    public boolean importExcelBdUpStock(InputStream is) throws Exception {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
-        //导入前先删除当天的数据
-        EntityWrapper<BaseBdUpStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
-        baseBdUpStockService.delete(wrapper);
-
-        List<BaseBdUpStock> list = ExcelImportUtil.importExcel(is, BaseBdUpStock.class, importParams);
-        is.close();
-        list.stream().forEach(po -> {
-            datePro(po);
-            //波动报表说明字段处理
-            bdInstructions(po);
-        });
-        return baseBdUpStockService.insertBatch(list, list.size());
-    }
-
-    @Override
-    public boolean importExcelBdDownStock(InputStream is) throws Exception {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
-        //导入前先删除当天的数据
-        EntityWrapper<BaseBdDownStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
-        baseBdDownStockService.delete(wrapper);
-
-        List<BaseBdDownStock> list = ExcelImportUtil.importExcel(is, BaseBdDownStock.class, importParams);
-        is.close();
-        list.stream().forEach(po -> {
-            datePro(po);
-            bdInstructions(po);
-        });
-        return baseBdDownStockService.insertBatch(list, list.size());
-    }
-
-    @Override
-    public boolean importExcelDtStock(InputStream is) throws Exception {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
-        //导入前先删除当天的数据
-        EntityWrapper<BaseDtStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
-        baseDtStockService.delete(wrapper);
-
-        List<BaseDtStock> list = ExcelImportUtil.importExcel(is, BaseDtStock.class, importParams);
-        is.close();
-        list.stream().forEach(po -> {
-            datePro(po);
-            mbInstructions(po);
-            StringBuffer instructions = new StringBuffer(po.getInstructions());
-            instructions.append("曾跌停;");
-            po.setInstructions(instructions.toString());
-        });
-        if (list.size() == 0) {
-            log.info("无数据需要处理");
-            return true;
+    private void setCx(BaseStock bs) {
+        String cx = bs.getCxFlag();
+        String instructions = bs.getInstructions();
+        if (StringUtils.isNotBlank(cx) && !instructions.contains("次新")) {
+            bs.setInstructions(instructions + cx);
         }
-        return baseDtStockService.insertBatch(list, list.size());
     }
 
-    @Override
-    public boolean importExcelZbStock(InputStream is) throws Exception {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
-        //导入前先删除当天的数据
-        EntityWrapper<BaseZbStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
-        baseZbStockService.delete(wrapper);
-
-        List<BaseZbStock> list = ExcelImportUtil.importExcel(is, BaseZbStock.class, importParams);
-        is.close();
-        list.stream().forEach(po -> {
-            datePro(po);
-            mbInstructions(po);
-            StringBuffer instructions = new StringBuffer(po.getInstructions());
-            instructions.append("炸板;");
-            po.setInstructions(instructions.toString());
-        });
-        return baseZbStockService.insertBatch(list, list.size());
-    }
-
-
-    private void datePro(BaseStock po) {
-        StringBuffer instructions = new StringBuffer("");
-
-        po.setCreateDate(new Date());
-        po.setModifedDate(new Date());
-        BigDecimal before = new BigDecimal(po.getCirculation());
-        po.setCirculation(before.divide(new BigDecimal(100000000), 2, BigDecimal.ROUND_HALF_UP).doubleValue());
-        po.setAmplitude(po.getAmplitude() * 100);
-//                po.setYesterdayAmplitude(po.getYesterdayAmplitude() * 100);
-        po.setChangingHands(po.getChangingHands() * 100);
-//                po.setYesterdayChangingHands(po.getYesterdayChangingHands() * 100);
-        if (po.getGains() != null) po.setGains(po.getGains() * 100);
-        if (po.getStartGains() != null) po.setStartGains(po.getStartGains() * 100);
-        if (po.getEntitySize() != null) po.setEntitySize(po.getEntitySize() * 100);
-
-
-        double value = 0;
-        if (po.getCirculation() < 30) {
-            instructions.append("小盘;");
+    private void setZz(BaseStock bs) {
+        String bond = bs.getBond();
+        String instructions = bs.getInstructions();
+        if (StringUtils.isNotBlank(bond) && !instructions.contains("含zz")) {
+            bs.setInstructions(instructions + "含zz;");
         }
-
-        value = po.getChangingHands();
-        if (75 > value && value > 50) {
-            instructions.append("高换手;");
-        } else if (value > 75) {
-            instructions.append("死亡换手;");
-        }
-
-        value = po.getAmplitude();
-        if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
-            instructions.append("大长腿;");
-        }
-
-        po.setInstructions(instructions.toString());
-    }
-
-
-    /**
-     * 波动报表说明字段处理
-     *
-     * @param po
-     */
-    private void bdInstructions(BaseStock po) {
-        //实体大小
-//        BigDecimal a = new BigDecimal(po.getGains()).setScale(2, BigDecimal.ROUND_UP);
-//        BigDecimal b = new BigDecimal(po.getStartGains()).setScale(2, BigDecimal.ROUND_UP);
-//        BigDecimal result = a.subtract(b);
-//        double entitySize = result.doubleValue();
-
-
-        //说明
-        StringBuffer instructions = new StringBuffer(po.getInstructions());
-        Double entitySize = po.getEntitySize();
-        Double amplitude = po.getAmplitude();
-        if (Math.abs(entitySize) < 2) {
-            if (Math.abs(amplitude) > 9) {
-                instructions.append("大分歧;");
-            } else {
-                instructions.append("十字星;");
-            }
-        } else if (entitySize > 7) {
-            instructions.append("大阳线;");
-        } else if (entitySize < -7) {
-            instructions.append("负反馈;");
-        }
-        po.setInstructions(instructions.toString());
-    }
-
-
-    /**
-     * 涨停报表字段处理
-     *
-     * @param po
-     */
-    private void ztInstructions(BaseStock po) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        //说明
-        StringBuffer instructions = new StringBuffer(po.getInstructions());
-        Date finalHardenTime = po.getFinalHardenTime();
-        Date hardenTime = po.getHardenTime();
-        Date finalTime = (finalHardenTime != null ? finalHardenTime : hardenTime);
-        Double amplitude = po.getAmplitude();
-        Double yesterdayGains = po.getYesterdayGains();
-        Double yestedayEntitySize = po.getYestedayEntitySize();
-        Double yesterdayAmplitude = po.getYesterdayAmplitude();
-        Double changingHands = po.getChangingHands();
-        Double yesterdayChangingHands = po.getYesterdayChangingHands();
-
-        if (amplitude == 0) {
-            po.setHardenType("一字板");
-            if (changingHands <= yesterdayChangingHands && yesterdayAmplitude != null && yesterdayAmplitude == 0) {
-                instructions.append("连续加速;");
-            } else if (changingHands <= yesterdayChangingHands) {
-                instructions.append("加速;");
-            } else {
-                instructions.append("一字分歧;");
-            }
-        } else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
-            po.setHardenType("T字板");
-            instructions.append("T字板;");
-        } else if (sdf.parse("09:40:00").after(finalTime)) {
-            po.setHardenType("秒板");
-            instructions.append("秒板;");
-        } else if (sdf.parse("14:40:00").before(finalTime)) {
-            po.setHardenType("偷袭板");
-            instructions.append("偷袭板;");
-        } else {
-            po.setHardenType("换手板");
-        }
-
-        //弱修复|弱转强
-        if (yesterdayGains != null && yesterdayGains < -6) {
-            instructions.append("弱修复;");
-        } else if (yestedayEntitySize != null) {
-            instructions.append("弱转强;");
-        }
-        po.setInstructions(instructions.toString());
-    }
-
-    /**
-     * 摸板报表样式处理
-     *
-     * @param po
-     */
-    private void mbInstructions(BaseStock po) {
-        //说明
-        StringBuffer instructions = new StringBuffer(po.getInstructions());
-        Double entitySize = po.getEntitySize();
-        Double amplitude = po.getAmplitude();
-        if (Math.abs(entitySize) < 2) {
-            if (Math.abs(amplitude) > 9) {
-                instructions.append("大分歧;");
-            } else {
-                instructions.append("十字星;");
-            }
-        } else if (entitySize > 7) {
-            instructions.append("大阳线;");
-        } else if (entitySize < -7) {
-            instructions.append("负反馈;");
-        }
-        po.setInstructions(instructions.toString());
     }
 
     private void setSbTime(List<ZtReport> bkList) throws ParseException {

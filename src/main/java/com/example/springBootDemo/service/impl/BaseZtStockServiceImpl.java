@@ -3,6 +3,7 @@ package com.example.springBootDemo.service.impl;
 
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.dao.mapper.BaseZtStockDao;
+import com.example.springBootDemo.entity.dto.QueryStockDto;
 import com.example.springBootDemo.entity.input.BaseZtStock;
 import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.BaseZtStockService;
@@ -25,5 +26,10 @@ public class BaseZtStockServiceImpl extends ServiceImpl<BaseZtStockDao, BaseZtSt
     @Override
     public List<ZtReport> getZtReportByDate(String date) {
         return baseZtStockDao.getZtReportByDate(date);
+    }
+
+    @Override
+    public Integer getMaxCombo(QueryStockDto queryStock) {
+        return baseZtStockDao.getMaxCombo(queryStock);
     }
 }

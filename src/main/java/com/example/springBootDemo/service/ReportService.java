@@ -4,7 +4,6 @@ import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 
-import java.io.InputStream;
 import java.text.ParseException;
 import java.util.List;
 
@@ -22,18 +21,6 @@ public interface ReportService {
     void saveZtInstructions(List<ZtReport> list);
 
     void saveBdInstructions(List<BdReport> list);
-
-    boolean importExcelZthfStock(InputStream is) throws Exception;
-
-    boolean importExcelZtStock(InputStream is) throws Exception;
-
-    boolean importExcelBdUpStock(InputStream is) throws Exception;
-
-    boolean importExcelBdDownStock(InputStream is) throws Exception;
-
-    boolean importExcelDtStock(InputStream is) throws Exception;
-
-    boolean importExcelZbStock(InputStream is) throws Exception;
 
     List<ZtReport> getZtReportByDate(String date);
 

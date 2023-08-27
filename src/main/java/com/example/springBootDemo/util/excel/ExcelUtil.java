@@ -410,7 +410,7 @@ public class ExcelUtil<T> implements Serializable {
                                 Object o = field.get(vo);
                                 String readConverterExp = attr.readConverterExp();
                                 if (StringUtils.isNotEmpty(dateFormat) && o != null) {
-//                                    cell.setCellValue(new SimpleDateFormat(dateFormat).format((Date) field.get(vo)));
+//                                    cell.setCellValue(new SimpleDateFormat(dateFormat).format((Date) field.get(dto)));
                                     cell.setCellValue((Date) o);
                                 } else if (StringUtils.isNotEmpty(readConverterExp) && o != null) {
                                     cell.setCellValue(convertByExp(String.valueOf(field.get(vo)), readConverterExp));
@@ -563,7 +563,7 @@ public class ExcelUtil<T> implements Serializable {
                                 Object o = field.get(vo);
                                 String readConverterExp = attr.readConverterExp();
                                 if (StringUtils.isNotEmpty(dateFormat) && o != null) {
-//                                    cell.setCellValue(new SimpleDateFormat(dateFormat).format((Date) field.get(vo)));
+//                                    cell.setCellValue(new SimpleDateFormat(dateFormat).format((Date) field.get(dto)));
                                     cell.setCellValue((Date) o);
                                 } else if (StringUtils.isNotEmpty(readConverterExp) && o != null) {
                                     cell.setCellValue(convertByExp(String.valueOf(field.get(vo)), readConverterExp));
