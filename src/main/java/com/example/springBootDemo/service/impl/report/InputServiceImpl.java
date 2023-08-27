@@ -208,9 +208,7 @@ public class InputServiceImpl implements InputService {
         List<BaseSubjectDetail> imputList = ExcelImportUtil.importExcel(is, BaseSubjectDetail.class, importParams);
         is.close();
 
-        //导入前先删除当天的数据
-        List<Date> createDateList = imputList.stream().map(BaseSubjectDetail::getCreateDate).collect(Collectors.toList());
-        baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(createDateList);
+
 
         //插入并自动生成题材其他数据
         genSubjectDate(imputList);

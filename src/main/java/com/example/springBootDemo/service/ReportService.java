@@ -36,7 +36,7 @@ public interface ReportService {
 
     void oprBdDate(List<BdReport> list);
 
-    List<SubjectReport> getSubjectReport(String date);
+    List<SubjectReport> getSubjectReport(String date, String startDate);
 
     List<BaseSubjectDetail> genBaseSubjectDetail(List<ZtReport> list1, List<MbReport> list2, List<BdReport> list3);
 }

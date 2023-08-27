@@ -4,6 +4,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.Student;
+import com.example.springBootDemo.service.BaseSubjectLineDetailService;
 import com.example.springBootDemo.service.InputService;
 import com.example.springBootDemo.service.StudentService;
 import com.example.springBootDemo.util.DateUtil;
@@ -39,6 +40,8 @@ public class inputController {
     InputService inputService;
     @Autowired
     StudentService studentService;
+    @Autowired
+    BaseSubjectLineDetailService baseSubjectLineDetailService;
 
     @ApiOperation("导入波动向上Excel数据")
     @PostMapping("/importExcelBdUpStock")
@@ -206,8 +209,15 @@ public class inputController {
 
     @ApiOperation("1-题材明细导入(只导入指定日期的数据，其他日期的数据不完整时，建议删除)")
     @PostMapping("/importSubjectDetail")
-    public RespBean importSubjectDetail(MultipartFile multipartFile) {
+    public RespBean importSubjectDetail(@RequestParam(value = "date", required = true) String date,
+                                        @RequestParam(value = "startDate", required = false) String startDate,
+                                        MultipartFile multipartFile) {
         try {
+            if (StringUtils.isEmpty(date)) {
+                date = DateUtil.format(new Date(), "yyyy-MM-dd");
+            }
+            //导入前先删除当天的数据
+            baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(date,startDate);
             boolean flag = inputService.importSubjectDetail(multipartFile.getInputStream());
             if (flag) {
                 return RespBean.success("导入成功");

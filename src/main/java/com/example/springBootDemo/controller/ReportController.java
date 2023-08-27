@@ -11,7 +11,6 @@ import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
-import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -136,6 +135,7 @@ public class ReportController {
     @GetMapping("/exportBKReport")
     @ApiOperation("0-板块报表导出")
     public void exportBKReport(@RequestParam(value = "date", required = false) String date,
+                               @RequestParam(value = "startDate", required = false) String startDate,
                                @RequestParam(value = "clearFlag", required = false) String clearFlag,
                                HttpServletResponse response) {
 
@@ -145,15 +145,18 @@ public class ReportController {
             date = DateUtil.format(new Date(), "yyyy-MM-dd");
         }
 
-        List<ZtReport> list1 = reportService.getZtReportByDate(date);
-        List<MbReport> list2 = reportService.getMbReportByDate(date);
-        List<BdReport> list3 = reportService.getBdReportByDate(date);
 
-        if(CollectionUtils.isEmpty(list3)){
-            log.info("{} 当天没有生成任何数据",date);
-            return;
-        }
         try {
+            //格式化指定日期数据
+            List<ZtReport> list1 = reportService.getZtReportByDate(date);
+            List<MbReport> list2 = reportService.getMbReportByDate(date);
+            List<BdReport> list3 = reportService.getBdReportByDate(date);
+
+            if (CollectionUtils.isEmpty(list3)) {
+                log.info("{} 当天没有生成任何数据", date);
+                return;
+            }
+
             reportService.oprZtDate(list1);
             reportService.oprMbDate(list2);
             reportService.oprBdDate(list3);
@@ -164,10 +167,9 @@ public class ReportController {
             reportService.saveBdInstructions(list3);
 
 
-
             //导入前先删除当天的数据
-            if(StringUtils.isNotBlank(clearFlag)){
-                baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(Lists.newArrayList(DateUtil.parseDate(date)));
+            if (StringUtils.isNotBlank(clearFlag)) {
+                baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(date,startDate);
             }
 
             //查询所有明细数据，更新line对象数据
@@ -175,14 +177,16 @@ public class ReportController {
             List<BaseSubjectLineDetail> detailList = baseSubjectLineDetailService.getBaseSubjectLineDetailList(queryDetail);
 
             //如果当天没有插入,则自动生成默认数据
-            if(CollectionUtils.isEmpty(detailList)&&CollectionUtils.isNotEmpty(list1)){
-                List<BaseSubjectDetail> genList = reportService.genBaseSubjectDetail(list1,list2,list3);
+            if (CollectionUtils.isEmpty(detailList) && CollectionUtils.isNotEmpty(list1)) {
+                List<BaseSubjectDetail> genList = reportService.genBaseSubjectDetail(list1, list2, list3);
                 inputService.genSubjectDate(genList);
             }
 
-            List<SubjectReport> list = reportService.getSubjectReport(date);
+            //上面都是处理当天的逻辑，下面这个是真正的逻辑
+            List<SubjectReport> list = reportService.getSubjectReport(date,startDate);
             ExcelUtil<SubjectReport> excelUtil = new ExcelUtil<>(SubjectReport.class);
-            excelUtil.exportCustomExcel_bak(list, fileName, sheetName, response);
+            Map<String, Map> annotationMapping = excelUtil.OprSubjectReport(list);
+            excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
         } catch (Exception e) {
             e.printStackTrace();
         }

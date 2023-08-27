@@ -16,9 +16,10 @@ import java.util.List;
  */
 public interface BaseSubjectLineDetailService extends IService<BaseSubjectLineDetail>{
 
-    List<SubjectReport> getSubjectReport(String date);
+    List<SubjectReport> getSubjectReport(String date, String startDate);
 
     List<BaseSubjectLineDetail> getBaseSubjectLineDetailList(BaseSubjectLineDetail detail);
 
-    void deleteBaseSubjectLineDetailByDateList(List<Date> imputList);
+
+    void deleteBaseSubjectLineDetailByDateList(String date, String startDate);
 }

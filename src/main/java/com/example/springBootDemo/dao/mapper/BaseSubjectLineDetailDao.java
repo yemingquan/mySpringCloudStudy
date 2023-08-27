@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.report.SubjectReport;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -16,6 +17,6 @@ import java.util.List;
 @Mapper
 public interface BaseSubjectLineDetailDao extends BaseMapper<BaseSubjectLineDetail>{
 
-    List<SubjectReport> getSubjectReport(String date);
+    List<SubjectReport> getSubjectReport(@Param("date") String date, @Param("startDate")String startDate);
 }
 

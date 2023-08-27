@@ -9,6 +9,7 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
+import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -525,10 +526,20 @@ public class ExcelUtil<T> implements Serializable {
                     row = sheet.createRow(i + 1 - startNo);
                     // 得到导出对象.
                     T vo = (T) list.get(i);
-                    Field codeField = vo.getClass().getDeclaredField("stockCode");
-                    // 设置实体类私有属性可访问
-                    codeField.setAccessible(true);
-                    Object stockCode = codeField.get(vo);
+                    Object key = "";
+                    try {
+                        Field codeField = vo.getClass().getDeclaredField("stockCode");
+                        // 设置实体类私有属性可访问
+                        codeField.setAccessible(true);
+                        key = codeField.get(vo);
+                    } catch (Exception e) {
+                        Field codeField = vo.getClass().getDeclaredField("subName");
+                        // 设置实体类私有属性可访问
+                        codeField.setAccessible(true);
+                        key = codeField.get(vo);
+                        //TODO 异常更换组件
+//                        log.info("异常更换组件");
+                    }
 
                     for (int j = 0; j < fields.size(); j++) {
                         Field f = fields.get(j);
@@ -543,7 +554,7 @@ public class ExcelUtil<T> implements Serializable {
                         Field annotationField = handler.getClass().getDeclaredField("memberValues");
                         annotationField.setAccessible(true);
                         Map map = (Map) annotationField.get(handler);
-                        Map map2 = annotationMapping.get(stockCode + "-" + f.getName());
+                        Map map2 = annotationMapping.get(key + "-" + f.getName());
                         map.putAll(map2);
                         try {
                             // 设置行高
@@ -575,7 +586,8 @@ public class ExcelUtil<T> implements Serializable {
                                 }
                             }
                         } catch (Exception e) {
-                            log.error("导出Excel失败{}", e.getMessage());
+                            log.error("导出Excel失败:", e);
+//                            log.error("导出Excel失败{}", e.getMessage());
                         }
                     }
                 }
@@ -1103,6 +1115,58 @@ public class ExcelUtil<T> implements Serializable {
 
     private void specialOprMbReport(MbReport po, Field f, Map map) {
         generalSpecialOpr(po, f, map);
+    }
+
+    /**
+     * 波动报表样式处理
+     *
+     * @param list
+     * @return
+     */
+    public Map<String, Map> OprSubjectReport(List<SubjectReport> list) throws NoSuchFieldException, IllegalAccessException {
+        //注解和对象的映射关系 key:代码-属性 value:注解配置
+        Map<String, Map> annotationMapping = Maps.newConcurrentMap();
+        //注解只有一个，所以不符合条件的话，要给默认值
+        Map<String, Object> defaultAnnotationMap = Maps.newConcurrentMap();
+        Boolean firstFlag = true;
+        List<Field> fields = getClassFields();
+
+        //底色处理
+        Map<String, List<SubjectReport>> ztMap = list.stream().collect(Collectors.groupingBy(SubjectReport::getSubName));
+        Map<String, Object> colorMap = Maps.newConcurrentMap();
+        IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME};
+        int num = 0;
+        for (String str : ztMap.keySet()) {
+            colorMap.put(str, colorArr[num++ % colorArr.length]);
+        }
+
+        //集合循环
+        for (int i = 0; i < list.size(); i++) {
+            SubjectReport po = list.get(i);
+            String subName = po.getSubName();
+
+            //注解循环
+            for (int j = 0; j < fields.size(); j++) {
+                Field f = fields.get(j);
+                // 获取注解映射的map对象
+                Map map = getAnnotationMap((T) po, f);
+                String key = subName + "-" + f.getName();
+
+                if (firstFlag) {
+                    defaultAnnotationMap = initDefaultAnnotationMap((HashMap<String, Object>) map);
+                    firstFlag = false;
+                } else {
+                    map.putAll(defaultAnnotationMap);
+                }
+                //根据主业给与背景随机颜色
+                map.put("backgroundColor", colorMap.get(po.getSubName()));
+
+                //深拷贝后，把映射关系放到map中
+                Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
+                annotationMapping.put(key, afterMap);
+            }
+        }
+        return annotationMapping;
     }
 }
 

@@ -173,8 +173,12 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<SubjectReport> getSubjectReport(String date) {
-        return baseSubjectLineDetailService.getSubjectReport(date);
+    public List<SubjectReport> getSubjectReport(String date, String startDate) {
+        List<SubjectReport> list = baseSubjectLineDetailService.getSubjectReport(date,startDate);
+        for (SubjectReport sr :list){
+            sr.setWeek(DateUtil.getWeek(sr.getCreateDate()));
+        }
+        return list;
     }
 
     @Override
@@ -200,13 +204,15 @@ public class ReportServiceImpl implements ReportService {
 
             List<ZtReport> coreNameList = ztList.stream().filter(po -> {
                         String instructions = po.getInstructions();
-                        if (instructions.contains("龙") || instructions.contains("高度") || instructions.contains("中军")) {
+                        if (instructions.contains("龙") || instructions.contains("高度") || instructions.contains("最高") ||instructions.contains("中军")) {
                             return true;
                         }
                         return false;
                     }
             ).collect(Collectors.toList());
             String coreName = coreNameList.stream().map(ZtReport::getStockName).collect(Collectors.joining(","));
+            //移动所有重复的标的
+            ztList.remove(coreNameList);
 
             //高潮
             String helpName = "";

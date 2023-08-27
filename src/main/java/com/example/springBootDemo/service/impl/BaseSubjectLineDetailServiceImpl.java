@@ -26,8 +26,8 @@ public class BaseSubjectLineDetailServiceImpl extends ServiceImpl<BaseSubjectLin
     private BaseSubjectLineDetailDao baseSubjectLineDetailDao;
 
     @Override
-    public List<SubjectReport> getSubjectReport(String date) {
-        return baseSubjectLineDetailDao.getSubjectReport(date);
+    public List<SubjectReport> getSubjectReport(String date, String startDate) {
+        return baseSubjectLineDetailDao.getSubjectReport(date, startDate);
     }
 
     @Override
@@ -35,11 +35,11 @@ public class BaseSubjectLineDetailServiceImpl extends ServiceImpl<BaseSubjectLin
         EntityWrapper<BaseSubjectLineDetail> detailWr = new EntityWrapper<>();
         String subLineName = detail.getSubLineName();
         Date createDate = detail.getCreateDate();
-        if(StringUtils.isNoneBlank(subLineName)){
+        if (StringUtils.isNoneBlank(subLineName)) {
             detailWr.eq("SUB_LINE_NAME", subLineName);
         }
 
-        if(createDate !=null){
+        if (createDate != null) {
             detailWr.eq("create_date", createDate);
         }
         detailWr.eq("STATE", "1");
@@ -47,9 +47,13 @@ public class BaseSubjectLineDetailServiceImpl extends ServiceImpl<BaseSubjectLin
     }
 
     @Override
-    public void deleteBaseSubjectLineDetailByDateList(List<Date> imputList) {
+    public void deleteBaseSubjectLineDetailByDateList(String date, String startDate) {
         EntityWrapper<BaseSubjectLineDetail> detailWr = new EntityWrapper();
-        detailWr.in("create_date", imputList);
+        if (StringUtils.isNotBlank(startDate)) {
+            detailWr.between("create_date", startDate, date);
+        } else {
+            detailWr.eq("create_date", date);
+        }
         delete(detailWr);
     }
 }

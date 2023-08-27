@@ -52,11 +52,14 @@ public class SubjectReport implements Serializable {
 //    @Excel(name = "模式")
     private String model;
 
-    @Excel(name = "说明")
+    @Excel(name = "明细说明")
     private String instructions;
 
     @Excel(name = "日期",dateFormat="yyyy-MM-dd")
     private Date createDate;
+
+    @Excel(name = "星期")
+    private String week;
 
     private static final long serialVersionUID = 1L;
 }

@@ -23,12 +23,17 @@
     <select id="getSubjectReport" resultType="com.example.springBootDemo.entity.report.SubjectReport" parameterType="java.lang.String">
         select s.sub_name,s.instructions subInstructions,
             rsl.sub_line_name,rsl.combo,rsl.duration_start,rsl.duration_end,
-            sld.main_business,sld.core_name,sld.help_name,sld.model,sld.instructions,sld.create_date,sld.count_zt, sld.count_zthf
+            sld.id,sld.main_business,sld.core_name,sld.help_name,sld.model,sld.instructions,sld.create_date,sld.count_zt, sld.count_zthf
         from base_subject s
         left join base_subject_line rsl on rsl.sub_name=s.sub_name and rsl.state=1
         left join base_subject_line_detail sld on sld.sub_line_name=rsl.sub_line_name and rsl.state=1
+        <if test="startDate == null ">
             where #{date}  BETWEEN s.duration_start AND s.duration_end
-        order by s.sub_name,rsl.sub_line_name,sld.create_date
+        </if>
+        <if test="startDate != null">
+            where s.duration_end  BETWEEN #{startDate} AND #{date}
+        </if>
+        order by s.sub_name,rsl.duration_start,sld.create_date
     </select>
 
 </mapper>
