@@ -26,7 +26,7 @@ public interface InputService {
 
     boolean importExcelZbStock(InputStream is) throws Exception;
 
-    boolean importSubjectDetail(InputStream inputStream) throws Exception;
+    boolean importSubjectDetail(InputStream inputStream, String startDate, String date) throws Exception;
 
     void genSubjectDate(List<BaseSubjectDetail> imputList);
 }

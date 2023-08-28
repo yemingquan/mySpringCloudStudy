@@ -176,6 +176,7 @@ public class ReportServiceImpl implements ReportService {
     public List<SubjectReport> getSubjectReport(String date, String startDate) {
         List<SubjectReport> list = baseSubjectLineDetailService.getSubjectReport(date,startDate);
         for (SubjectReport sr :list){
+//            log.info(sr.toString());
             sr.setWeek(DateUtil.getWeek(sr.getCreateDate()));
         }
         return list;

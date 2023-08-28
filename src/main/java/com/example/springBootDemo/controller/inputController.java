@@ -218,7 +218,7 @@ public class inputController {
             }
             //导入前先删除当天的数据
             baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(date,startDate);
-            boolean flag = inputService.importSubjectDetail(multipartFile.getInputStream());
+            boolean flag = inputService.importSubjectDetail(multipartFile.getInputStream(),startDate,date);
             if (flag) {
                 return RespBean.success("导入成功");
             }

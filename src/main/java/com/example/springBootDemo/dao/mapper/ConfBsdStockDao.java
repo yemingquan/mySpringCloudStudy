@@ -3,6 +3,7 @@ package com.example.springBootDemo.dao.mapper;
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 import com.example.springBootDemo.entity.ConfBsdStock;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -15,6 +16,6 @@ import java.util.List;
 @Mapper
 public interface ConfBsdStockDao extends BaseMapper<ConfBsdStock>{
 
-    List<ConfBsdStock> queryStockMonth(String date);
+    List<ConfBsdStock> queryStockMonth(@Param("date") String date);
 }
 

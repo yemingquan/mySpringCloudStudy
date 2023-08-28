@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.entity.BaseSubject;
 import com.example.springBootDemo.entity.BaseSubjectLine;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
+import com.example.springBootDemo.entity.ConfMySotck;
 import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.dto.QueryStockDto;
 import com.example.springBootDemo.entity.input.*;
@@ -16,6 +17,7 @@ import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +62,9 @@ public class InputServiceImpl implements InputService {
     BaseSubjectLineService baseSubjectLineService;
     @Autowired
     BaseSubjectLineDetailService baseSubjectLineDetailService;
+    @Autowired
+    ConfMySotckService confMySotckService;
+
 
     @Override
     public boolean importExcelZthfStock(InputStream is) throws Exception {
@@ -73,7 +78,12 @@ public class InputServiceImpl implements InputService {
 
         List<BaseZthfStock> list = ExcelImportUtil.importExcel(is, BaseZthfStock.class, importParams);
         is.close();
+
+        //查找历史主业
+        List<String> mainBusinessList = getMainBusinessList();
         list.stream().forEach(po -> {
+            //根据历史数据设置主业
+            setMainBusinessList(mainBusinessList, po);
             datePro(po);
             try {
                 ztInstructions(po);
@@ -82,6 +92,41 @@ public class InputServiceImpl implements InputService {
             }
         });
         return baseZthfStockService.insertBatch(list, list.size());
+    }
+
+    public List<String> getMainBusinessList() {
+
+        return Lists.newArrayList();
+//        String date = DateUtil.format(new Date(), "yyyy-MM-dd");
+//        String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -7), "yyyy-MM-dd");
+//        List<SubjectReport> subList = baseSubjectLineDetailService.getSubjectReport(date, startDate);
+//        return subList.stream().map(SubjectReport::getMainBusiness).collect(Collectors.toList());
+    }
+
+    public void setMainBusinessList(List<String> mainBusinessList, BaseStock po) {
+//        log.info("股票名称[{}],代码[{}]", po.getStockName(), po.getStockCode());
+        EntityWrapper<ConfMySotck> wr = new EntityWrapper<>();
+        wr.eq("STOCK_CODE", po.getStockCode());
+        ConfMySotck conf = confMySotckService.selectOne(wr);
+        String nowMainBusiness = conf.getMainBusiness();
+        if (StringUtils.isNotBlank(nowMainBusiness)) {
+            List<String> oldMBList = Lists.newArrayList(nowMainBusiness.split(","));
+            oldMBList.remove("");
+            if (CollectionUtils.isNotEmpty(oldMBList)) {
+                List<String> newMBList = Lists.newArrayList();
+                for (String str : oldMBList) {
+                    if (mainBusinessList.contains(str)) {
+                        newMBList.add(str);
+                    }
+                }
+
+                if (CollectionUtils.isNotEmpty(newMBList)) {
+                    String mainBusiness = newMBList.stream().collect(Collectors.joining("+"));
+                    po.setMainBusiness(mainBusiness);
+                    log.info("++++股票名称[{}],代码[{}],系统设置主业为[{}]", po.getStockName(), po.getStockCode(),mainBusiness);
+                }
+            }
+        }
     }
 
 
@@ -97,7 +142,12 @@ public class InputServiceImpl implements InputService {
 
         List<BaseZtStock> list = ExcelImportUtil.importExcel(is, BaseZtStock.class, importParams);
         is.close();
+
+        //查找历史主业
+        List<String> mainBusinessList = getMainBusinessList();
         list.stream().forEach(po -> {
+            //根据历史数据设置主业
+            setMainBusinessList(mainBusinessList, po);
             datePro(po);
             try {
                 ztInstructions(po);
@@ -120,7 +170,12 @@ public class InputServiceImpl implements InputService {
 
         List<BaseBdUpStock> list = ExcelImportUtil.importExcel(is, BaseBdUpStock.class, importParams);
         is.close();
+
+        //查找历史主业
+        List<String> mainBusinessList = getMainBusinessList();
         list.stream().forEach(po -> {
+            //根据历史数据设置主业
+            setMainBusinessList(mainBusinessList, po);
             datePro(po);
             //波动报表说明字段处理
             bdInstructions(po);
@@ -140,7 +195,12 @@ public class InputServiceImpl implements InputService {
 
         List<BaseBdDownStock> list = ExcelImportUtil.importExcel(is, BaseBdDownStock.class, importParams);
         is.close();
+
+        //查找历史主业
+        List<String> mainBusinessList = getMainBusinessList();
         list.stream().forEach(po -> {
+            //根据历史数据设置主业
+            setMainBusinessList(mainBusinessList, po);
             datePro(po);
             bdInstructions(po);
         });
@@ -159,7 +219,12 @@ public class InputServiceImpl implements InputService {
 
         List<BaseDtStock> list = ExcelImportUtil.importExcel(is, BaseDtStock.class, importParams);
         is.close();
+
+        //查找历史主业
+        List<String> mainBusinessList = getMainBusinessList();
         list.stream().forEach(po -> {
+            //根据历史数据设置主业
+            setMainBusinessList(mainBusinessList, po);
             datePro(po);
             mbInstructions(po);
             StringBuffer instructions = new StringBuffer(po.getInstructions());
@@ -185,7 +250,12 @@ public class InputServiceImpl implements InputService {
 
         List<BaseZbStock> list = ExcelImportUtil.importExcel(is, BaseZbStock.class, importParams);
         is.close();
+
+        //查找历史主业
+        List<String> mainBusinessList = getMainBusinessList();
         list.stream().forEach(po -> {
+            //根据历史数据设置主业
+            setMainBusinessList(mainBusinessList, po);
             datePro(po);
             mbInstructions(po);
             StringBuffer instructions = new StringBuffer(po.getInstructions());
@@ -196,7 +266,7 @@ public class InputServiceImpl implements InputService {
     }
 
     @Override
-    public boolean importSubjectDetail(InputStream is) throws Exception {
+    public boolean importSubjectDetail(InputStream is, String startDate, String date) throws Exception {
         EntityWrapper<BaseSubject> subjectWr;
         EntityWrapper<BaseSubjectLine> subjectLineWr;
         EntityWrapper<BaseSubjectLineDetail> detailWr;
@@ -208,11 +278,26 @@ public class InputServiceImpl implements InputService {
         List<BaseSubjectDetail> imputList = ExcelImportUtil.importExcel(is, BaseSubjectDetail.class, importParams);
         is.close();
 
-
+        //没有被删除过的时间，会被过滤
+        imputList = imputList.stream().filter(po->{
+            Date createDate = po.getCreateDate();
+            if(StringUtils.isNotBlank(startDate)){
+                Date start = DateUtil.parseDate(startDate);
+                if(start.after(createDate)){
+                    return false;
+                }
+            }
+            if(StringUtils.isNotBlank(date)){
+                Date end = DateUtil.parseDate(date);
+                if(end.before(createDate)){
+                    return false;
+                }
+            }
+            return true;
+        }).collect(Collectors.toList());
 
         //插入并自动生成题材其他数据
         genSubjectDate(imputList);
-
         return true;
     }
 
@@ -257,7 +342,7 @@ public class InputServiceImpl implements InputService {
                         .build();
             }
             //添加非空字段
-            if(StringUtils.isNotBlank(detail.getSubInstructions())){
+            if (StringUtils.isNotBlank(detail.getSubInstructions())) {
                 sub.setInstructions(detail.getSubInstructions());
             }
             subjectLineWr = new EntityWrapper<>();
