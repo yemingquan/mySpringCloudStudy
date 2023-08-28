@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springBootDemo.dao.mapper.ConfMySotckDao">
+
+    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.ConfMySotck">
+        <!--@Table conf_my_sotck-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="stockCode" column="stock_code" jdbcType="VARCHAR"/>
+        <result property="stockName" column="stock_name" jdbcType="VARCHAR"/>
+        <result property="plate" column="plate" jdbcType="VARCHAR"/>
+        <result property="mainBusiness" column="main_business" jdbcType="VARCHAR"/>
+        <result property="nicheBusiness" column="niche_business" jdbcType="VARCHAR"/>
+        <result property="attr" column="attr" jdbcType="VARCHAR"/>
+        <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
+        <result property="tag" column="tag" jdbcType="VARCHAR"/>
+        <result property="myInstructions" column="my_instructions" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+        <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
+        <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+</mapper>
+

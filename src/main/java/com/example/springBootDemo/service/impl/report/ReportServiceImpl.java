@@ -203,8 +203,10 @@ public class ReportServiceImpl implements ReportService {
             String date = DateUtil.format(zt.getCreateDate(), "yyyyMMdd");
 
             List<ZtReport> coreNameList = ztList.stream().filter(po -> {
-                        String instructions = po.getInstructions();
-                        if (instructions.contains("龙") || instructions.contains("高度") || instructions.contains("最高") ||instructions.contains("中军")) {
+                        String in = po.getInstructions();
+                        if (in.contains("龙") || in.contains("高度")|| in.contains("最高")
+                                ||in.contains("中军")||in.contains("连续加速")
+                                || in.matches(".*[0-9]{1,2}")) {
                             return true;
                         }
                         return false;

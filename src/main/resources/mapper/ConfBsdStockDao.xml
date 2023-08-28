@@ -31,32 +31,44 @@
         (
             select stock_code,stock_name,plate,group_concat(instructions  separator ';') instructions,group_concat(main_Business  separator ';') main_Business,group_concat(niche_Business  separator ';') niche_Business
                 from base_zt_stock
-                where create_date > #{date}-10
+                    <if test="date != null ">
+                        where create_date > #{date}-10
+                    </if>
                 GROUP BY stock_code,stock_name,plate
             UNION
             select stock_code,stock_name,plate,group_concat(instructions  separator ';') instructions,group_concat(main_Business  separator ';') main_Business,group_concat(niche_Business  separator ';') niche_Business
                 from base_zthf_stock
-                where create_date > #{date}-10 
+                    <if test="date != null ">
+                        where create_date > #{date}-10
+                    </if>
                  GROUP BY stock_code,stock_name,plate
             UNION
             select stock_code,stock_name,plate,group_concat(instructions  separator ';') instructions,group_concat(main_Business  separator ';') main_Business,group_concat(niche_Business  separator ';') niche_Business
-                from base_zb_stock		 	
-                where create_date > #{date}-10
+                from base_zb_stock
+                    <if test="date != null ">
+                        where create_date > #{date}-10
+                    </if>
                  GROUP BY stock_code,stock_name,plate
             UNION
             select stock_code,stock_name,plate,group_concat(instructions  separator ';') instructions,group_concat(main_Business  separator ';') main_Business,group_concat(niche_Business  separator ';') niche_Business
                 FROM base_dt_stock
-                 	where create_date > #{date}-10
+                    <if test="date != null ">
+                        where create_date > #{date}-10
+                    </if>
                 GROUP BY stock_code,stock_name,plate
             UNION
             select stock_code,stock_name,plate,group_concat(instructions  separator ';') instructions,group_concat(main_Business  separator ';') main_Business,group_concat(niche_Business  separator ';') niche_Business
                 FROM base_bd_up_stock
-                 	where create_date > #{date}-10
+                    <if test="date != null ">
+                        where create_date > #{date}-10
+                    </if>
                 GROUP BY stock_code,stock_name,plate
             UNION
             select stock_code,stock_name,plate,group_concat(instructions  separator ';') instructions,group_concat(main_Business  separator ';') main_Business,group_concat(niche_Business  separator ';') niche_Business
                 FROM base_bd_down_stock
-                 	where create_date > #{date}-10
+                    <if test="date != null ">
+                        where create_date > #{date}-10
+                    </if>
                 GROUP BY stock_code,stock_name,plate
        ) a
 	    GROUP BY stock_code,stock_name,plate
