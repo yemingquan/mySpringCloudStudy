@@ -176,8 +176,10 @@ public class ConfController {
                 for (ConfBsdStock po : mapList) {
                     String mainBusiness = po.getMainBusiness();
                     String nicheBusiness = po.getNicheBusiness();
-                    if(StringUtils.isNotBlank(mainBusiness))set.addAll(Sets.newHashSet(mainBusiness.replaceAll("\\+", ";").replaceAll("最-", "").split(";")));
-                    if(StringUtils.isNotBlank(nicheBusiness))set.addAll(Sets.newHashSet(nicheBusiness.replaceAll("\\+", ";").replaceAll("最-", "").split(";")));
+                    if (StringUtils.isNotBlank(mainBusiness))
+                        set.addAll(Sets.newHashSet(mainBusiness.replaceAll("\\+", ";").replaceAll("次新", "").replaceAll("最-", "").split(";")));
+                    if (StringUtils.isNotBlank(nicheBusiness))
+                        set.addAll(Sets.newHashSet(nicheBusiness.replaceAll("\\+", ";").replaceAll("次新", "").split(";")));
                 }
                 set.remove(";");
                 set.remove("");
@@ -189,7 +191,7 @@ public class ConfController {
 
             for (ConfMySotck myStock : list) {
                 String mainBusiness = map.get(myStock.getStockCode());
-                if(StringUtils.isNotBlank(mainBusiness)){
+                if (StringUtils.isNotBlank(mainBusiness)) {
                     myStock.setMainBusiness(mainBusiness);
                 }
             }
@@ -200,6 +202,51 @@ public class ConfController {
             e.printStackTrace();
         }
         return RespBean.error("导入失败");
+    }
+
+
+    @ApiOperation("刷新股票配置信息")
+    @PostMapping("/reflshMyStock")
+    public RespBean reflshMyStock() {
+        try {
+            List<ConfMySotck> list = confMySotckService.selectList(new EntityWrapper<ConfMySotck>());
+
+            List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth(null);
+            Map<String, String> map = Maps.newHashMap();
+            Map<String, List<ConfBsdStock>> stockMap = bsdList.stream().collect(Collectors.groupingBy(ConfBsdStock::getStockCode));
+            for (String stockCode : stockMap.keySet()) {
+                List<ConfBsdStock> mapList = stockMap.get(stockCode);
+                Set set = Sets.newHashSet();
+
+                for (ConfBsdStock po : mapList) {
+                    String mainBusiness = po.getMainBusiness();
+                    String nicheBusiness = po.getNicheBusiness();
+                    if (StringUtils.isNotBlank(mainBusiness))
+                        set.addAll(Sets.newHashSet(mainBusiness.replaceAll("\\+", ";").replaceAll("最-", "").split(";")));
+                    if (StringUtils.isNotBlank(nicheBusiness))
+                        set.addAll(Sets.newHashSet(nicheBusiness.replaceAll("\\+", ";").replaceAll("最-", "").split(";")));
+                }
+                set.remove(";");
+                set.remove("");
+
+                List<String> tempList = Lists.newArrayList(set);
+                String mainBusiness = tempList.stream().collect(Collectors.joining((",")));
+                map.put(stockCode, mainBusiness);
+            }
+
+            for (ConfMySotck myStock : list) {
+                String mainBusiness = map.get(myStock.getStockCode());
+                if (StringUtils.isNotBlank(mainBusiness)) {
+                    myStock.setMainBusiness(mainBusiness);
+                }
+            }
+
+            confMySotckService.updateBatchById(list, list.size());
+            return RespBean.success("刷新成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("刷新失败");
     }
 }
 

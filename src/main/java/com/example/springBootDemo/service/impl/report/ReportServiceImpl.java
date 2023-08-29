@@ -214,8 +214,8 @@ public class ReportServiceImpl implements ReportService {
                     }
             ).collect(Collectors.toList());
             String coreName = coreNameList.stream().map(ZtReport::getStockName).collect(Collectors.joining(","));
-            //移动所有重复的标的
-            ztList.remove(coreNameList);
+            //删除所有重复的标的
+            ztList.removeAll(coreNameList);
 
             //高潮
             String helpName = "";
@@ -243,6 +243,8 @@ public class ReportServiceImpl implements ReportService {
 //                                }
 //                        ).collect(Collectors.toList());
 //            }
+            //删除所有重复的标的
+            helpNameList.removeAll(coreNameList);
             helpName = helpNameList.stream().map(ZtReport::getStockName).collect(Collectors.joining((",")));
 
             //如果只有助攻数据，那么自动提高一级

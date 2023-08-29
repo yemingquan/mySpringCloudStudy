@@ -12,6 +12,7 @@ import com.example.springBootDemo.entity.ConfMySotck;
 import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.dto.QueryStockDto;
 import com.example.springBootDemo.entity.input.*;
+import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
@@ -95,12 +96,11 @@ public class InputServiceImpl implements InputService {
     }
 
     public List<String> getMainBusinessList() {
-
-        return Lists.newArrayList();
-//        String date = DateUtil.format(new Date(), "yyyy-MM-dd");
-//        String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -7), "yyyy-MM-dd");
-//        List<SubjectReport> subList = baseSubjectLineDetailService.getSubjectReport(date, startDate);
-//        return subList.stream().map(SubjectReport::getMainBusiness).collect(Collectors.toList());
+//        return Lists.newArrayList();
+        String date = DateUtil.format(new Date(), "yyyy-MM-dd");
+        String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -7), "yyyy-MM-dd");
+        List<SubjectReport> subList = baseSubjectLineDetailService.getSubjectReport(date, startDate);
+        return subList.stream().map(SubjectReport::getMainBusiness).collect(Collectors.toList());
     }
 
     public void setMainBusinessList(List<String> mainBusinessList, BaseStock po) {
