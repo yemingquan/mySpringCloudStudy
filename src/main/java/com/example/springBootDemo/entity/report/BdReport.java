@@ -3,6 +3,7 @@ package com.example.springBootDemo.entity.report;
 import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.util.excel.Excel;
 import lombok.*;
+import org.apache.poi.ss.usermodel.IndexedColors;
 
 import java.io.Serializable;
 
@@ -23,7 +24,7 @@ public class BdReport extends BaseStock implements Serializable {
 //    @Excel(name = "上市板块")
 //    private String plate;
 
-    @Excel(name = "所属行业")
+    @Excel(name = "所属行业", color = IndexedColors.RED)
     private String mainBusiness;
 
     @Excel(name = "细分")

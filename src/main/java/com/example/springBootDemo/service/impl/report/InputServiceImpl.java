@@ -123,7 +123,7 @@ public class InputServiceImpl implements InputService {
                 if (CollectionUtils.isNotEmpty(newMBList)) {
                     String mainBusiness = newMBList.stream().collect(Collectors.joining("+"));
                     po.setMainBusiness(mainBusiness);
-                    log.info("++++股票名称[{}],代码[{}],系统设置主业为[{}]", po.getStockName(), po.getStockCode(),mainBusiness);
+                    log.info("++++股票名称[{}],代码[{}],系统设置主业为[{}]", po.getStockName(), po.getStockCode(), mainBusiness);
                 }
             }
         }
@@ -279,17 +279,17 @@ public class InputServiceImpl implements InputService {
         is.close();
 
         //没有被删除过的时间，会被过滤
-        imputList = imputList.stream().filter(po->{
+        imputList = imputList.stream().filter(po -> {
             Date createDate = po.getCreateDate();
-            if(StringUtils.isNotBlank(startDate)){
+            if (StringUtils.isNotBlank(startDate)) {
                 Date start = DateUtil.parseDate(startDate);
-                if(start.after(createDate)){
+                if (start.after(createDate)) {
                     return false;
                 }
             }
-            if(StringUtils.isNotBlank(date)){
+            if (StringUtils.isNotBlank(date)) {
                 Date end = DateUtil.parseDate(date);
-                if(end.before(createDate)){
+                if (end.before(createDate)) {
                     return false;
                 }
             }
@@ -508,9 +508,9 @@ public class InputServiceImpl implements InputService {
 
         if (amplitude == 0) {
             po.setHardenType("一字板");
-            if (changingHands <= yesterdayChangingHands && yesterdayAmplitude != null && yesterdayAmplitude == 0) {
+            if (yesterdayChangingHands != null && changingHands <= yesterdayChangingHands && yesterdayAmplitude != null && yesterdayAmplitude == 0) {
                 instructions.append("连续加速;");
-            } else if (changingHands <= yesterdayChangingHands) {
+            } else if (yesterdayChangingHands != null && changingHands <= yesterdayChangingHands) {
                 instructions.append("加速;");
             } else {
                 instructions.append("一字分歧;");

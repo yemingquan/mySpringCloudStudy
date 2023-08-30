@@ -21,7 +21,7 @@ public class MbReport extends BaseStock implements Serializable {
     @Excel(name = "上市板块")
     private String plate;
 
-    @Excel(name = "所属行业")
+    @Excel(name = "所属行业", color = IndexedColors.RED)
     private String mainBusiness;
 
     @Excel(name = "细分")
@@ -36,7 +36,7 @@ public class MbReport extends BaseStock implements Serializable {
     @Excel(name = "说明")
     private String instructions;
 
-    @Excel(name = "摸板时间",dateFormat="HH:mm:ss", bold = true)
+    @Excel(name = "摸板时间",dateFormat="HH:mm:ss", bold = true, color = IndexedColors.RED)
     private Date touchTime;
 
     @Excel(name = "实体涨幅", suffix = "%", bold = true, color = IndexedColors.RED)
