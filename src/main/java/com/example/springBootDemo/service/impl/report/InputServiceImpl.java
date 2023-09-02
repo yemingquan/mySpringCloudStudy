@@ -115,7 +115,7 @@ public class InputServiceImpl implements InputService {
             if (CollectionUtils.isNotEmpty(oldMBList)) {
                 List<String> newMBList = Lists.newArrayList();
                 for (String str : oldMBList) {
-                    if (mainBusinessList.contains(str)) {
+                    if  (mainBusinessList.contains(str)) {
                         newMBList.add(str);
                     }
                 }

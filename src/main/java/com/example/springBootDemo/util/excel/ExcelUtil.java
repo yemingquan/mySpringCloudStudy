@@ -828,7 +828,7 @@ public class ExcelUtil<T> implements Serializable {
         //涨停底色处理
         Map<String, List<ZtReport>> ztMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
         Map<String, Object> colorMap = Maps.newConcurrentMap();
-        IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME};
+        IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME, IndexedColors.LIGHT_GREEN};
         int num = 0;
         for (String str : ztMap.keySet()) {
             if (str.contains("最")) {
@@ -1139,7 +1139,7 @@ public class ExcelUtil<T> implements Serializable {
         //底色处理
         Map<String, List<SubjectReport>> ztMap = list.stream().collect(Collectors.groupingBy(SubjectReport::getSubName));
         Map<String, Object> colorMap = Maps.newConcurrentMap();
-        IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME};
+        IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME, IndexedColors.LIGHT_GREEN};
         int num = 0;
         for (String str : ztMap.keySet()) {
             colorMap.put(str, colorArr[num++ % colorArr.length]);

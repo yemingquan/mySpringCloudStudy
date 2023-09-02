@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springBootDemo.dao.mapper.BaseDateNewsDao">
+
+    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseDateNews">
+        <!--@Table base_date_news-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="date" column="date" jdbcType="TIMESTAMP"/>
+        <result property="lunar" column="lunar" jdbcType="TIMESTAMP"/>
+        <result property="duration" column="duration" jdbcType="INTEGER"/>
+        <result property="newsType" column="news_type" jdbcType="VARCHAR"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="happen" column="happen" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+        <result property="mainBusiness" column="main_business" jdbcType="VARCHAR"/>
+        <result property="expect" column="expect" jdbcType="VARCHAR"/>
+        <result property="expectMode" column="expect_mode" jdbcType="VARCHAR"/>
+        <result property="reality" column="reality" jdbcType="VARCHAR"/>
+        <result property="priorityLevel" column="priority_level" jdbcType="VARCHAR"/>
+        <result property="important" column="important" jdbcType="VARCHAR"/>
+        <result property="source" column="source" jdbcType="VARCHAR"/>
+        <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+        <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
+        <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+        <result property="modifedDate" column="modifed_date" jdbcType="TIMESTAMP"/>
+        <result property="modifedBy" column="modifed_by" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, date, lunar, duration, news_type, title, content, happen, type, main_business, expect, expect_mode, reality, priority_level, important, source, instructions, state, create_date, create_by, modifed_date, modifed_by, remark        
+    </sql>
+</mapper>
+

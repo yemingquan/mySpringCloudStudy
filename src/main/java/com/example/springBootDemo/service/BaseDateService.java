@@ -1,0 +1,15 @@
+package com.example.springBootDemo.service;
+
+import com.baomidou.mybatisplus.service.IService;
+import com.example.springBootDemo.entity.BaseDate;
+
+
+/**
+ * 日期(BaseDate)表服务接口
+ *
+ * @author makejava
+ * @since 2023-09-03 00:27:45
+ */
+public interface BaseDateService extends IService<BaseDate>{
+
+}

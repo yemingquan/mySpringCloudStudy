@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springBootDemo.dao.mapper.BaseDateSpecialDao">
+
+    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseDateSpecial">
+        <!--@Table base_date_special-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="year" column="year" jdbcType="VARCHAR"/>
+        <result property="date" column="date" jdbcType="TIMESTAMP"/>
+        <result property="lunar" column="lunar" jdbcType="TIMESTAMP"/>
+        <result property="week" column="week" jdbcType="VARCHAR"/>
+        <result property="duration" column="duration" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="source" column="source" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+        <result property="priorityLevel" column="priority_level" jdbcType="VARCHAR"/>
+        <result property="important" column="important" jdbcType="VARCHAR"/>
+        <result property="notice" column="notice" jdbcType="VARCHAR"/>
+        <result property="noticeType" column="notice_type" jdbcType="VARCHAR"/>
+        <result property="countDown" column="count_down" jdbcType="INTEGER"/>
+        <result property="countDownSpecial" column="count_down_special" jdbcType="INTEGER"/>
+        <result property="countDownWarm" column="count_down_warm" jdbcType="INTEGER"/>
+        <result property="showFlag" column="show_flag" jdbcType="INTEGER"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+        <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
+        <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+        <result property="modifedDate" column="modifed_date" jdbcType="TIMESTAMP"/>
+        <result property="modifedBy" column="modifed_by" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, year, date, lunar, week, duration, name, source, type, priority_level, important, notice, notice_type, count_down, count_down_special, count_down_warm, show_flag, state, create_date, create_by, modifed_date, modifed_by, remark        
+    </sql>
+</mapper>
+
