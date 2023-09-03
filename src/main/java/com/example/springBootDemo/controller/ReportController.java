@@ -1,6 +1,7 @@
 package com.example.springBootDemo.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.example.springBootDemo.config.components.constant.DateTypeConstant;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.entity.input.BaseSubjectDetail;
@@ -25,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +52,9 @@ public class ReportController {
     @Resource
     private ConfBsdStockService confBsdStockService;
     @Autowired
+    BaseDateService baseDateService;
+
+    @Autowired
     BaseSubjectLineDetailService baseSubjectLineDetailService;
     @ApiOperation("Excel导出测试")
     @GetMapping("/export")
@@ -72,12 +75,9 @@ public class ReportController {
     @ApiOperation("1-涨停报表导出")
     public void exportZtRePort(@RequestParam(value = "date", required = false) String date,
                                HttpServletResponse response) {
-
         String fileName = "涨停1111.xlsx";
         String sheetName = "涨停";
-        if (StringUtils.isEmpty(date)) {
-            date = DateUtil.format(new Date(), "yyyy-MM-dd");
-        }
+        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
 
         List<ZtReport> list = reportService.getZtReportByDate(date);
 
@@ -99,10 +99,7 @@ public class ReportController {
 
         String fileName = "摸板222.xlsx";
         String sheetName = "摸板";
-
-        if (StringUtils.isEmpty(date)) {
-            date = DateUtil.format(new Date(), "yyyy-MM-dd");
-        }
+        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
 
         List<MbReport> list = reportService.getMbReportByDate(date);
 
@@ -119,9 +116,7 @@ public class ReportController {
 
         String fileName = "波动333.xlsx";
         String sheetName = "波动";
-        if (StringUtils.isEmpty(date)) {
-            date = DateUtil.format(new Date(), "yyyy-MM-dd");
-        }
+        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
         List<BdReport> list = reportService.getBdReportByDate(date);
 
 
@@ -140,9 +135,7 @@ public class ReportController {
 
         String fileName = "板块0000.xlsx";
         String sheetName = "板块";
-        if (StringUtils.isEmpty(date)) {
-            date = DateUtil.format(new Date(), "yyyy-MM-dd");
-        }
+        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
 
 
         try {

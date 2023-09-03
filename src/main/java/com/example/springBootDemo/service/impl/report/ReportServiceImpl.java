@@ -2,6 +2,7 @@ package com.example.springBootDemo.service.impl.report;
 
 
 import cn.hutool.core.bean.BeanUtil;
+import com.example.springBootDemo.config.components.constant.DateTypeConstant;
 import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.input.*;
 import com.example.springBootDemo.entity.report.BdReport;
@@ -118,7 +119,7 @@ public class ReportServiceImpl implements ReportService {
             }
         }
 
-        Date date = baseDateService.getBeforeTypeDate(list.get(0).getCreateDate(), Lists.newArrayList("0"));
+        Date date = baseDateService.getBeforeTypeDate(list.get(0).getCreateDate(), DateTypeConstant.DEAL_LIST);
         //取上一个交易日
         date = DateUtil.getNextDay(date, -1);
         List<String> activeList = baseSubjectLineDetailService.getActiveBusinessList(date);

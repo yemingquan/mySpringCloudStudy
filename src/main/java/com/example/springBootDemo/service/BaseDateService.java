@@ -18,4 +18,6 @@ public interface BaseDateService extends IService<BaseDate>{
     void updateBatchByDate(List<BaseDate> holidayList);
 
     Date getBeforeTypeDate(Date createDate, List<String> typeList);
+
+    String getBeforeTypeDate(String date, List<String> typeList);
 }

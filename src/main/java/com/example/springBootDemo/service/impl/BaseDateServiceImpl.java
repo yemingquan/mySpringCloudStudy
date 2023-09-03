@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.dao.mapper.BaseDateDao;
 import com.example.springBootDemo.entity.BaseDate;
 import com.example.springBootDemo.service.BaseDateService;
+import com.example.springBootDemo.util.DateUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -28,7 +30,17 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
     }
 
     @Override
-    public Date getBeforeTypeDate(Date createDate, List<String> typeList) {
-        return baseDateDao.getBeforeTypeDate(createDate,typeList);
+    public Date getBeforeTypeDate(Date date, List<String> typeList) {
+        return baseDateDao.getBeforeTypeDate(date, typeList);
+    }
+
+    @Override
+    public String getBeforeTypeDate(String dateStr, List<String> typeList) {
+        if (StringUtils.isEmpty(dateStr)) {
+            dateStr = DateUtil.format(new Date(), "yyyy-MM-dd");
+        }
+        Date date = DateUtil.parseDate(dateStr);
+        Date resultDate = baseDateDao.getBeforeTypeDate(date, typeList);
+        return DateUtil.format(resultDate, "yyyy-MM-dd");
     }
 }
