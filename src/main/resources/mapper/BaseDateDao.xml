@@ -58,5 +58,16 @@
             where date = #{item.date}
         </foreach>
     </update>
+
+    <select id="getBeforeTypeDate" resultType="java.util.Date" parameterType="java.util.Date">
+        SELECT
+            MAX(DATE)
+        FROM base_Date
+        WHERE #{date} >=DATE
+            AND TYPE IN
+        <foreach collection="typeList" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
 </mapper>
 

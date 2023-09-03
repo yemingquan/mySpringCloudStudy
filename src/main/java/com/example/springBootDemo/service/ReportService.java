@@ -39,4 +39,6 @@ public interface ReportService {
     List<SubjectReport> getSubjectReport(String date, String startDate);
 
     List<BaseSubjectDetail> genBaseSubjectDetail(List<ZtReport> list1, List<MbReport> list2, List<BdReport> list3);
+
+    void getMarketDetail(List<ZtReport> list1, List<MbReport> list2, List<BdReport> list3);
 }

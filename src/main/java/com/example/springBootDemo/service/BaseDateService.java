@@ -3,6 +3,7 @@ package com.example.springBootDemo.service;
 import com.baomidou.mybatisplus.service.IService;
 import com.example.springBootDemo.entity.BaseDate;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -15,4 +16,6 @@ import java.util.List;
 public interface BaseDateService extends IService<BaseDate>{
 
     void updateBatchByDate(List<BaseDate> holidayList);
+
+    Date getBeforeTypeDate(Date createDate, List<String> typeList);
 }

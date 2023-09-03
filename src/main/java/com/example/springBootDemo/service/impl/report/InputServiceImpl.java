@@ -515,7 +515,9 @@ public class InputServiceImpl implements InputService {
             } else {
                 instructions.append("一字分歧;");
             }
-        } else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
+        } if (amplitude > 19) {
+            instructions.append("地天板;");
+        }else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
             po.setHardenType("T字板");
             instructions.append("T字板;");
         } else if (sdf.parse("09:40:00").after(finalTime)) {

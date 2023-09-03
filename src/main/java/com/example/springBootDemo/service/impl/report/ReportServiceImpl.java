@@ -54,6 +54,8 @@ public class ReportServiceImpl implements ReportService {
     BaseSubjectLineService baseSubjectLineService;
     @Autowired
     BaseSubjectLineDetailService baseSubjectLineDetailService;
+    @Autowired
+    BaseDateService baseDateService;
 
     @Override
     public List<ZtReport> getZtReportByDate(String date) {
@@ -116,10 +118,25 @@ public class ReportServiceImpl implements ReportService {
             }
         }
 
+        Date date = baseDateService.getBeforeTypeDate(list.get(0).getCreateDate(), Lists.newArrayList("0"));
+        //取上一个交易日
+        date = DateUtil.getNextDay(date, -1);
+        List<String> activeList = baseSubjectLineDetailService.getActiveBusinessList(date);
         //日内龙逻辑
-        Map<String, List<ZtReport>> ztMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
+        Map<String, List<ZtReport>> ztMap = list.stream().sorted(Comparator.comparing(ZtReport::getHardenTime, Comparator.nullsFirst(Date::compareTo))).collect(Collectors.groupingBy(ZtReport::getMainBusiness));
         for (String str : ztMap.keySet()) {
             List<ZtReport> bkList = ztMap.get(str);
+            //活口逻辑
+            if (bkList.size() < 3) {
+                //查询昨日活跃板块
+                bkList.stream().forEach(po -> {
+                    if (activeList.contains(po.getMainBusiness().replace("最-", ""))) {
+                        po.setInstructions(po.getInstructions() + "活口;");
+                    }
+                });
+                continue;
+            }
+
             //设置首版时间
             setSbTime(bkList);
         }
@@ -174,8 +191,8 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<SubjectReport> getSubjectReport(String date, String startDate) {
-        List<SubjectReport> list = baseSubjectLineDetailService.getSubjectReport(date,startDate);
-        for (SubjectReport sr :list){
+        List<SubjectReport> list = baseSubjectLineDetailService.getSubjectReport(date, startDate);
+        for (SubjectReport sr : list) {
 //            log.info(sr.toString());
             sr.setWeek(DateUtil.getWeek(sr.getCreateDate()));
         }
@@ -205,8 +222,8 @@ public class ReportServiceImpl implements ReportService {
 
             List<ZtReport> coreNameList = ztList.stream().filter(po -> {
                         String in = po.getInstructions();
-                        if (in.contains("龙") || in.contains("高度")|| in.contains("最高")
-                                ||in.contains("中军")||in.contains("连续加速")
+                        if (in.contains("龙") || in.contains("高度") || in.contains("最高")
+                                || in.contains("中军") || in.contains("连续加速")
                                 || in.matches(".*[0-9]{1,2}")) {
                             return true;
                         }
@@ -270,6 +287,58 @@ public class ReportServiceImpl implements ReportService {
         return genList;
     }
 
+    @Override
+    public void getMarketDetail(List<ZtReport> list1, List<MbReport> list2, List<BdReport> list3) {
+        List<BaseStock> upList = BeanUtil.copyToList(list1, BaseStock.class);
+        List<MbReport> soource3List = list2.stream().filter(po -> {
+            po.setHardenTime(po.getTouchTime());
+            return "3".equals(po.getSource());
+        }).collect(Collectors.toList());
+        List<BaseStock> zthflist = BeanUtil.copyToList(soource3List, BaseStock.class);
+        upList.addAll(zthflist);
+
+
+        Map<String, List<BaseStock>> upMap = upList.stream().sorted(Comparator.comparing(BaseStock::getHardenTime, Comparator.nullsFirst(Date::compareTo))).collect(Collectors.groupingBy(BaseStock::getMainBusiness));
+        for (String str : upMap.keySet()) {
+            //寻找相同的时间块
+            List<BaseStock> bkList = upMap.get(str);
+
+            //小于3一般是
+            if (bkList.size() < 3) {
+                //活口逻辑
+                bkList.stream().filter(po -> po.getInstructions().contains("活口")).collect(Collectors.toList());
+                continue;
+            }
+
+            //模板
+            log.info(bkList.get(0).getMainBusiness() + "size:{}", bkList.size());
+            for (int i = 1; i < bkList.size(); i++) {
+                BaseStock po0 = bkList.get(i - 1);
+                BaseStock po1 = bkList.get(i);
+
+                Date time1 = po0.getHardenTime();
+                Date time11 = po0.getFinalHardenTime();
+                Date time2 = po1.getHardenTime();
+                Date time22 = po1.getFinalHardenTime();
+
+
+                if (time11 != null && time22 != null) {
+                    log.info("stockName1{}与stockName2{}双方--最终--涨停时间相差：{}", po0.getStockName(), po1.getStockName(), DateUtil.getDatePoor3(time11, time22));
+                }
+                if (time11 != null && time22 == null) {
+                    log.info("stockName1--最终--时间{}与stockName2{}涨停时间相差：{}", po0.getStockName(), po1.getStockName(), DateUtil.getDatePoor3(time11, time2));
+                }
+                if (time11 == null && time22 != null) {
+                    log.info("stockName1{}与stockName2{}--最终--涨停时间相差：{}", po0.getStockName(), po1.getStockName(), DateUtil.getDatePoor3(time1, time22));
+                }
+                log.info("stockName1{}与stockName2{}首次涨停时间相差：{}", po0.getStockName(), po1.getStockName(), DateUtil.getDatePoor3(time1, time2));
+
+            }
+        }
+
+
+    }
+
     private void setCx(BaseStock bs) {
         String cx = bs.getCxFlag();
         String instructions = bs.getInstructions();
@@ -288,9 +357,6 @@ public class ReportServiceImpl implements ReportService {
 
     private void setSbTime(List<ZtReport> bkList) throws ParseException {
 
-        if (bkList.size() < 3) {
-            return;
-        }
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         //板块涨停时间集合，用于筛选板块首版
         List<Date> finalTimeList = Lists.newArrayList();

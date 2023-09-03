@@ -36,5 +36,11 @@
         order by s.sub_name,rsl.duration_start,sld.create_date
     </select>
 
+    <select id="getActiveBusinessList" resultType="java.lang.String" parameterType="java.util.Date">
+        select
+        main_business
+        from base_subject_line_detail
+         where create_Date =  #{date}
+    </select>
 </mapper>
 

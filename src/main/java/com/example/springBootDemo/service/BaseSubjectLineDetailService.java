@@ -20,6 +20,7 @@ public interface BaseSubjectLineDetailService extends IService<BaseSubjectLineDe
 
     List<BaseSubjectLineDetail> getBaseSubjectLineDetailList(BaseSubjectLineDetail detail);
 
-
     void deleteBaseSubjectLineDetailByDateList(String date, String startDate);
+
+    List<String> getActiveBusinessList(Date date);
 }

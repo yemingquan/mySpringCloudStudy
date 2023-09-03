@@ -56,4 +56,9 @@ public class BaseSubjectLineDetailServiceImpl extends ServiceImpl<BaseSubjectLin
         }
         delete(detailWr);
     }
+
+    @Override
+    public List<String> getActiveBusinessList(Date date){
+        return baseSubjectLineDetailDao.getActiveBusinessList(date);
+    }
 }

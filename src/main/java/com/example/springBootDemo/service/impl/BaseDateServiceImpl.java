@@ -7,6 +7,7 @@ import com.example.springBootDemo.service.BaseDateService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 
@@ -24,5 +25,10 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
     @Override
     public void updateBatchByDate(List<BaseDate> list) {
         baseDateDao.updateBatchByDate(list);
+    }
+
+    @Override
+    public Date getBeforeTypeDate(Date createDate, List<String> typeList) {
+        return baseDateDao.getBeforeTypeDate(createDate,typeList);
     }
 }

@@ -5,6 +5,7 @@ import com.example.springBootDemo.entity.BaseDate;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,5 +18,7 @@ import java.util.List;
 public interface BaseDateDao extends BaseMapper<BaseDate>{
 
     void updateBatchByDate(@Param("list") List<BaseDate> list);
+
+    Date getBeforeTypeDate(@Param("date")Date date, @Param("typeList")List<String> typeList);
 }
 

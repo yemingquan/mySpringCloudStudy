@@ -6,6 +6,7 @@ import com.example.springBootDemo.entity.report.SubjectReport;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,5 +19,7 @@ import java.util.List;
 public interface BaseSubjectLineDetailDao extends BaseMapper<BaseSubjectLineDetail>{
 
     List<SubjectReport> getSubjectReport(@Param("date") String date, @Param("startDate")String startDate);
+
+    List<String> getActiveBusinessList(@Param("date") Date date);
 }
 
