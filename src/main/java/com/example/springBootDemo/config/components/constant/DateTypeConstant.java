@@ -1,6 +1,7 @@
 package com.example.springBootDemo.config.components.constant;
 
 import com.google.common.collect.Lists;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.List;
  * @Copyright (c) 2020 inc. all rights reserved<p>
  * @公司名称
  */
+@Service
 public class DateTypeConstant {
     //0工作日、1周末、2节日、3调休
     public static final String DATE_TYPE_WORK = "0";

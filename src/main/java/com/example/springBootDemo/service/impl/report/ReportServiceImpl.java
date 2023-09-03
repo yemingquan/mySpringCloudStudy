@@ -2,7 +2,9 @@ package com.example.springBootDemo.service.impl.report;
 
 
 import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.constant.DateTypeConstant;
+import com.example.springBootDemo.entity.BaseMarketDetail;
 import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.input.*;
 import com.example.springBootDemo.entity.report.BdReport;
@@ -57,6 +59,8 @@ public class ReportServiceImpl implements ReportService {
     BaseSubjectLineDetailService baseSubjectLineDetailService;
     @Autowired
     BaseDateService baseDateService;
+    @Autowired
+    BaseMarketDetailService baseMarketDetailService;
 
     @Override
     public List<ZtReport> getZtReportByDate(String date) {
@@ -290,6 +294,14 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public void getMarketDetail(List<ZtReport> list1, List<MbReport> list2, List<BdReport> list3) {
+        Date date = list1.get(0).getCreateDate();
+        //新增前先删除当天的数据
+        EntityWrapper<BaseMarketDetail> wrapper = new EntityWrapper<>();
+        wrapper.eq("create_date",date);
+        baseMarketDetailService.delete(wrapper);
+
+
+        //将涨停、涨停回封、涨停炸板三块数据合并在一起
         List<BaseStock> upList = BeanUtil.copyToList(list1, BaseStock.class);
         List<MbReport> soource3List = list2.stream().filter(po -> {
             po.setHardenTime(po.getTouchTime());
@@ -298,7 +310,7 @@ public class ReportServiceImpl implements ReportService {
         List<BaseStock> zthflist = BeanUtil.copyToList(soource3List, BaseStock.class);
         upList.addAll(zthflist);
 
-
+        //过滤出资金进攻的时间块
         Map<String, List<BaseStock>> upMap = upList.stream().sorted(Comparator.comparing(BaseStock::getHardenTime, Comparator.nullsFirst(Date::compareTo))).collect(Collectors.groupingBy(BaseStock::getMainBusiness));
         for (String str : upMap.keySet()) {
             //寻找相同的时间块

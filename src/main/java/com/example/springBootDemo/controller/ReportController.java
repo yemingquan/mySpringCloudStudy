@@ -160,7 +160,7 @@ public class ReportController {
 
 
             //生成市场盘面明细数据
-            reportService.getMarketDetail(list1, list2, list3);
+//            reportService.getMarketDetail(list1, list2, list3);
 
             //导入前先删除当天的数据
             if (StringUtils.isNotBlank(clearFlag)) {
