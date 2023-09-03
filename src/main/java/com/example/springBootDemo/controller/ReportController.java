@@ -56,6 +56,7 @@ public class ReportController {
 
     @Autowired
     BaseSubjectLineDetailService baseSubjectLineDetailService;
+
     @ApiOperation("Excel导出测试")
     @GetMapping("/export")
     public void export(HttpServletResponse response) throws IOException {
@@ -132,14 +133,13 @@ public class ReportController {
                                @RequestParam(value = "startDate", required = false) String startDate,
                                @RequestParam(value = "clearFlag", required = false) String clearFlag,
                                HttpServletResponse response) {
-
+        long start = System.currentTimeMillis();
         String fileName = "板块0000.xlsx";
         String sheetName = "板块";
         date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
 
-
         try {
-            //格式化指定日期数据
+            //获取基础数据，用于后续的数据生成
             List<ZtReport> list1 = reportService.getZtReportByDate(date);
             List<MbReport> list2 = reportService.getMbReportByDate(date);
             List<BdReport> list3 = reportService.getBdReportByDate(date);
@@ -149,39 +149,43 @@ public class ReportController {
                 return;
             }
 
-            reportService.oprZtDate(list1);
-            reportService.oprMbDate(list2);
-            reportService.oprBdDate(list3);
-
-
-            reportService.saveZtInstructions(list1);
-            reportService.saveMbInstructions(list2);
-            reportService.saveBdInstructions(list3);
-
-
-            //生成市场盘面明细数据
-//            reportService.getMarketDetail(list1, list2, list3);
-
             //导入前先删除当天的数据
             if (StringUtils.isNotBlank(clearFlag)) {
-                baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(date,startDate);
+                baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(date, startDate);
             }
 
             //查询所有明细数据，更新line对象数据
             BaseSubjectLineDetail queryDetail = BaseSubjectLineDetail.builder().createDate(DateUtil.parseDate(date)).build();
             List<BaseSubjectLineDetail> detailList = baseSubjectLineDetailService.getBaseSubjectLineDetailList(queryDetail);
 
-            //如果当天没有插入,则自动生成默认数据
             if (CollectionUtils.isEmpty(detailList) && CollectionUtils.isNotEmpty(list1)) {
+                reportService.oprZtDate(list1);
+                reportService.oprMbDate(list2);
+                reportService.oprBdDate(list3);
+
+                start = System.currentTimeMillis();
+                reportService.saveZtInstructions(list1);
+                reportService.saveMbInstructions(list2);
+                reportService.saveBdInstructions(list3);
+                log.info("刷新数据耗时{} ", System.currentTimeMillis() - start);
+
+                //如果当天没有插入,则自动生成默认数据
                 List<BaseSubjectDetail> genList = reportService.genBaseSubjectDetail(list1, list2, list3);
                 inputService.genSubjectDate(genList);
             }
 
+            //生成市场盘面明细数据
+//            reportService.getMarketDetail(list1, list2, list3);
+
             //上面都是处理当天的逻辑，下面这个是真正的逻辑
-            List<SubjectReport> list = reportService.getSubjectReport(date,startDate);
+            List<SubjectReport> list = reportService.getSubjectReport(date, startDate);
             ExcelUtil<SubjectReport> excelUtil = new ExcelUtil<>(SubjectReport.class);
-            Map<String, Map> annotationMapping = excelUtil.OprSubjectReport(list);
+            start = System.currentTimeMillis();
+            Map<String, Map> annotationMapping = excelUtil.OprSubjectReport(list, date);
+            log.info("样式配置耗时{} ", System.currentTimeMillis() - start);
+            start = System.currentTimeMillis();
             excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
+            log.info("导出耗时{} ", System.currentTimeMillis() - start);
         } catch (Exception e) {
             e.printStackTrace();
         }

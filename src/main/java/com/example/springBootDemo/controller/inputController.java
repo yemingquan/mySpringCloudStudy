@@ -2,8 +2,11 @@ package com.example.springBootDemo.controller;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
+import com.alibaba.excel.util.DateUtils;
 import com.example.springBootDemo.config.components.system.session.RespBean;
+import com.example.springBootDemo.entity.BaseDateNews;
 import com.example.springBootDemo.entity.Student;
+import com.example.springBootDemo.service.BaseDateNewsService;
 import com.example.springBootDemo.service.BaseSubjectLineDetailService;
 import com.example.springBootDemo.service.InputService;
 import com.example.springBootDemo.service.StudentService;
@@ -42,6 +45,9 @@ public class inputController {
     StudentService studentService;
     @Autowired
     BaseSubjectLineDetailService baseSubjectLineDetailService;
+
+    @Autowired
+    BaseDateNewsService baseDateNewsService;
 
     @ApiOperation("导入波动向上Excel数据")
     @PostMapping("/importExcelBdUpStock")
@@ -214,7 +220,7 @@ public class inputController {
                                         MultipartFile multipartFile) {
         try {
             if (StringUtils.isEmpty(date)) {
-                date = DateUtil.format(new Date(), "yyyy-MM-dd");
+                date = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
             }
             //导入前先删除当天的数据
             baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(date,startDate);
@@ -222,7 +228,25 @@ public class inputController {
             if (flag) {
                 return RespBean.success("导入成功");
             }
-            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
+
+    @ApiOperation("Excel导入消息")
+    @PostMapping("/importNews")
+    public RespBean importNews(MultipartFile multipartFile) throws IOException {
+        //设置导入参数
+        ImportParams importParams = new ImportParams();
+        importParams.setHeadRows(1); //表头占1行，默认1
+
+        try {
+            List<BaseDateNews> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseDateNews.class, importParams);
+            if (baseDateNewsService.insertBatch(list)) {
+                return RespBean.success("导入成功");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

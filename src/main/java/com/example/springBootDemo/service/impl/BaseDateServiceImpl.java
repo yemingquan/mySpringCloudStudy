@@ -1,5 +1,6 @@
 package com.example.springBootDemo.service.impl;
 
+import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.dao.mapper.BaseDateDao;
 import com.example.springBootDemo.entity.BaseDate;
@@ -37,10 +38,10 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
     @Override
     public String getBeforeTypeDate(String dateStr, List<String> typeList) {
         if (StringUtils.isEmpty(dateStr)) {
-            dateStr = DateUtil.format(new Date(), "yyyy-MM-dd");
+            dateStr = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
         }
         Date date = DateUtil.parseDate(dateStr);
         Date resultDate = baseDateDao.getBeforeTypeDate(date, typeList);
-        return DateUtil.format(resultDate, "yyyy-MM-dd");
+        return DateUtil.format(resultDate, DateUtils.DATE_FORMAT_10);
     }
 }

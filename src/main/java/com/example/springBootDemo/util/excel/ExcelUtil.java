@@ -6,11 +6,13 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import com.alibaba.excel.util.DateUtils;
 import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.entity.report.ZtReport;
+import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -533,10 +535,11 @@ public class ExcelUtil<T> implements Serializable {
                         codeField.setAccessible(true);
                         key = codeField.get(vo);
                     } catch (Exception e) {
-                        Field codeField = vo.getClass().getDeclaredField("subName");
-                        // 设置实体类私有属性可访问
-                        codeField.setAccessible(true);
-                        key = codeField.get(vo);
+                        Field subName = vo.getClass().getDeclaredField("subName");
+                        subName.setAccessible(true);
+                        Field createDate = vo.getClass().getDeclaredField("createDate");
+                        createDate.setAccessible(true);
+                        key = subName.get(vo) + "-" + createDate.get(vo);
                         //TODO 异常更换组件
 //                        log.info("异常更换组件");
                     }
@@ -758,7 +761,7 @@ public class ExcelUtil<T> implements Serializable {
      * @return
      */
     private Map<String, Object> initDefaultAnnotationMap(HashMap<String, Object> map) {
-        //所有动态配置，大家不一样的东西，都要在这里配置一下
+        //直接取用excel对象上的配置写在这里。
         Map<String, Object> defaultAnnotationMap;
         defaultAnnotationMap = SerializationUtils.clone(map);
         defaultAnnotationMap.remove("name");
@@ -1126,9 +1129,10 @@ public class ExcelUtil<T> implements Serializable {
      * 波动报表样式处理
      *
      * @param list
+     * @param date
      * @return
      */
-    public Map<String, Map> OprSubjectReport(List<SubjectReport> list) throws NoSuchFieldException, IllegalAccessException {
+    public Map<String, Map> OprSubjectReport(List<SubjectReport> list, String date) throws NoSuchFieldException, IllegalAccessException {
         //注解和对象的映射关系 key:代码-属性 value:注解配置
         Map<String, Map> annotationMapping = Maps.newConcurrentMap();
         //注解只有一个，所以不符合条件的话，要给默认值
@@ -1149,13 +1153,14 @@ public class ExcelUtil<T> implements Serializable {
         for (int i = 0; i < list.size(); i++) {
             SubjectReport po = list.get(i);
             String subName = po.getSubName();
+            Date createDate = po.getCreateDate();
 
             //注解循环
             for (int j = 0; j < fields.size(); j++) {
                 Field f = fields.get(j);
                 // 获取注解映射的map对象
                 Map map = getAnnotationMap((T) po, f);
-                String key = subName + "-" + f.getName();
+                String key = subName + "-" + createDate + "-" + f.getName();
 
                 if (firstFlag) {
                     defaultAnnotationMap = initDefaultAnnotationMap((HashMap<String, Object>) map);
@@ -1165,6 +1170,12 @@ public class ExcelUtil<T> implements Serializable {
                 }
                 //根据主业给与背景随机颜色
                 map.put("backgroundColor", colorMap.get(po.getSubName()));
+                //当天日期改为红色
+                if (date.equals(DateUtil.format(createDate, DateUtils.DATE_FORMAT_10))) {
+                    map.put("color", IndexedColors.RED);
+                } else {
+                    map.put("color", IndexedColors.BLACK);
+                }
 
                 //深拷贝后，把映射关系放到map中
                 Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);

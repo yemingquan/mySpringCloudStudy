@@ -122,20 +122,20 @@ public class ReportServiceImpl implements ReportService {
                 }
             }
         }
-
+        //查询是否是昨天强势的方向
         Date date = baseDateService.getBeforeTypeDate(list.get(0).getCreateDate(), DateTypeConstant.DEAL_LIST);
         //取上一个交易日
         date = DateUtil.getNextDay(date, -1);
         List<String> activeList = baseSubjectLineDetailService.getActiveBusinessList(date);
         //日内龙逻辑
-        Map<String, List<ZtReport>> ztMap = list.stream().sorted(Comparator.comparing(ZtReport::getHardenTime, Comparator.nullsFirst(Date::compareTo))).collect(Collectors.groupingBy(ZtReport::getMainBusiness));
+        Map<String, List<ZtReport>> ztMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
         for (String str : ztMap.keySet()) {
             List<ZtReport> bkList = ztMap.get(str);
             //活口逻辑
             if (bkList.size() < 3) {
                 //查询昨日活跃板块
                 bkList.stream().forEach(po -> {
-                    if (activeList.contains(po.getMainBusiness().replace("最-", ""))) {
+                    if (activeList.contains(po.getMainBusiness().replace("最-", "")) && !po.getMainBusiness().contains("活口")) {
                         po.setInstructions(po.getInstructions() + "活口;");
                     }
                 });
@@ -297,7 +297,7 @@ public class ReportServiceImpl implements ReportService {
         Date date = list1.get(0).getCreateDate();
         //新增前先删除当天的数据
         EntityWrapper<BaseMarketDetail> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date",date);
+        wrapper.eq("create_date", date);
         baseMarketDetailService.delete(wrapper);
 
 

@@ -1,5 +1,6 @@
 package com.example.springBootDemo.entity.report;
 
+import com.alibaba.excel.util.DateUtils;
 import com.example.springBootDemo.util.excel.Excel;
 import lombok.*;
 
@@ -55,7 +56,7 @@ public class SubjectReport implements Serializable {
     @Excel(name = "明细说明")
     private String instructions;
 
-    @Excel(name = "日期",dateFormat="yyyy-MM-dd")
+    @Excel(name = "日期",dateFormat= DateUtils.DATE_FORMAT_10)
     private Date createDate;
 
     @Excel(name = "星期")

@@ -4,6 +4,7 @@ package com.example.springBootDemo.service.impl.report;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.entity.BaseSubject;
 import com.example.springBootDemo.entity.BaseSubjectLine;
@@ -74,7 +75,7 @@ public class InputServiceImpl implements InputService {
         importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<BaseZthfStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
+        wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseZthfStockService.delete(wrapper);
 
         List<BaseZthfStock> list = ExcelImportUtil.importExcel(is, BaseZthfStock.class, importParams);
@@ -97,8 +98,8 @@ public class InputServiceImpl implements InputService {
 
     public List<String> getMainBusinessList() {
 //        return Lists.newArrayList();
-        String date = DateUtil.format(new Date(), "yyyy-MM-dd");
-        String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -7), "yyyy-MM-dd");
+        String date = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
+        String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -7), DateUtils.DATE_FORMAT_10);
         List<SubjectReport> subList = baseSubjectLineDetailService.getSubjectReport(date, startDate);
         return subList.stream().map(SubjectReport::getMainBusiness).collect(Collectors.toList());
     }
@@ -137,7 +138,7 @@ public class InputServiceImpl implements InputService {
         importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<BaseZtStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
+        wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseZtStockService.delete(wrapper);
 
         List<BaseZtStock> list = ExcelImportUtil.importExcel(is, BaseZtStock.class, importParams);
@@ -165,7 +166,7 @@ public class InputServiceImpl implements InputService {
         importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<BaseBdUpStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
+        wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseBdUpStockService.delete(wrapper);
 
         List<BaseBdUpStock> list = ExcelImportUtil.importExcel(is, BaseBdUpStock.class, importParams);
@@ -190,7 +191,7 @@ public class InputServiceImpl implements InputService {
         importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<BaseBdDownStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
+        wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseBdDownStockService.delete(wrapper);
 
         List<BaseBdDownStock> list = ExcelImportUtil.importExcel(is, BaseBdDownStock.class, importParams);
@@ -214,7 +215,7 @@ public class InputServiceImpl implements InputService {
         importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<BaseDtStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
+        wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseDtStockService.delete(wrapper);
 
         List<BaseDtStock> list = ExcelImportUtil.importExcel(is, BaseDtStock.class, importParams);
@@ -245,7 +246,7 @@ public class InputServiceImpl implements InputService {
         importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<BaseZbStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
+        wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseZbStockService.delete(wrapper);
 
         List<BaseZbStock> list = ExcelImportUtil.importExcel(is, BaseZbStock.class, importParams);
