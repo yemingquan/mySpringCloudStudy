@@ -22,5 +22,41 @@
     <sql id="Base_Column_List">
         id, date, lunar, name, week, type, update_Flag, state, create_date, create_by, modifed_date, modifed_by, remark        
     </sql>
+
+    <update id="updateBatchByDate" parameterType="java.util.List">
+        <foreach collection="list" item="item"  separator=";">
+            update base_date
+            <set>
+                <if test="item.lunar != null">
+                    lunar = #{item.lunar},
+                </if>
+                <if test="item.name != null and item.name != ''">
+                    name = #{item.name},
+                </if>
+                <if test="item.week != null and item.week != ''">
+                    week = #{item.week},
+                </if>
+                <if test="item.type != null and item.type != ''">
+                    type = #{item.type},
+                </if>
+                <if test="item.updateFlag != null and item.updateFlag != ''">
+                    update_Flag = #{item.updateFlag},
+                </if>
+                <if test="item.state != null and item.state != ''">
+                    state = #{item.state},
+                </if>
+                <if test="item.modifedDate != null">
+                    modifed_date = #{item.modifedDate},
+                </if>
+                <if test="item.modifedBy != null and item.modifedBy != ''">
+                    modifed_by = #{item.modifedBy},
+                </if>
+                <if test="item.remark != null and item.remark != ''">
+                    remark = #{item.remark},
+                </if>
+            </set>
+            where date = #{item.date}
+        </foreach>
+    </update>
 </mapper>
 

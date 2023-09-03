@@ -49,7 +49,7 @@ public class BaseDate implements Serializable {
      */
     private String week;
     /**
-     * 0工作日、1周末、2节日、3调休
+     * 0工作日、1周末、2节日、3调休补班
      */
     private String type;
     /**

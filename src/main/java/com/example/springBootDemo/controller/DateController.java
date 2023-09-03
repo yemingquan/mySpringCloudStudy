@@ -7,6 +7,7 @@ import com.example.springBootDemo.service.BaseDateNewsService;
 import com.example.springBootDemo.service.BaseDateService;
 import com.example.springBootDemo.service.BaseDateSpecialService;
 import com.example.springBootDemo.util.DateUtil;
+import com.example.springBootDemo.util.HolidayUtil;
 import com.example.springBootDemo.util.LunarSolarUtil;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
@@ -73,7 +74,7 @@ public class DateController {
                         .createDate(new Date())
                         .createBy("system")
                         .build();
-                log.info(DateUtil.format(date));
+//                log.info(DateUtil.format(date));
 
                 list.add(po);
                 calendar.add(Calendar.DATE, 1);
@@ -81,8 +82,12 @@ public class DateController {
 
 
             baseDateService.insertBatch(list, list.size());
-            return RespBean.success("处理成功");
+
+            //节假日数据
+            List<BaseDate> holidayList = HolidayUtil.getYearHoliday("" + year);
+            baseDateService.updateBatchByDate(holidayList);
         } catch (Exception e) {
+            RespBean.error("处理失败");
             e.printStackTrace();
         }
         return RespBean.success("处理成功");
