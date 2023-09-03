@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springBootDemo.dao.mapper.BaseMarketDetailDao">
+
+    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseMarketDetail">
+        <!--@Table base_market_detail-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="date" column="date" jdbcType="TIMESTAMP"/>
+        <result property="timeStart" column="time_start" jdbcType="VARCHAR"/>
+        <result property="timeEnd" column="time_end" jdbcType="VARCHAR"/>
+        <result property="stage" column="stage" jdbcType="VARCHAR"/>
+        <result property="trendType" column="trend_type" jdbcType="VARCHAR"/>
+        <result property="trend" column="trend" jdbcType="VARCHAR"/>
+        <result property="mainBusiness" column="main_business" jdbcType="VARCHAR"/>
+        <result property="coreName" column="core_name" jdbcType="VARCHAR"/>
+        <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+        <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
+        <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, date, time_start, time_end, stage, trend_type, trend, main_business, core_name, instructions, state, create_date, create_by, remark        
+    </sql>
+</mapper>
+
