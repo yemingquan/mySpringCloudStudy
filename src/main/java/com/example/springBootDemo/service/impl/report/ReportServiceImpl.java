@@ -135,7 +135,7 @@ public class ReportServiceImpl implements ReportService {
             if (bkList.size() < 3) {
                 //查询昨日活跃板块
                 bkList.stream().forEach(po -> {
-                    if (activeList.contains(po.getMainBusiness().replace("最-", "")) && !po.getMainBusiness().contains("活口")) {
+                    if (activeList.contains(po.getMainBusiness().replace("最-", "")) && !po.getInstructions().contains("活口")) {
                         po.setInstructions(po.getInstructions() + "活口;");
                     }
                 });
@@ -207,7 +207,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public List<BaseSubjectDetail> genBaseSubjectDetail(List<ZtReport> list1, List<MbReport> list2, List<BdReport> list3) {
         List<BaseSubjectDetail> genList = Lists.newArrayList();
-        Map<String, List<ZtReport>> ztMap = list1.stream().filter(po -> !po.getMainBusiness().contains("最-")).collect(Collectors.groupingBy(ZtReport::getMainBusiness));
+        Map<String, List<ZtReport>> ztMap = list1.stream().filter(po -> (!po.getMainBusiness().contains("最-")||po.getInstructions().contains("活口"))).collect(Collectors.groupingBy(ZtReport::getMainBusiness));
         Map<String, List<MbReport>> mbMap = list2.stream().collect(Collectors.groupingBy(MbReport::getMainBusiness));
         Map<String, List<BdReport>> bdMap = list3.stream().collect(Collectors.groupingBy(BdReport::getMainBusiness));
 
@@ -228,7 +228,7 @@ public class ReportServiceImpl implements ReportService {
             List<ZtReport> coreNameList = ztList.stream().filter(po -> {
                         String in = po.getInstructions();
                         if (in.contains("龙") || in.contains("高度") || in.contains("最高")
-                                || in.contains("中军") || in.contains("连续加速")
+                                || in.contains("中军") || in.contains("连续加速") || in.contains("活口")
                                 || in.matches(".*[0-9]{1,2}")) {
                             return true;
                         }
