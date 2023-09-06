@@ -116,7 +116,7 @@ public class InputServiceImpl implements InputService {
             if (CollectionUtils.isNotEmpty(oldMBList)) {
                 List<String> newMBList = Lists.newArrayList();
                 for (String str : oldMBList) {
-                    if  (mainBusinessList.contains(str)) {
+                    if (mainBusinessList.contains(str)) {
                         newMBList.add(str);
                     }
                 }
@@ -399,8 +399,8 @@ public class InputServiceImpl implements InputService {
             for (BaseSubjectLineDetail po : detailList) {
                 String coreName = po.getCoreName();
                 String helpName = po.getHelpName();
-                if (StringUtils.isNoneBlank(coreName)) set.addAll(Sets.newHashSet(coreName.split(";")));
-                if (StringUtils.isNoneBlank(helpName)) set.addAll(Sets.newHashSet(helpName.split(";")));
+                if (StringUtils.isNoneBlank(coreName)) set.addAll(Sets.newHashSet(coreName.split(",")));
+                if (StringUtils.isNoneBlank(helpName)) set.addAll(Sets.newHashSet(helpName.split(",")));
                 set.remove(";");
                 set.remove("");
             }
@@ -516,9 +516,10 @@ public class InputServiceImpl implements InputService {
             } else {
                 instructions.append("一字分歧;");
             }
-        } if (amplitude > 19) {
+        }
+        if (amplitude > 19 && "主板".equals(po.getPlate())) {
             instructions.append("地天板;");
-        }else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
+        } else if (sdf.parse("09:30:00").equals(hardenTime) && amplitude > 0) {
             po.setHardenType("T字板");
             instructions.append("T字板;");
         } else if (sdf.parse("09:40:00").after(finalTime)) {
