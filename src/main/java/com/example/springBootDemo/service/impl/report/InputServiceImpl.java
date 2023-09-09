@@ -109,8 +109,12 @@ public class InputServiceImpl implements InputService {
         EntityWrapper<ConfMySotck> wr = new EntityWrapper<>();
         wr.eq("STOCK_CODE", po.getStockCode());
         ConfMySotck conf = confMySotckService.selectOne(wr);
+        if(conf==null){
+            confMySotckService.insert(ConfMySotck.builder().stockCode(po.getStockCode()).stockName(po.getStockName()).build());
+            return;
+        }
         String nowMainBusiness = conf.getMainBusiness();
-        if (StringUtils.isNotBlank(nowMainBusiness)) {
+        if (StringUtils.isNotEmpty(nowMainBusiness)) {
             List<String> oldMBList = Lists.newArrayList(nowMainBusiness.split(","));
             oldMBList.remove("");
             if (CollectionUtils.isNotEmpty(oldMBList)) {

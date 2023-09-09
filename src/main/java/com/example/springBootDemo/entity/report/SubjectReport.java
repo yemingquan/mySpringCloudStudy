@@ -20,7 +20,7 @@ public class SubjectReport implements Serializable {
     @Excel(name = "题材")
     private String subName;
 
-    @Excel(name = "题材说明")
+//    @Excel(name = "题材说明")
     private String subInstructions;
 
     @Excel(name = "逻辑线")
