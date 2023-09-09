@@ -183,9 +183,9 @@ public class ReportController {
             start = System.currentTimeMillis();
             Map<String, Map> annotationMapping = excelUtil.OprSubjectReport(list, date);
             log.info("样式配置耗时{} ", System.currentTimeMillis() - start);
-            start = System.currentTimeMillis();
+
             excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
-            log.info("导出耗时{} ", System.currentTimeMillis() - start);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

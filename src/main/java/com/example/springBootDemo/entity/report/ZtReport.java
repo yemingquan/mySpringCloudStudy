@@ -17,6 +17,8 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 public class ZtReport extends BaseStock implements Serializable {
 
+    private String id;
+
     @Excel(name = "类型")
     private String reason;
 

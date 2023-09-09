@@ -18,6 +18,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 public class BdReport extends BaseStock implements Serializable {
 
+    private String id;
 //    @Excel(name = "类型")
 //    private String reason;
 

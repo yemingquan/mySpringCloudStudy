@@ -469,6 +469,7 @@ public class ExcelUtil<T> implements Serializable {
      * @return 结果
      */
     public void exportCustomExcel(Map<String, Map> annotationMapping, List<?> list, String fileName, String sheetName, HttpServletResponse response) {
+        long start = System.currentTimeMillis();
         XSSFWorkbook workbook = null;
         try {
             // 得到所有定义字段
@@ -519,7 +520,7 @@ public class ExcelUtil<T> implements Serializable {
                     setRowStyle(workbook, cell, attr, true);
                 }
 
-
+                long startD = System.currentTimeMillis();
                 // 写入各条记录
                 int startNo = index * sheetSize;
                 int endNo = Math.min(startNo + sheetSize, list.size());
@@ -529,20 +530,10 @@ public class ExcelUtil<T> implements Serializable {
                     // 得到导出对象.
                     T vo = (T) list.get(i);
                     Object key = "";
-                    try {
-                        Field codeField = vo.getClass().getDeclaredField("stockCode");
-                        // 设置实体类私有属性可访问
-                        codeField.setAccessible(true);
-                        key = codeField.get(vo);
-                    } catch (Exception e) {
-                        Field subName = vo.getClass().getDeclaredField("subName");
-                        subName.setAccessible(true);
-                        Field createDate = vo.getClass().getDeclaredField("createDate");
-                        createDate.setAccessible(true);
-                        key = subName.get(vo) + "-" + createDate.get(vo);
-                        //TODO 异常更换组件
-//                        log.info("异常更换组件");
-                    }
+                    Field codeField = vo.getClass().getDeclaredField("id");
+                    // 设置实体类私有属性可访问
+                    codeField.setAccessible(true);
+                    key = codeField.get(vo);
 
                     for (int j = 0; j < fields.size(); j++) {
                         Field f = fields.get(j);
@@ -590,16 +581,12 @@ public class ExcelUtil<T> implements Serializable {
                             }
                         } catch (Exception e) {
                             log.error("导出Excel失败:", e);
-//                            log.error("导出Excel失败{}", e.getMessage());
                         }
                     }
                 }
+                log.info("写入各条记录-导出耗时{} ", System.currentTimeMillis() - startD);
             }
-
-//            response.reset();
-//            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName+".xlsx", "UTF-8")); // 设定输出文件头,该方法有两个参数，分别表示应答头的名字和值。XSSF:xlsx    HSSF:xls  中文要用encode处理一下
-//            response.setContentType("application/msexcel");
-//            response.setContentType("application/octet-stream;charset=UTF-8");
+            log.info("明细完全耗时{} ", System.currentTimeMillis() - start);
             fileName = new String(fileName.getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
             response.setContentType("application/octet-stream");
             response.setHeader("Content-disposition", "attachment;filename=" + fileName);
@@ -608,8 +595,7 @@ public class ExcelUtil<T> implements Serializable {
             workbook.write(outputStream);
             // 写完数据关闭流
             outputStream.close();
-            log.warn("导出成功");
-
+            log.info("完全导出耗时{} ", System.currentTimeMillis() - start);
 //            //String filename = encodingFilename(sheetName);
 //            response.setContentType("application/octet-stream");
 //            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(sheetName, "UTF-8"));
@@ -845,7 +831,7 @@ public class ExcelUtil<T> implements Serializable {
         //集合循环
         for (int i = 0; i < list.size(); i++) {
             ZtReport po = list.get(i);
-            String stockCode = po.getStockCode();
+            po.setId(UUID.randomUUID().toString());
 
             //注解循环
             for (int j = 0; j < fields.size(); j++) {
@@ -853,7 +839,7 @@ public class ExcelUtil<T> implements Serializable {
                 // 获取注解映射的map对象
                 Map map = getAnnotationMap((T) po, f);
 
-                String key = stockCode + "-" + f.getName();
+                String key = po.getId() + "-" + f.getName();
                 //                Object o = field.get((T) po);
                 //                log.info(i + "-" + key + "-" + o);
 
@@ -893,7 +879,7 @@ public class ExcelUtil<T> implements Serializable {
         //集合循环
         for (int i = 0; i < list.size(); i++) {
             MbReport po = list.get(i);
-            String stockCode = po.getStockCode();
+            po.setId(UUID.randomUUID().toString());
 
             //注解循环
             for (int j = 0; j < fields.size(); j++) {
@@ -901,7 +887,7 @@ public class ExcelUtil<T> implements Serializable {
                 // 获取注解映射的map对象
                 Map map = getAnnotationMap((T) po, f);
 
-                String key = stockCode + "-" + f.getName();
+                String key = po.getId() + "-" + f.getName();
                 //                Object o = field.get((T) po);
                 //                log.info(i + "-" + key + "-" + o);
 
@@ -941,7 +927,7 @@ public class ExcelUtil<T> implements Serializable {
         //集合循环
         for (int i = 0; i < list.size(); i++) {
             BdReport po = list.get(i);
-            String stockCode = po.getStockCode();
+            po.setId(UUID.randomUUID().toString());
 
 
             //注解循环
@@ -950,7 +936,7 @@ public class ExcelUtil<T> implements Serializable {
                 // 获取注解映射的map对象
                 Map map = getAnnotationMap((T) po, f);
 
-                String key = stockCode + "-" + f.getName();
+                String key = po.getId() + "-" + f.getName();
                 //                Object o = field.get((T) po);
                 //                log.info(i + "-" + key + "-" + o);
 
@@ -1152,15 +1138,15 @@ public class ExcelUtil<T> implements Serializable {
         //集合循环
         for (int i = 0; i < list.size(); i++) {
             SubjectReport po = list.get(i);
-            String subName = po.getSubName();
             Date createDate = po.getCreateDate();
+            po.setId(UUID.randomUUID().toString());
 
             //注解循环
             for (int j = 0; j < fields.size(); j++) {
                 Field f = fields.get(j);
                 // 获取注解映射的map对象
                 Map map = getAnnotationMap((T) po, f);
-                String key = subName + "-" + createDate + "-" + f.getName();
+                String key = po.getId() + "-" + f.getName();
 
                 if (firstFlag) {
                     defaultAnnotationMap = initDefaultAnnotationMap((HashMap<String, Object>) map);

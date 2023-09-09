@@ -18,6 +18,8 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 public class MbReport extends BaseStock implements Serializable {
 
+    private String id;
+
     @Excel(name = "上市板块")
     private String plate;
 

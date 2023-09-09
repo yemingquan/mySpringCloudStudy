@@ -17,6 +17,8 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 public class SubjectReport implements Serializable {
 
+    private String id;
+
     @Excel(name = "题材")
     private String subName;
 

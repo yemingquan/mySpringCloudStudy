@@ -21,10 +21,10 @@ import java.util.Date;
 @AllArgsConstructor
 public class BaseStock implements Serializable {
     private static final long serialVersionUID = -54210230650774023L;
-    /**
-     * 主键
-     */
-    private Integer id;
+//    /**
+//     * 主键
+//     */
+//    private Integer id;
     /**
      * 股票编码
      */
