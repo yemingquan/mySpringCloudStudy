@@ -24,11 +24,13 @@ public class DateTypeConstant {
     public static List<String> DEAL_LIST;
     public static List<String> WORK_LIST;
     public static List<String> REST_LIST;
+    public static List<String> WEEKEND;
 
     {
         DEAL_LIST = Lists.newArrayList(DATE_TYPE_WORK);
-        WORK_LIST = Lists.newArrayList(DATE_TYPE_WORK,DATE_TYPE_CHANGE);
-        REST_LIST = Lists.newArrayList(DATE_TYPE_WORKEND,DATE_TYPE_HOLIDAY);
+        WORK_LIST = Lists.newArrayList(DATE_TYPE_WORK, DATE_TYPE_CHANGE);
+        REST_LIST = Lists.newArrayList(DATE_TYPE_WORKEND, DATE_TYPE_HOLIDAY);
+        WEEKEND =  Lists.newArrayList("星期六", "星期日");
     }
 
 }

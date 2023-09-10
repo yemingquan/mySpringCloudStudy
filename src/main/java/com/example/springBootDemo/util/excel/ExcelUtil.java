@@ -7,6 +7,7 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import com.alibaba.excel.util.DateUtils;
+import com.example.springBootDemo.config.components.constant.DateTypeConstant;
 import com.example.springBootDemo.config.components.enums.NewsEnum;
 import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.report.*;
@@ -1179,11 +1180,16 @@ public class ExcelUtil<T> implements Serializable {
 
         //底色处理
         Map<Date, List<NewsReport>> ztMap = list.stream().collect(Collectors.groupingBy(NewsReport::getDate));
-        Map<Date, Object> colorMap = Maps.newConcurrentMap();
+        Map<Date, Object> colorMap = Maps.newHashMap();
         IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME, IndexedColors.LIGHT_GREEN};
         int num = 0;
-        for (Date str : ztMap.keySet()) {
-            colorMap.put(str, colorArr[num++ % colorArr.length]);
+        for (Date temp : ztMap.keySet()) {
+            String week = DateUtil.getWeek(temp);
+            if (DateTypeConstant.WEEKEND.contains(week)) {
+                colorMap.put(temp, IndexedColors.WHITE);
+            } else {
+                colorMap.put(temp, colorArr[num++ % colorArr.length]);
+            }
         }
 
         //集合循环
@@ -1209,7 +1215,7 @@ public class ExcelUtil<T> implements Serializable {
                 map.put("backgroundColor", colorMap.get(po.getDate()));
                 //当天日期改为红色
 //                if (DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10).equals(DateUtil.format(date, DateUtils.DATE_FORMAT_10))) {
-                if (NewsEnum.SCOPE_ENVIRONMENT.getName().equals(po.getScope())||NewsEnum.SCOPE_MAIN.getName().equals(po.getScope())) {
+                if (NewsEnum.SCOPE_ENVIRONMENT.getName().equals(po.getScope()) || NewsEnum.SCOPE_MAIN.getName().equals(po.getScope())) {
                     map.put("color", IndexedColors.RED);
                 } else {
                     map.put("color", IndexedColors.BLACK);

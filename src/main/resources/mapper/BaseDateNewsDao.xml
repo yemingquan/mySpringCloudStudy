@@ -41,7 +41,7 @@
         AND  DATE_FORMAT(dn.DATE,'%Y-%m-%d')  BETWEEN DATE_FORMAT(#{date},'%Y-%m-%d') AND DATE_FORMAT(DATE_ADD(#{date},INTERVAL duration+31 DAY),'%Y-%m-%d')
         AND 31>=duration
         AND dn.state = '1'
-        AND dn.type ='预期'
+--         AND dn.type ='预期'
     </select>
 </mapper>
 
