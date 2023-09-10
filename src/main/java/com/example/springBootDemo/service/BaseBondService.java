@@ -13,4 +13,5 @@ import com.example.springBootDemo.entity.input.BaseBond;
 public interface BaseBondService extends IService<BaseBond>{
 
 
+    void imporKZZ() throws Exception;
 }

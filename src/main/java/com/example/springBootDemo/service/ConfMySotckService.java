@@ -13,5 +13,7 @@ import com.example.springBootDemo.entity.ConfMySotck;
 public interface ConfMySotckService extends IService<ConfMySotck>{
 
 
+    void imporMyStock() throws Exception;
 
+    void reflshMyStock();
 }

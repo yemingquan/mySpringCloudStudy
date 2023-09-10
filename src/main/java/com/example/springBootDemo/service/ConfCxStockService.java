@@ -12,4 +12,5 @@ import com.example.springBootDemo.entity.ConfCxStock;
  */
 public interface ConfCxStockService extends IService<ConfCxStock>{
 
+    void imporCX() throws Exception;
 }
