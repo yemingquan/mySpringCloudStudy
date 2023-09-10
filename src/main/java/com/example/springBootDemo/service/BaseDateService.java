@@ -20,4 +20,8 @@ public interface BaseDateService extends IService<BaseDate>{
     Date getBeforeTypeDate(Date createDate, List<String> typeList);
 
     String getBeforeTypeDate(String date, List<String> typeList);
+
+    Date getAfterTypeDate(Date date, List<String> typeList);
+
+    String getAfterTypeDate(String dateStr, List<String> typeList);
 }

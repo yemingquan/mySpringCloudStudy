@@ -44,4 +44,19 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
         Date resultDate = baseDateDao.getBeforeTypeDate(date, typeList);
         return DateUtil.format(resultDate, DateUtils.DATE_FORMAT_10);
     }
+
+    @Override
+    public Date getAfterTypeDate(Date date, List<String> typeList) {
+        return baseDateDao.getAfterTypeDate(date, typeList);
+    }
+
+    @Override
+    public String getAfterTypeDate(String dateStr, List<String> typeList) {
+        if (StringUtils.isEmpty(dateStr)) {
+            dateStr = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
+        }
+        Date date = DateUtil.parseDate(dateStr);
+        Date resultDate = baseDateDao.getAfterTypeDate(date, typeList);
+        return DateUtil.format(resultDate, DateUtils.DATE_FORMAT_10);
+    }
 }

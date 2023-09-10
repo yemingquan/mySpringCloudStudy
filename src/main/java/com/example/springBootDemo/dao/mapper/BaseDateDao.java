@@ -20,5 +20,7 @@ public interface BaseDateDao extends BaseMapper<BaseDate>{
     void updateBatchByDate(@Param("list") List<BaseDate> list);
 
     Date getBeforeTypeDate(@Param("date")Date date, @Param("typeList")List<String> typeList);
+
+    Date getAfterTypeDate(@Param("date")Date date, @Param("typeList")List<String> typeList);
 }
 

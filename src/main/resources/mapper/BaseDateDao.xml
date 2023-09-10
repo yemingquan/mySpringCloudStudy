@@ -69,5 +69,16 @@
             #{item}
         </foreach>
     </select>
+
+    <select id="getAfterTypeDate" resultType="java.util.Date" parameterType="java.util.Date">
+        SELECT
+        MIN(DATE)
+        FROM base_Date
+        WHERE DATE >= #{date}
+        AND TYPE IN
+        <foreach collection="typeList" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
 </mapper>
 

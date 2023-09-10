@@ -3,13 +3,13 @@ package com.example.springBootDemo.controller;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.alibaba.excel.util.DateUtils;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.example.springBootDemo.config.components.constant.DateTypeConstant;
+import com.example.springBootDemo.config.components.enums.NewSEnum;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.BaseDateNews;
 import com.example.springBootDemo.entity.Student;
-import com.example.springBootDemo.service.BaseDateNewsService;
-import com.example.springBootDemo.service.BaseSubjectLineDetailService;
-import com.example.springBootDemo.service.InputService;
-import com.example.springBootDemo.service.StudentService;
+import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.FileUtil;
 import com.example.springBootDemo.util.excel.ExcelChangeUtil;
@@ -45,9 +45,10 @@ public class inputController {
     StudentService studentService;
     @Autowired
     BaseSubjectLineDetailService baseSubjectLineDetailService;
-
     @Autowired
     BaseDateNewsService baseDateNewsService;
+    @Autowired
+    BaseDateService baseDateService;
 
     @ApiOperation("导入波动向上Excel数据")
     @PostMapping("/importExcelBdUpStock")
@@ -192,7 +193,7 @@ public class inputController {
 
             //2将导出的同花顺文件转换成xlsx后，导入到数据库中
             //导入前，需要手动填写主业内容，防止生成的时候统计不对
-            if(StringUtils.isEmpty(importDateFlag)){
+            if (StringUtils.isEmpty(importDateFlag)) {
                 return RespBean.success("处理到文件导入前");
             }
 
@@ -223,8 +224,8 @@ public class inputController {
                 date = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
             }
             //导入前先删除当天的数据
-            baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(date,startDate);
-            boolean flag = inputService.importSubjectDetail(multipartFile.getInputStream(),startDate,date);
+            baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(date, startDate);
+            boolean flag = inputService.importSubjectDetail(multipartFile.getInputStream(), startDate, date);
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -235,15 +236,53 @@ public class inputController {
     }
 
 
-    @ApiOperation("Excel导入消息")
-    @PostMapping("/importNews")
-    public RespBean importNews(MultipartFile multipartFile) throws IOException {
+    @ApiOperation("Excel导入消息-根据创建时间维护")
+    @PostMapping("/importNews/UseCreateDate")
+    public RespBean importNews(@RequestParam(value = "clearFlag", required = false) String clearFlag,
+                               MultipartFile multipartFile) throws IOException {
         //设置导入参数
         ImportParams importParams = new ImportParams();
         importParams.setHeadRows(1); //表头占1行，默认1
 
+        if(StringUtils.isNotBlank(clearFlag)){
+            EntityWrapper<BaseDateNews> wrapper = new EntityWrapper<>();
+            wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
+            baseDateNewsService.delete(wrapper);
+        }
+
         try {
+            Date dealDate = baseDateService.getBeforeTypeDate(new Date(), DateTypeConstant.DEAL_LIST);
             List<BaseDateNews> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseDateNews.class, importParams);
+            for (int i = 0; i < list.size(); i++) {
+                BaseDateNews news = list.get(i);
+
+                //日期
+                Date date = news.getDate();
+                if (date == null) {
+                    date = new Date();
+                    news.setDate(date);
+                }
+                Integer duration = news.getDuration();
+                if (duration == null) {
+                    duration = 0;
+                }
+                //延期或即时
+                String type = news.getType();
+                if (StringUtils.isBlank(type)) {
+                    Date lastDay = DateUtil.getNextDay(date, duration);
+                    if (lastDay.before(dealDate)) {
+                        news.setType(NewSEnum.TYPE_INSTANTLY.getName());
+                    } else {
+                        news.setType(NewSEnum.TYPE_FUTURE.getName());
+                    }
+                }
+                //影响范围
+//                news.setScope(NewSEnum.getCode(NewsConstant.SCOPE, news.getScope()));
+                //开盘
+//                news.setHappen(NewSEnum.getCode(NewsConstant.HAPPEN, news.getHappen()));
+                //创建时间
+                news.setCreateDate(new Date());
+            }
             if (baseDateNewsService.insertBatch(list)) {
                 return RespBean.success("导入成功");
             }

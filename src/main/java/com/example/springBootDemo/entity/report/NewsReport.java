@@ -1,10 +1,8 @@
-package com.example.springBootDemo.entity;
+package com.example.springBootDemo.entity.report;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotations.TableId;
-import com.baomidou.mybatisplus.annotations.TableName;
 import com.baomidou.mybatisplus.enums.IdType;
-import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +13,7 @@ import java.util.Date;
 
 
 /**
- * 新闻(BaseDateNews)实体类
+ * 新闻(BaseDateNews)excel导入类
  *
  * @author makejava
  * @since 2023-09-03 00:27:57
@@ -24,9 +22,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel(description = "新闻")
-@TableName("base_date_news")
-public class BaseDateNews implements Serializable {
+public class NewsReport implements Serializable {
     private static final long serialVersionUID = 211816754774884331L;
     /**
      * 主键
@@ -41,17 +37,17 @@ public class BaseDateNews implements Serializable {
     /**
      * 持续时间，大于1天时填写，比如：1
      */
-    @Excel(name = "持续")
+    @Excel(name = "持续时间")
     private Integer duration;
     /**
-     * 影响范围：0未定义、1大环境、2主线、3活跃板块、4其他
-     */
-    @Excel(name = "影响范围")
-    private String scope;
-    /**
-     * 消息类型
+     * 消息类型：0未定义、1大环境、2主线、3活跃板块、4其他 
      */
     @Excel(name = "消息类型")
+    private String scope;
+    /**
+     * 标题
+     */
+    @Excel(name = "标题")
     private String newsType;
     /**
      * 内容
@@ -59,7 +55,7 @@ public class BaseDateNews implements Serializable {
     @Excel(name = "内容")
     private String content;
     /**
-     * 发生时间：1.开盘前、2.盘中、3.收盘后
+     * 发生时间：开盘前、盘中、收盘后
      */
     @Excel(name = "相对盘中")
     private String happen;
