@@ -80,14 +80,20 @@ public class ReportController {
     @GetMapping("/exportZtRePort")
     @ApiOperation("1-1 涨停报表导出")
     public void exportZtRePort(@RequestParam(value = "date", required = false) String date,
+                               @RequestParam(value = "refreshFlag", required = false) String refreshFlag,
                                HttpServletResponse response) {
         log.info("1-1 涨停报表导出 {}", date);
         String fileName = "涨停1111.xlsx";
         String sheetName = "涨停";
         date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
 
-        List<ZtReport> list = reportService.getZtReportByDate(date);
+        if(StringUtils.isNotBlank(refreshFlag)){
+            //检索10天以内的数据
+            log.info("刷新10天以内的辨识度标的");
+            confBsdStockService.genConfBsdStock(date);
+        }
 
+        List<ZtReport> list = reportService.getZtReportByDate(date);
         ExcelUtil<ZtReport> excelUtil = new ExcelUtil<>(ZtReport.class);
         excelUtil.BSD_STOCK_LIST = confBsdStockService.getBsdList();
         Map<String, Map> annotationMapping = null;
@@ -194,6 +200,7 @@ public class ReportController {
 
             excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
 
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -217,7 +224,7 @@ public class ReportController {
     @GetMapping("/exportFinalReport")
     @ApiOperation("2-2 日终报表导出")
     public void exportFinalReport(@RequestParam(value = "date", required = false) String date,
-                                  HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
+                                  HttpServletResponse response) {
         log.info("2-2 日终报表导出 {}", date);
         String fileName = "日终.xlsx";
         String sheetName = "日终";
@@ -229,6 +236,8 @@ public class ReportController {
             baseBondService.imporKZZ();
             log.info("刷新股票的主业");
             confMySotckService.reflshMyStock();
+            log.info("日期功能刷新");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
