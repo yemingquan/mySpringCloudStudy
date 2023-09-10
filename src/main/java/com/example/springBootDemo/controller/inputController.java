@@ -18,15 +18,15 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -244,7 +244,7 @@ public class inputController {
         ImportParams importParams = new ImportParams();
         importParams.setHeadRows(1); //表头占1行，默认1
 
-        if(StringUtils.isNotBlank(clearFlag)){
+        if (StringUtils.isNotBlank(clearFlag)) {
             EntityWrapper<BaseDateNews> wrapper = new EntityWrapper<>();
             wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
             baseDateNewsService.delete(wrapper);
@@ -290,5 +290,34 @@ public class inputController {
             e.printStackTrace();
         }
         return RespBean.error("导入失败");
+    }
+
+    @GetMapping("/getNewSTemplate")
+    @ApiOperation("Excel导入消息-获得摸板")
+    public void exportBdRePort(HttpServletResponse response) throws Exception {
+        String fileName = "NewSTemplate.xlsx";
+//        URL a1 = inputController.class.getResource("templates/NewSTemplate.xlsx");
+//        URL a2 = inputController.class.getClassLoader().getResource("templates/NewSTemplate.xlsx");
+//        URL a3 = ClassLoader.getSystemClassLoader().getResource("templates/NewSTemplate.xlsx");
+        URL a5 = ClassLoader.getSystemResource("templates/NewSTemplate.xlsx");
+//        URL a6 = Thread.currentThread().getContextClassLoader().getResource("templates/NewSTemplate.xlsx");
+        String filePath = a5.getPath();
+        File file = new File(filePath);
+//        fileName = new String(fileName.getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
+        FileInputStream input = new FileInputStream(file);
+
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+
+        OutputStream outputStream = response.getOutputStream();
+        OutputStream output = response.getOutputStream();
+        response.flushBuffer();
+        byte[] buffer = new byte[10240];
+        for (int length = 0; (length = input.read(buffer)) > 0; ) {
+            output.write(buffer, 0, length);
+        }
+        outputStream.flush();
+        // 写完数据关闭流
+        outputStream.close();
     }
 }
