@@ -7,11 +7,9 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import com.alibaba.excel.util.DateUtils;
+import com.example.springBootDemo.config.components.enums.NewsEnum;
 import com.example.springBootDemo.entity.base.BaseStock;
-import com.example.springBootDemo.entity.report.BdReport;
-import com.example.springBootDemo.entity.report.MbReport;
-import com.example.springBootDemo.entity.report.SubjectReport;
-import com.example.springBootDemo.entity.report.ZtReport;
+import com.example.springBootDemo.entity.report.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -1158,6 +1156,60 @@ public class ExcelUtil<T> implements Serializable {
                 map.put("backgroundColor", colorMap.get(po.getSubName()));
                 //当天日期改为红色
                 if (date.equals(DateUtil.format(createDate, DateUtils.DATE_FORMAT_10))) {
+                    map.put("color", IndexedColors.RED);
+                } else {
+                    map.put("color", IndexedColors.BLACK);
+                }
+
+                //深拷贝后，把映射关系放到map中
+                Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
+                annotationMapping.put(key, afterMap);
+            }
+        }
+        return annotationMapping;
+    }
+
+    public Map<String, Map> OprNewsReport(List<NewsReport> list) throws NoSuchFieldException, IllegalAccessException {
+        //注解和对象的映射关系 key:代码-属性 value:注解配置
+        Map<String, Map> annotationMapping = Maps.newConcurrentMap();
+        //注解只有一个，所以不符合条件的话，要给默认值
+        Map<String, Object> defaultAnnotationMap = Maps.newConcurrentMap();
+        Boolean firstFlag = true;
+        List<Field> fields = getClassFields();
+
+        //底色处理
+        Map<Date, List<NewsReport>> ztMap = list.stream().collect(Collectors.groupingBy(NewsReport::getDate));
+        Map<Date, Object> colorMap = Maps.newConcurrentMap();
+        IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME, IndexedColors.LIGHT_GREEN};
+        int num = 0;
+        for (Date str : ztMap.keySet()) {
+            colorMap.put(str, colorArr[num++ % colorArr.length]);
+        }
+
+        //集合循环
+        for (int i = 0; i < list.size(); i++) {
+            NewsReport po = list.get(i);
+            po.setId(UUID.randomUUID().toString());
+            Date date = po.getDate();
+
+            //注解循环
+            for (int j = 0; j < fields.size(); j++) {
+                Field f = fields.get(j);
+                // 获取注解映射的map对象
+                Map map = getAnnotationMap((T) po, f);
+                String key = po.getId() + "-" + f.getName();
+
+                if (firstFlag) {
+                    defaultAnnotationMap = initDefaultAnnotationMap((HashMap<String, Object>) map);
+                    firstFlag = false;
+                } else {
+                    map.putAll(defaultAnnotationMap);
+                }
+                //根据主业给与背景随机颜色
+                map.put("backgroundColor", colorMap.get(po.getDate()));
+                //当天日期改为红色
+//                if (DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10).equals(DateUtil.format(date, DateUtils.DATE_FORMAT_10))) {
+                if (NewsEnum.SCOPE_ENVIRONMENT.getName().equals(po.getScope())||NewsEnum.SCOPE_MAIN.getName().equals(po.getScope())) {
                     map.put("color", IndexedColors.RED);
                 } else {
                     map.put("color", IndexedColors.BLACK);

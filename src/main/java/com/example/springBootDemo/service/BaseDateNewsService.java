@@ -2,6 +2,9 @@ package com.example.springBootDemo.service;
 
 import com.baomidou.mybatisplus.service.IService;
 import com.example.springBootDemo.entity.BaseDateNews;
+import com.example.springBootDemo.entity.report.NewsReport;
+
+import java.util.List;
 
 
 /**
@@ -12,4 +15,5 @@ import com.example.springBootDemo.entity.BaseDateNews;
  */
 public interface BaseDateNewsService extends IService<BaseDateNews>{
 
+    List<NewsReport> getNews(String date);
 }

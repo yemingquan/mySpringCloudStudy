@@ -5,7 +5,7 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.constant.DateTypeConstant;
-import com.example.springBootDemo.config.components.enums.NewSEnum;
+import com.example.springBootDemo.config.components.enums.NewsEnum;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.BaseDateNews;
 import com.example.springBootDemo.entity.Student;
@@ -271,15 +271,19 @@ public class inputController {
                 if (StringUtils.isBlank(type)) {
                     Date lastDay = DateUtil.getNextDay(date, duration);
                     if (lastDay.before(dealDate)) {
-                        news.setType(NewSEnum.TYPE_INSTANTLY.getName());
+                        news.setType(NewsEnum.TYPE_INSTANTLY.getName());
                     } else {
-                        news.setType(NewSEnum.TYPE_FUTURE.getName());
+                        news.setType(NewsEnum.TYPE_FUTURE.getName());
                     }
                 }
+                //脱敏
+                String content = news.getContent();
+                content = content.replaceAll("领导人","领d人");
+                news.setContent(content);
                 //影响范围
-//                news.setScope(NewSEnum.getCode(NewsConstant.SCOPE, news.getScope()));
+//                news.setScope(NewsEnum.getCode(NewsConstant.SCOPE, news.getScope()));
                 //开盘
-//                news.setHappen(NewSEnum.getCode(NewsConstant.HAPPEN, news.getHappen()));
+//                news.setHappen(NewsEnum.getCode(NewsConstant.HAPPEN, news.getHappen()));
                 //创建时间
                 news.setCreateDate(new Date());
             }
@@ -295,12 +299,12 @@ public class inputController {
     @GetMapping("/getNewSTemplate")
     @ApiOperation("Excel导入消息-获得摸板")
     public void exportBdRePort(HttpServletResponse response) throws Exception {
-        String fileName = "NewSTemplate.xlsx";
-//        URL a1 = inputController.class.getResource("templates/NewSTemplate.xlsx");
-//        URL a2 = inputController.class.getClassLoader().getResource("templates/NewSTemplate.xlsx");
-//        URL a3 = ClassLoader.getSystemClassLoader().getResource("templates/NewSTemplate.xlsx");
-        URL a5 = ClassLoader.getSystemResource("templates/NewSTemplate.xlsx");
-//        URL a6 = Thread.currentThread().getContextClassLoader().getResource("templates/NewSTemplate.xlsx");
+        String fileName = "NewsTemplate.xlsx";
+//        URL a1 = inputController.class.getResource("templates/NewsTemplate.xlsx");
+//        URL a2 = inputController.class.getClassLoader().getResource("templates/NewsTemplate.xlsx");
+//        URL a3 = ClassLoader.getSystemClassLoader().getResource("templates/NewsTemplate.xlsx");
+        URL a5 = ClassLoader.getSystemResource("templates/NewsTemplate.xlsx");
+//        URL a6 = Thread.currentThread().getContextClassLoader().getResource("templates/NewsTemplate.xlsx");
         String filePath = a5.getPath();
         File file = new File(filePath);
 //        fileName = new String(fileName.getBytes("UTF-8"), StandardCharsets.ISO_8859_1);

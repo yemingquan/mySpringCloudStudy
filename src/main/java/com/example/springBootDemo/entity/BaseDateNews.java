@@ -64,7 +64,7 @@ public class BaseDateNews implements Serializable {
     @Excel(name = "相对盘中")
     private String happen;
     /**
-     * 1.延期消息(会议那种) 2.即时消息（一般盘中）
+     * 1.预期 2.兑现
      */
     @Excel(name = "类型")
     private String type;

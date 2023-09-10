@@ -5,10 +5,7 @@ import com.example.springBootDemo.config.components.constant.DateTypeConstant;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.entity.input.BaseSubjectDetail;
-import com.example.springBootDemo.entity.report.BdReport;
-import com.example.springBootDemo.entity.report.MbReport;
-import com.example.springBootDemo.entity.report.SubjectReport;
-import com.example.springBootDemo.entity.report.ZtReport;
+import com.example.springBootDemo.entity.report.*;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
@@ -53,9 +50,10 @@ public class ReportController {
     private ConfBsdStockService confBsdStockService;
     @Autowired
     BaseDateService baseDateService;
-
     @Autowired
     BaseSubjectLineDetailService baseSubjectLineDetailService;
+    @Autowired
+    BaseDateNewsService baseDateNewsService;
 
     @ApiOperation("Excel导出测试")
     @GetMapping("/export")
@@ -189,5 +187,20 @@ public class ReportController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @GetMapping("/exportNewsReport")
+    @ApiOperation("4-消息报表导出")
+    public void exportNewsReport(@RequestParam(value = "date", required = false) String date,
+                                 HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
+
+        String fileName = "消息.xlsx";
+        String sheetName = "消息";
+        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
+        List<NewsReport> list = baseDateNewsService.getNews(date);
+
+        ExcelUtil<NewsReport> excelUtil = new ExcelUtil<>(NewsReport.class);
+        Map<String, Map> annotationMapping = excelUtil.OprNewsReport(list);
+        excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
     }
 }

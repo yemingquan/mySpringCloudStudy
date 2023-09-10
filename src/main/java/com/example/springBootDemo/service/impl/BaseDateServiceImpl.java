@@ -6,6 +6,7 @@ import com.example.springBootDemo.dao.mapper.BaseDateDao;
 import com.example.springBootDemo.entity.BaseDate;
 import com.example.springBootDemo.service.BaseDateService;
 import com.example.springBootDemo.util.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import java.util.List;
  * @author makejava
  * @since 2023-09-03 00:27:46
  */
+@Slf4j
 @Service("baseDateService")
 public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> implements BaseDateService {
     @Resource
@@ -42,7 +44,9 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
         }
         Date date = DateUtil.parseDate(dateStr);
         Date resultDate = baseDateDao.getBeforeTypeDate(date, typeList);
-        return DateUtil.format(resultDate, DateUtils.DATE_FORMAT_10);
+        String resultDateStr = DateUtil.format(resultDate, DateUtils.DATE_FORMAT_10);
+        log.info("前一个交易日时间为：{}",resultDateStr);
+        return resultDateStr;
     }
 
     @Override
@@ -57,6 +61,8 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
         }
         Date date = DateUtil.parseDate(dateStr);
         Date resultDate = baseDateDao.getAfterTypeDate(date, typeList);
-        return DateUtil.format(resultDate, DateUtils.DATE_FORMAT_10);
+        String resultDateStr = DateUtil.format(resultDate, DateUtils.DATE_FORMAT_10);
+        log.info("后一个交易日时间为：{}",resultDateStr);
+        return resultDateStr;
     }
 }

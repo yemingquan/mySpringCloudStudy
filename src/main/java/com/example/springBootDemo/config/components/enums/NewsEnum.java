@@ -13,7 +13,7 @@ import java.util.Arrays;
  * @Copyright (c) 2020 inc. all rights reserved<p>
  * @公司名称
  */
-public enum NewSEnum {
+public enum NewsEnum {
 
 
 
@@ -25,7 +25,7 @@ public enum NewSEnum {
     HAPPEN_AFTER("HAPPEN","3", "盘后"),
 
     SCOPE_UNKNOW("SCOPE","0", "未定义"),
-    SCOPE_ENVIRONMENT("SCOPE","1", "环境"),
+    SCOPE_ENVIRONMENT("SCOPE","1", "大环境"),
     SCOPE_MAIN("SCOPE","2", "主线"),
     SCOPE_ACTIVE("SCOPE","3", "活跃板块"),
     SCOPE_OTHER("SCOPE","4", "其他");
@@ -42,14 +42,14 @@ public enum NewSEnum {
     @Setter
     private String name;
 
-    NewSEnum(String type, String code, String beanName) {
+    NewsEnum(String type, String code, String beanName) {
         setType(type);
         setCode(code);
         setName(beanName);
     }
 
     public static String getName(String type, String code) {
-        NewSEnum en = Arrays.stream(values())
+        NewsEnum en = Arrays.stream(values())
                 .filter(e -> e.getType().equals(type))
                 .filter(e -> e.getCode().equals(code))
                 .findFirst().orElse(null);
@@ -57,7 +57,7 @@ public enum NewSEnum {
     }
 
     public static String getCode(String type, String name) {
-        NewSEnum en = Arrays.stream(values())
+        NewsEnum en = Arrays.stream(values())
                 .filter(e -> e.getType().equals(type))
                 .filter(e -> e.getName().equals(name))
                 .findFirst().orElse(null);
