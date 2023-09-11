@@ -3,9 +3,6 @@ package com.example.springBootDemo.controller;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.alibaba.excel.util.DateUtils;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.example.springBootDemo.config.components.constant.DateTypeConstant;
-import com.example.springBootDemo.config.components.enums.NewsEnum;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.BaseDateNews;
 import com.example.springBootDemo.entity.Student;
@@ -236,57 +233,22 @@ public class inputController {
     }
 
 
-    @ApiOperation("Excel导入消息-根据创建时间维护")
+    @ApiOperation("Excel导入消息-根据创建时间维护（原始数据）")
     @PostMapping("/importNews/UseCreateDate")
-    public RespBean importNews(@RequestParam(value = "clearFlag", required = false) String clearFlag,
+    public RespBean importNewsUseCreateDate(@RequestParam(value = "clearFlag", required = false) String clearFlag,
                                MultipartFile multipartFile) throws IOException {
         //设置导入参数
         ImportParams importParams = new ImportParams();
         importParams.setHeadRows(1); //表头占1行，默认1
 
         if (StringUtils.isNotBlank(clearFlag)) {
-            EntityWrapper<BaseDateNews> wrapper = new EntityWrapper<>();
-            wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
-            baseDateNewsService.delete(wrapper);
+            baseDateNewsService.deleteByCreateDate(DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         }
 
         try {
-            Date dealDate = baseDateService.getBeforeTypeDate(new Date(), DateTypeConstant.DEAL_LIST);
             List<BaseDateNews> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseDateNews.class, importParams);
-            for (int i = 0; i < list.size(); i++) {
-                BaseDateNews news = list.get(i);
-
-                //日期
-                Date date = news.getDate();
-                if (date == null) {
-                    date = new Date();
-                    news.setDate(date);
-                }
-                Integer duration = news.getDuration();
-                if (duration == null) {
-                    duration = 0;
-                }
-                //延期或即时
-                String type = news.getType();
-                if (StringUtils.isBlank(type)) {
-                    Date lastDay = DateUtil.getNextDay(date, duration);
-                    if (lastDay.before(dealDate)) {
-                        news.setType(NewsEnum.TYPE_INSTANTLY.getName());
-                    } else {
-                        news.setType(NewsEnum.TYPE_FUTURE.getName());
-                    }
-                }
-                //脱敏
-                String content = news.getContent();
-                content = content.replaceAll("领导人","领d人");
-                news.setContent(content);
-                //影响范围
-//                news.setScope(NewsEnum.getCode(NewsConstant.SCOPE, news.getScope()));
-                //开盘
-//                news.setHappen(NewsEnum.getCode(NewsConstant.HAPPEN, news.getHappen()));
-                //创建时间
-                news.setCreateDate(new Date());
-            }
+            baseDateNewsService.oprNewsData(list);
+            log.info("准备插入数据");
             if (baseDateNewsService.insertBatch(list)) {
                 return RespBean.success("导入成功");
             }
@@ -295,6 +257,34 @@ public class inputController {
         }
         return RespBean.error("导入失败");
     }
+
+
+
+    @ApiOperation("Excel导入消息-根据消息时间维护（增量数据）")
+    @PostMapping("/importNews/UseDate")
+    public RespBean importNewsUseDate(@RequestParam(value = "date", required = true) String date,
+                               @RequestParam(value = "startDate", required = false) String startDate,
+                               MultipartFile multipartFile) {
+        //设置导入参数
+        ImportParams importParams = new ImportParams();
+        importParams.setHeadRows(1); //表头占1行，默认1
+
+        //导入前先删除当天的数据
+        baseDateNewsService.deleteBaseDateNewsByDateList(date, startDate);
+
+        try {
+            List<BaseDateNews> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseDateNews.class, importParams);
+            baseDateNewsService.oprNewsData(list);
+            log.info("准备插入数据");
+            if (baseDateNewsService.insertBatch(list)) {
+                return RespBean.success("导入成功");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
 
     @GetMapping("/getNewSTemplate")
     @ApiOperation("Excel导入消息-获得摸板")

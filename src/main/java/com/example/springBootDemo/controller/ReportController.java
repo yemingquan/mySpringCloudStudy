@@ -207,14 +207,18 @@ public class ReportController {
     }
 
     @GetMapping("/exportNewsReport")
-    @ApiOperation("2-1 消息报表导出")
+    @ApiOperation("2-1 消息报表导出(当输入date时，date为起始时间，当两个时间都输入时，startDate为起始时间，date为最终时间)")
     public void exportNewsReport(@RequestParam(value = "date", required = false) String date,
+                                 @RequestParam(value = "startDate", required = false) String startDate,
                                  HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
         log.info("2-1 消息报表导出 {}", date);
         String fileName = "消息.xlsx";
         String sheetName = "消息";
         date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
-        List<NewsReport> list = baseDateNewsService.getNews(date);
+        if(StringUtils.isNotBlank(startDate)){
+            startDate = baseDateService.getBeforeTypeDate(startDate, DateTypeConstant.DEAL_LIST);
+        }
+        List<NewsReport> list = baseDateNewsService.getNews(startDate,date);
 
         ExcelUtil<NewsReport> excelUtil = new ExcelUtil<>(NewsReport.class);
         Map<String, Map> annotationMapping = excelUtil.OprNewsReport(list);

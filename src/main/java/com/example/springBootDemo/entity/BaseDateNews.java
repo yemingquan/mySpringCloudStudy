@@ -49,9 +49,9 @@ public class BaseDateNews implements Serializable {
     @Excel(name = "影响范围")
     private String scope;
     /**
-     * 消息类型
+     * 关键词
      */
-    @Excel(name = "消息类型")
+    @Excel(name = "关键词")
     private String newsType;
     /**
      * 内容

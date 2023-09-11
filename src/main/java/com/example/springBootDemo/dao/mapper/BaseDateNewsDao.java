@@ -17,6 +17,6 @@ import java.util.List;
 @Mapper
 public interface BaseDateNewsDao extends BaseMapper<BaseDateNews>{
 
-    List<NewsReport> getNews(@Param("date") String date);
+    List<NewsReport> getNews(@Param("startDate")String startDate, @Param("date") String date);
 }
 
