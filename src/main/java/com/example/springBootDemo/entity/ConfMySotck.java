@@ -83,6 +83,14 @@ public class ConfMySotck implements Serializable {
      * 创建者
      */
     private String createBy;
+    /**
+     * 修改时间
+     */
+    private Date modifedDate;
+    /**
+     * 修改者
+     */
+    private String modifedBy;
 
 
 }

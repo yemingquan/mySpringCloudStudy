@@ -17,6 +17,8 @@
         <result property="state" column="state" jdbcType="VARCHAR"/>
         <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
         <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+        <result property="modifedDate" column="modifed_date" jdbcType="TIMESTAMP"/>
+        <result property="modifedBy" column="modifed_by" jdbcType="VARCHAR"/>
     </resultMap>
 
 
