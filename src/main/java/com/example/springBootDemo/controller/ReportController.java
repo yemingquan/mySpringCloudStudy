@@ -1,5 +1,6 @@
 package com.example.springBootDemo.controller;
 
+import cn.afterturn.easypoi.entity.ImageEntity;
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
@@ -25,8 +26,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletOutputStream;
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -206,7 +209,18 @@ public class ReportController {
 
             excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
 
-            TemplateExportParams templateExportParams = new TemplateExportParams();
+//            // 定义单元格纵向合并依赖的map条件
+//            Map<Integer, int[]> mergeMap = new HashMap<>();
+//// key代表要合并的列 value代表依赖的列(ps:列从0开始计数 表格里的第一纵列为第0列)
+//            mergeMap.put(1, new int[]{2});
+//            mergeMap.put(2, new int[]{2});
+//            mergeMap.put(3, new int[]{2});
+//            mergeMap.put(4, new int[]{2});
+//            mergeMap.put(5, new int[]{2});
+//            mergeMap.put(6, new int[]{2});
+//
+//// 开始合并
+//            PoiMergeCellUtil.mergeCells(workbook.getSheetAt(0), mergeMap, 5);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -265,7 +279,7 @@ public class ReportController {
 
     @GetMapping("/aaaaa")
     @ApiOperation("aaaaaaaaaaaaaaa")
-    public static void aaaaa(HttpServletResponse response) {
+    public static void aaaaa(HttpServletResponse response) throws IOException {
         /*空格分割
         三目运算 {{test ? obj:obj2}}
         n: 表示 这个cell是数值类型 {{n:}}
@@ -278,7 +292,10 @@ public class ReportController {
         #fe: 横向遍历
         v_fe: 横向遍历值
         !if: 删除当前列 {{!if:(test)}}
-        单引号表示常量值 ‘’ 比如’1’ 那么输出的就是 1 &NULL& 空格]] 换行符 多行遍历导出
+        单引号表示常量值 ‘’ 比如’1’ 那么输出的就是 1
+        &NULL& 空格
+        &INDEX& 表示循环中的序号,自动添加
+        ]] 换行符 多行遍历导出
         sum： 统计数据
         整体风格和el表达式类似，大家应该也比较熟悉 采用的写法是{{属性}}，然后根据表达式里面的数据取值*/
         Goods goods1 = new Goods(110, "苹果", 1, new Date(), 0, "1");
@@ -324,35 +341,20 @@ public class ReportController {
         data.put("one", goods1);//导出一个对象
         data.put("list", goodsList);//导出list集合
 
+        URL url = ClassLoader.getSystemResource("templates/Screenshot.jpg");
+        String path = url.getPath();
+        BufferedImage bufferedImage = ImageIO.read(new FileInputStream(path));
+        ImageEntity image = ExcelUtil.imageToBytes(bufferedImage);
+        data.put("image",image);
         try {
             // 简单模板导出方法
             Workbook book = ExcelExportUtil.exportExcel(params, data);
             //下载方法
-            export(response, book, "商品信息");
+            ExcelUtil.export(response, book, "abcd");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * export导出请求头设置
-     *
-     * @param response
-     * @param workbook
-     * @param fileName
-     * @throws Exception
-     */
-    private static void export(HttpServletResponse response, Workbook workbook, String fileName) throws Exception {
-        response.reset();
-        response.setContentType("application/x-msdownload");
-        fileName = fileName + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        response.setHeader("Content-disposition", "attachment; filename=" + new String(fileName.getBytes("gb2312"), "ISO-8859-1") + ".xlsx");
-        ServletOutputStream outStream = null;
-        try {
-            outStream = response.getOutputStream();
-            workbook.write(outStream);
-        } finally {
-            outStream.close();
-        }
-    }
+
 }

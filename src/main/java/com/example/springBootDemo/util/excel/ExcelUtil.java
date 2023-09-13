@@ -1,6 +1,7 @@
 package com.example.springBootDemo.util.excel;
 
 
+import cn.afterturn.easypoi.entity.ImageEntity;
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
@@ -21,7 +22,10 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -29,6 +33,7 @@ import java.lang.reflect.Proxy;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -1227,6 +1232,38 @@ public class ExcelUtil<T> implements Serializable {
             }
         }
         return annotationMapping;
+    }
+
+    /**
+     * export导出请求头设置
+     *
+     * @param response
+     * @param workbook
+     * @param fileName
+     * @throws Exception
+     */
+    public static void export(HttpServletResponse response, Workbook workbook, String fileName) throws Exception {
+        response.reset();
+        response.setContentType("application/x-msdownload");
+        fileName = fileName + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        response.setHeader("Content-disposition", "attachment; filename=" + new String(fileName.getBytes("UTF-8"), "ISO-8859-1") + ".xlsx");
+        ServletOutputStream outStream = null;
+        try {
+            outStream = response.getOutputStream();
+            workbook.write(outStream);
+        } finally {
+            outStream.close();
+        }
+    }
+
+    public static ImageEntity imageToBytes(BufferedImage bImage) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ImageIO.write(bImage, "jpg", byteArrayOutputStream);
+        ImageEntity image = new ImageEntity();
+        image.setData(byteArrayOutputStream.toByteArray());
+        image.setColspan(3);  //向右合并3列
+        image.setRowspan(20);  //向下合并4行
+        return image;
     }
 }
 
