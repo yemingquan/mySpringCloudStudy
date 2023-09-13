@@ -128,6 +128,7 @@ public class InputServiceImpl implements InputService {
                 if (CollectionUtils.isNotEmpty(newMBList)) {
                     String mainBusiness = newMBList.stream().collect(Collectors.joining("+"));
                     po.setMainBusiness(mainBusiness);
+                    po.setModifedDate(new Date());
                     log.info("++++股票名称[{}],代码[{}],系统设置主业为[{}]", po.getStockName(), po.getStockCode(), mainBusiness);
                 }
             }
