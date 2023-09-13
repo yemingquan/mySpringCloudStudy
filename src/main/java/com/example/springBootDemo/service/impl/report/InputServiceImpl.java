@@ -99,7 +99,7 @@ public class InputServiceImpl implements InputService {
     public List<String> getMainBusinessList() {
 //        return Lists.newArrayList();
         String date = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
-        String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -7), DateUtils.DATE_FORMAT_10);
+        String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -20), DateUtils.DATE_FORMAT_10);
         List<SubjectReport> subList = baseSubjectLineDetailService.getSubjectReport(date, startDate);
         return subList.stream().map(SubjectReport::getMainBusiness).collect(Collectors.toList());
     }
@@ -452,7 +452,7 @@ public class InputServiceImpl implements InputService {
         }
 
         value = po.getAmplitude();
-        if ("主板".equals(po.getPlate()) && value > 12 || value > 24) {
+        if ("主板".equals(po.getPlate()) && value > 13 || value > 25) {
             instructions.append("大长腿;");
         }
 

@@ -1,8 +1,11 @@
 package com.example.springBootDemo.controller;
 
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.constant.DateTypeConstant;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
+import com.example.springBootDemo.entity.Goods;
 import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.entity.input.BaseSubjectDetail;
 import com.example.springBootDemo.entity.report.*;
@@ -14,6 +17,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,10 +25,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @所属模块<p>
@@ -200,6 +206,7 @@ public class ReportController {
 
             excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
 
+            TemplateExportParams templateExportParams = new TemplateExportParams();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -252,5 +259,100 @@ public class ReportController {
 //        ExcelUtil<NewsReport> excelUtil = new ExcelUtil<>(NewsReport.class);
 //        Map<String, Map> annotationMapping = excelUtil.OprNewsReport(list);
 //        excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
+    }
+
+
+
+    @GetMapping("/aaaaa")
+    @ApiOperation("aaaaaaaaaaaaaaa")
+    public static void aaaaa(HttpServletResponse response) {
+        /*空格分割
+        三目运算 {{test ? obj:obj2}}
+        n: 表示 这个cell是数值类型 {{n:}}
+        le: 代表长度{{le:()}} 在if/else 运用{{le:() > 8 ? obj1 : obj2}}
+        fd: 格式化时间 {{fd:(obj;yyyy-MM-dd)}}
+        fn: 格式化数字 {{fn:(obj;###.00)}}
+        fe: 遍历数据,创建row 该标签的意思是会遍历集合数据，会创建新行，如下图1图2效果
+        !fe: 遍历数据不创建row
+        $fe: 下移插入,把当前行,下面的行全部下移.size()行,然后插入
+        #fe: 横向遍历
+        v_fe: 横向遍历值
+        !if: 删除当前列 {{!if:(test)}}
+        单引号表示常量值 ‘’ 比如’1’ 那么输出的就是 1 &NULL& 空格]] 换行符 多行遍历导出
+        sum： 统计数据
+        整体风格和el表达式类似，大家应该也比较熟悉 采用的写法是{{属性}}，然后根据表达式里面的数据取值*/
+        Goods goods1 = new Goods(110, "苹果", 1, new Date(), 0, "1");
+        Goods goods2 = new Goods(111, "格子衫", 2, new Date(), 0, "0");
+        Goods goods3 = new Goods(112, "拉菲红酒", 3, new Date(), 1, "1");
+        Goods goods4 = new Goods(113, "玫瑰", 4, new Date(), 1, "0");
+
+        List<Goods> goodsList = new ArrayList<>();
+        goodsList.add(goods1);
+        goodsList.add(goods2);
+        goodsList.add(goods3);
+        goodsList.add(goods4);
+
+        //可以抽取为日期工具类
+        Date date1 = new Date();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        String date = df.format(date1);
+
+        for (int i = 0; i < goodsList.size(); ++i) {
+            //添加序号列
+            goodsList.get(i).setOrder(i + 1);
+            //Date类型日期转换
+            goodsList.get(i).setDateStr(df.format(goodsList.get(i).getShelfLife()));
+            //type转换成显示文字
+            if (goodsList.get(i).getType() == 1) {
+                goodsList.get(i).setTypeName("食品");
+            } else if (goodsList.get(i).getType() == 2) {
+                goodsList.get(i).setTypeName("服装");
+            } else if (goodsList.get(i).getType() == 3) {
+                goodsList.get(i).setTypeName("酒水");
+            } else if (goodsList.get(i).getType() == 4) {
+                goodsList.get(i).setTypeName("花卉");
+            }
+        }
+
+        for (Goods goods : goodsList) System.out.println(goods);
+
+        // 获取导出excel指定模版，第二个参数true代表显示一个Excel中的所有 sheet
+        URL a5 = ClassLoader.getSystemResource("templates/aaaa.xlsx");
+        TemplateExportParams params = new TemplateExportParams(a5.getPath(), true);
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("date", date);//导出一般都要日期
+        data.put("one", goods1);//导出一个对象
+        data.put("list", goodsList);//导出list集合
+
+        try {
+            // 简单模板导出方法
+            Workbook book = ExcelExportUtil.exportExcel(params, data);
+            //下载方法
+            export(response, book, "商品信息");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * export导出请求头设置
+     *
+     * @param response
+     * @param workbook
+     * @param fileName
+     * @throws Exception
+     */
+    private static void export(HttpServletResponse response, Workbook workbook, String fileName) throws Exception {
+        response.reset();
+        response.setContentType("application/x-msdownload");
+        fileName = fileName + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        response.setHeader("Content-disposition", "attachment; filename=" + new String(fileName.getBytes("gb2312"), "ISO-8859-1") + ".xlsx");
+        ServletOutputStream outStream = null;
+        try {
+            outStream = response.getOutputStream();
+            workbook.write(outStream);
+        } finally {
+            outStream.close();
+        }
     }
 }
