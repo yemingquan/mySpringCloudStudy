@@ -1,18 +1,15 @@
 package com.example.springBootDemo.controller;
 
 import com.example.springBootDemo.config.components.system.session.RespBean;
-import com.example.springBootDemo.service.BaseBondService;
-import com.example.springBootDemo.service.ConfBsdStockService;
-import com.example.springBootDemo.service.ConfCxStockService;
-import com.example.springBootDemo.service.ConfMySotckService;
+import com.example.springBootDemo.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 配置表控制层
@@ -20,6 +17,7 @@ import javax.annotation.Resource;
  * @author makejava
  * @since 2023-08-17 18:37:58
  */
+@Slf4j
 @RestController
 @RequestMapping("conf")
 @Api(tags = "基础数据-配置")
@@ -33,7 +31,8 @@ public class ConfController {
     private ConfMySotckService confMySotckService;
     @Resource
     private BaseBondService baseBondService;
-
+    @Resource
+    private ConfBusinessService confBusinessService;
 
     @ApiOperation("根据历史数据生成辨识度股票池")
     @PostMapping("/genConfBsdStock")
@@ -72,6 +71,31 @@ public class ConfController {
         return RespBean.error("导入失败");
     }
 
+    @ApiOperation("11111文件查询题材/行业配置信息")
+    @GetMapping("/exportConfBusiness")
+    public void exportConfBusiness(HttpServletResponse response) {
+        try {
+            confBusinessService.exportConfBusiness(response);
+            log.info("导入成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @ApiOperation("11111文件导入题材/行业配置信息")
+    @PostMapping("/imporConfBusiness")
+    public RespBean imporConfBusiness(MultipartFile multipartFile) {
+        try {
+            boolean flag = confBusinessService.imporConfBusiness(multipartFile);
+            if (flag) {
+                return RespBean.success("导入成功");
+            }
+            return RespBean.success("导入成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
 
 
     @ApiOperation("文件导入股票配置信息")
