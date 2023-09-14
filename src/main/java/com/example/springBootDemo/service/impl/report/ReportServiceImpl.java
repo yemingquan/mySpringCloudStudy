@@ -15,6 +15,7 @@ import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -172,8 +173,8 @@ public class ReportServiceImpl implements ReportService {
         List<ZtReport> list1 = list.stream().filter(po -> "1".equals(po.getSource())).collect(Collectors.toList());
         List<ZtReport> list2 = list.stream().filter(po -> "2".equals(po.getSource())).collect(Collectors.toList());
 
-        baseZtStockService.updateBatchById(BeanUtil.copyToList(list1, BaseZtStock.class));
-        baseZthfStockService.updateBatchById(BeanUtil.copyToList(list2, BaseZthfStock.class));
+        if(CollectionUtils.isNotEmpty(list1))baseZtStockService.updateBatchById(BeanUtil.copyToList(list1, BaseZtStock.class));
+        if(CollectionUtils.isNotEmpty(list2))baseZthfStockService.updateBatchById(BeanUtil.copyToList(list2, BaseZthfStock.class));
     }
 
     @Override
@@ -181,8 +182,8 @@ public class ReportServiceImpl implements ReportService {
         List<MbReport> list1 = list.stream().filter(po -> "3".equals(po.getSource())).collect(Collectors.toList());
         List<MbReport> list2 = list.stream().filter(po -> "4".equals(po.getSource())).collect(Collectors.toList());
 
-        baseZbStockService.updateBatchById(BeanUtil.copyToList(list1, BaseZbStock.class));
-        baseDtStockService.updateBatchById(BeanUtil.copyToList(list2, BaseDtStock.class));
+        if(CollectionUtils.isNotEmpty(list1))baseZbStockService.updateBatchById(BeanUtil.copyToList(list1, BaseZbStock.class));
+        if(CollectionUtils.isNotEmpty(list2))baseDtStockService.updateBatchById(BeanUtil.copyToList(list2, BaseDtStock.class));
     }
 
     @Override
@@ -190,8 +191,8 @@ public class ReportServiceImpl implements ReportService {
         List<BdReport> list1 = list.stream().filter(po -> "5".equals(po.getSource())).collect(Collectors.toList());
         List<BdReport> list2 = list.stream().filter(po -> "6".equals(po.getSource())).collect(Collectors.toList());
 
-        baseBdUpStockService.updateBatchById(BeanUtil.copyToList(list1, BaseBdUpStock.class));
-        baseBdDownStockService.updateBatchById(BeanUtil.copyToList(list2, BaseBdDownStock.class));
+        if(CollectionUtils.isNotEmpty(list1))baseBdUpStockService.updateBatchById(BeanUtil.copyToList(list1, BaseBdUpStock.class));
+        if(CollectionUtils.isNotEmpty(list2))baseBdDownStockService.updateBatchById(BeanUtil.copyToList(list2, BaseBdDownStock.class));
     }
 
     @Override
