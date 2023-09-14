@@ -36,7 +36,7 @@ public class ConfBusiness implements Serializable {
     /**
      * 行业名称
      */
-    @Excel(name = "名称", orderNum = "0")
+    @Excel(name = "名称")
     private String busName;
     /**
      * 属性/影响 ;分隔
@@ -46,7 +46,7 @@ public class ConfBusiness implements Serializable {
     /**
      * 板块说明，板块的状态，市场的对这个行业的想法，板块的风险和机会
      */
-    @Excel(name = "说明")
+    @Excel(name = "说明", width = 100)
     private String instructions;
     /**
      * 行业/题材
@@ -56,12 +56,12 @@ public class ConfBusiness implements Serializable {
     /**
      * 核心标的集合，逗号分割
      */
-    @Excel(name = "辨识度标的")
+    @Excel(name = "辨识度标的", width = 25)
     private String coreList;
     /**
      * 标的集合，逗号分割
      */
-    @Excel(name = "标的")
+    @Excel(name = "标的", width = 60)
     private String list;
     /**
      * 核心标的code集合，逗号分割

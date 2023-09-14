@@ -101,7 +101,10 @@ public class InputServiceImpl implements InputService {
         String date = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
         String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -20), DateUtils.DATE_FORMAT_10);
         List<SubjectReport> subList = baseSubjectLineDetailService.getSubjectReport(date, startDate);
-        return subList.stream().map(SubjectReport::getMainBusiness).collect(Collectors.toList());
+        return subList.stream()
+                .sorted(Comparator.comparing(SubjectReport::getCountZt,Comparator.reverseOrder()))
+                .sorted(Comparator.comparing(SubjectReport::getCreateDate,Comparator.reverseOrder()))
+                .map(SubjectReport::getMainBusiness).distinct().collect(Collectors.toList());
     }
 
     public void setMainBusinessList(List<String> mainBusinessList, BaseStock po) {
@@ -109,7 +112,7 @@ public class InputServiceImpl implements InputService {
         EntityWrapper<ConfMySotck> wr = new EntityWrapper<>();
         wr.eq("STOCK_CODE", po.getStockCode());
         ConfMySotck conf = confMySotckService.selectOne(wr);
-        if(conf==null){
+        if (conf == null) {
             confMySotckService.insert(ConfMySotck.builder().stockCode(po.getStockCode()).stockName(po.getStockName()).build());
             return;
         }
@@ -119,17 +122,28 @@ public class InputServiceImpl implements InputService {
             oldMBList.remove("");
             if (CollectionUtils.isNotEmpty(oldMBList)) {
                 List<String> newMBList = Lists.newArrayList();
+                int num = 999;
                 for (String str : oldMBList) {
                     if (mainBusinessList.contains(str)) {
                         newMBList.add(str);
+                        int tempNum = mainBusinessList.indexOf(str);
+                        if (tempNum < num) {
+                            num = tempNum;
+                        }
                     }
                 }
-
-                if (CollectionUtils.isNotEmpty(newMBList)) {
-                    String mainBusiness = newMBList.stream().collect(Collectors.joining("+"));
+                if (num != 999) {
+                    String mainBusiness = mainBusinessList.get(num);
+                    newMBList.remove(mainBusiness);
                     po.setMainBusiness(mainBusiness);
+
+                    if (CollectionUtils.isNotEmpty(newMBList)) {
+                        String nicheBusiness = newMBList.stream().collect(Collectors.joining("+"));
+                        po.setNicheBusiness(nicheBusiness);
+                    }
+
                     po.setModifedDate(new Date());
-                    log.info("++++股票名称[{}],代码[{}],系统设置主业为[{}]", po.getStockName(), po.getStockCode(), mainBusiness);
+                    log.info("++++股票名称[{}],代码[{}],系统设置主业为[{}],支业为[{}]", po.getStockName(), po.getStockCode(), mainBusiness, po.getNicheBusiness());
                 }
             }
         }

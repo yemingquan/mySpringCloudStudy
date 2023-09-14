@@ -40,6 +40,9 @@ public class SwaggerConfig {
                 .build()
                 .securitySchemes(securitySchemes())
                 .securityContexts(securityContexts())
+//                .enable(true)
+//                .groupName("user")
+//                .order(Ordering.byPath()); // 接口排序方式
                 ;
 
 //        return new Docket(DocumentationType.SWAGGER_2)
