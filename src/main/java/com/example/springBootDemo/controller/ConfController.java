@@ -62,7 +62,7 @@ public class ConfController {
     }
 
     @ApiOperationSupport(order = 11)
-    @ApiOperation("1-1 文件导入次新信息")
+    @ApiOperation("1-1 文件导入-次新信息")
     @PostMapping("/imporCX")
     public RespBean imporCX() {
         try {
@@ -75,7 +75,7 @@ public class ConfController {
     }
 
     @ApiOperationSupport(order = 12)
-    @ApiOperation("1-2 文件导入可转债信息")
+    @ApiOperation("1-2 文件导入-可转债信息")
     @PostMapping("/imporKZZ")
     public RespBean imporKZZ() {
         try {
@@ -88,7 +88,7 @@ public class ConfController {
     }
 
     @ApiOperationSupport(order = 13)
-    @ApiOperation("1-3 文件导入股票配置信息")
+    @ApiOperation("1-3 文件导入-股票配置信息")
     @PostMapping("/imporMyStock")
     public RespBean imporMyStock() {
         try {
@@ -101,7 +101,7 @@ public class ConfController {
     }
 
     @ApiOperationSupport(order = 21)
-    @ApiOperation("2-1 文件查询题材/行业配置信息")
+    @ApiOperation("2-1 题材|行业配置-文件查询")
     @GetMapping("/exportConfBusiness")
     public void exportConfBusiness(HttpServletResponse response) {
         try {
@@ -113,7 +113,7 @@ public class ConfController {
     }
 
     @ApiOperationSupport(order = 22)
-    @ApiOperation("2-2 文件导入题材/行业配置信息")
+    @ApiOperation("2-2 题材|行业配置-文件导入")
     @PostMapping("/imporConfBusiness")
     public RespBean imporConfBusiness(@RequestPart MultipartFile multipartFile) {
         try {
@@ -126,6 +126,30 @@ public class ConfController {
             e.printStackTrace();
         }
         return RespBean.error("导入失败");
+    }
+
+    @ApiOperationSupport(order = 23)
+    @ApiOperation("2-3 题材|行业配置-增量概念刷新")
+    @GetMapping("/refushConfBusiness")
+    public void refushConfBusiness() {
+        try {
+            confBusinessService.refushConfBusiness();
+            log.info("刷新成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @ApiOperationSupport(order = 24)
+    @ApiOperation("2-4 题材|行业配置-全量概念刷新")
+    @GetMapping("/refushAllConfBusiness")
+    public void refushAllConfBusiness() {
+        try {
+            confBusinessService.refushAllConfBusiness();
+            log.info("刷新成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
 

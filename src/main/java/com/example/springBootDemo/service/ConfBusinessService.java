@@ -18,4 +18,8 @@ public interface ConfBusinessService extends IService<ConfBusiness>{
     boolean imporConfBusiness(MultipartFile inputStream) throws Exception;
 
     void exportConfBusiness(HttpServletResponse response) throws Exception;
+
+    void refushConfBusiness();
+
+    void refushAllConfBusiness();
 }

@@ -45,7 +45,7 @@ import java.util.*;
  * @公司名称
  */
 @Slf4j
-@Api(tags = "基础数据-报表")
+@Api(tags = "报表模块")
 @RequestMapping("report")
 @RestController
 public class ReportController {
