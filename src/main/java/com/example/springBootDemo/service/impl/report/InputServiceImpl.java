@@ -451,7 +451,10 @@ public class InputServiceImpl implements InputService {
 //                po.setYesterdayChangingHands(po.getYesterdayChangingHands() * 100);
         if (po.getGains() != null) po.setGains(po.getGains() * 100);
         if (po.getStartGains() != null) po.setStartGains(po.getStartGains() * 100);
-        if (po.getEntitySize() != null) po.setEntitySize(po.getEntitySize() * 100);
+        if (po.getEntitySize() != null) {
+            double entitySize = po.getEntitySize() * 100;
+            po.setEntitySize(entitySize);
+        }
 
 
         double value = 0;
@@ -576,9 +579,9 @@ public class InputServiceImpl implements InputService {
             } else {
                 instructions.append("十字星;");
             }
-        } else if (entitySize > 7) {
+        } else if (entitySize > 6) {
             instructions.append("大阳线;");
-        } else if (entitySize < -7) {
+        } else if (entitySize < -6) {
             instructions.append("负反馈;");
         }
         po.setInstructions(instructions.toString());

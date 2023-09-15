@@ -1,5 +1,6 @@
 server:
   port: 4400
+#  context-path: aaa
 spring:
   application:
     name: login-service
@@ -18,6 +19,20 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
 
+knife4j:
+ # 开启增强配置
+ enable: true
+ # 是否生产环境
+ production: false
+# 这个会让你写账号密码
+# basic:
+#   enable: true
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    # 该参数是swagger默认的排序规则，如果设置为alpha，那么Knife4j提供的按照order排序的增强规则不生效
+    operations-sorter: alpha
 
 #wo：
 #  name:WO

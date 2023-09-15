@@ -10,6 +10,7 @@ import com.example.springBootDemo.service.BaseDateSpecialService;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.HolidayUtil;
 import com.example.springBootDemo.util.LunarSolarUtil;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -43,6 +44,7 @@ public class DateController {
     @Resource
     private BaseDateNewsService baseDateNewsService;
 
+    @ApiOperationSupport(order = 1)
     @ApiOperation("初始化一年份数据")
     @PostMapping("/initDate")
     public RespBean initDate(@RequestParam(value = "year", required = false) int year) {

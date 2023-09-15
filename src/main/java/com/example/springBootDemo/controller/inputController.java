@@ -10,6 +10,7 @@ import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.FileUtil;
 import com.example.springBootDemo.util.excel.ExcelChangeUtil;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -47,119 +48,7 @@ public class inputController {
     @Autowired
     BaseDateService baseDateService;
 
-    @ApiOperation("导入波动向上Excel数据")
-    @PostMapping("/importExcelBdUpStock")
-    public RespBean importExcelBdUpStock(MultipartFile multipartFile) {
-        try {
-            boolean flag = inputService.importExcelBdUpStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-
-    @ApiOperation("导入波动向下Excel数据")
-    @PostMapping("/importExcelBdDownStock")
-    public RespBean importExcelBdDownStock(MultipartFile multipartFile) {
-        try {
-            boolean flag = inputService.importExcelBdDownStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-    @ApiOperation("导入曾跌停Excel数据")
-    @PostMapping("/importExcelDtStock")
-    public RespBean importExcelDtStock(MultipartFile multipartFile) {
-        try {
-            boolean flag = inputService.importExcelDtStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-
-    @ApiOperation("导入炸板Excel数据")
-    @PostMapping("/importExcelZbStock")
-    public RespBean importExcelZbStock(MultipartFile multipartFile) {
-        try {
-            boolean flag = inputService.importExcelZbStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-
-    @ApiOperation("导入涨停Excel数据")
-    @PostMapping("/importExcelZtStock")
-    public RespBean importExcelZtStock(MultipartFile multipartFile) {
-        try {
-            boolean flag = inputService.importExcelZtStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-
-    @ApiOperation("导入涨停回封Excel数据")
-    @PostMapping("/importExcelZthfStock")
-    public RespBean importExcelZthfStock(MultipartFile multipartFile) {
-        try {
-            boolean flag = inputService.importExcelZthfStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-    @ApiOperation("Excel导入测试")
-    @PostMapping("/import")
-    public RespBean importExcel(MultipartFile multipartFile) throws IOException {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
-
-        try {
-            List<Student> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), Student.class, importParams);
-            if (studentService.insertBatch(list)) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
+    @ApiOperationSupport(order = 1)
     @ApiOperation("0-复盘初始化")
     @PostMapping("/initFP")
     public RespBean initFP(@RequestParam(value = "clearFlag", required = false) String clearFlag,
@@ -211,11 +100,109 @@ public class inputController {
         return RespBean.error("导入失败");
     }
 
-    @ApiOperation("1-题材明细导入(只导入指定日期的数据，其他日期的数据不完整时，建议删除)")
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("1-1 导入涨停Excel数据")
+    @PostMapping("/importExcelZtStock")
+    public RespBean importExcelZtStock(@RequestPart MultipartFile multipartFile) {
+        try {
+            boolean flag = inputService.importExcelZtStock(multipartFile.getInputStream());
+            if (flag) {
+                return RespBean.success("导入成功");
+            }
+            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
+    @ApiOperationSupport(order = 12)
+    @ApiOperation("1-2 导入涨停回封Excel数据")
+    @PostMapping("/importExcelZthfStock")
+    public RespBean importExcelZthfStock(@RequestPart MultipartFile multipartFile) {
+        try {
+            boolean flag = inputService.importExcelZthfStock(multipartFile.getInputStream());
+            if (flag) {
+                return RespBean.success("导入成功");
+            }
+            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
+    @ApiOperationSupport(order = 13)
+    @ApiOperation("1-3 导入炸板Excel数据")
+    @PostMapping("/importExcelZbStock")
+    public RespBean importExcelZbStock(@RequestPart MultipartFile multipartFile) {
+        try {
+            boolean flag = inputService.importExcelZbStock(multipartFile.getInputStream());
+            if (flag) {
+                return RespBean.success("导入成功");
+            }
+            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
+    @ApiOperationSupport(order = 14)
+    @ApiOperation("1-4 导入曾跌停Excel数据")
+    @PostMapping("/importExcelDtStock")
+    public RespBean importExcelDtStock(@RequestPart MultipartFile multipartFile) {
+        try {
+            boolean flag = inputService.importExcelDtStock(multipartFile.getInputStream());
+            if (flag) {
+                return RespBean.success("导入成功");
+            }
+            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
+    @ApiOperationSupport(order = 15)
+    @ApiOperation("1-5 导入波动向上Excel数据")
+    @PostMapping("/importExcelBdUpStock")
+    public RespBean importExcelBdUpStock(@RequestPart MultipartFile multipartFile) {
+        try {
+            boolean flag = inputService.importExcelBdUpStock(multipartFile.getInputStream());
+            if (flag) {
+                return RespBean.success("导入成功");
+            }
+            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
+    @ApiOperationSupport(order = 16)
+    @ApiOperation("1-6 导入波动向下Excel数据")
+    @PostMapping("/importExcelBdDownStock")
+    public RespBean importExcelBdDownStock(@RequestPart MultipartFile multipartFile) {
+        try {
+            boolean flag = inputService.importExcelBdDownStock(multipartFile.getInputStream());
+            if (flag) {
+                return RespBean.success("导入成功");
+            }
+            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
+
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("2-1 题材明细导入(只导入指定日期的数据，其他日期的数据不完整时，建议删除)")
     @PostMapping("/importSubjectDetail")
     public RespBean importSubjectDetail(@RequestParam(value = "date", required = true) String date,
                                         @RequestParam(value = "startDate", required = false) String startDate,
-                                        MultipartFile multipartFile) {
+                                        @RequestPart MultipartFile multipartFile) {
         try {
             if (StringUtils.isEmpty(date)) {
                 date = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
@@ -232,62 +219,9 @@ public class inputController {
         return RespBean.error("导入失败");
     }
 
-
-    @ApiOperation("Excel导入消息-根据创建时间维护（原始数据）")
-    @PostMapping("/importNews/UseCreateDate")
-    public RespBean importNewsUseCreateDate(@RequestParam(value = "clearFlag", required = false) String clearFlag,
-                               MultipartFile multipartFile) throws IOException {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
-
-        if (StringUtils.isNotBlank(clearFlag)) {
-            baseDateNewsService.deleteByCreateDate(DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
-        }
-
-        try {
-            List<BaseDateNews> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseDateNews.class, importParams);
-            baseDateNewsService.oprNewsData(list);
-            log.info("准备插入数据");
-            if (baseDateNewsService.insertBatch(list)) {
-                return RespBean.success("导入成功");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-
-
-    @ApiOperation("Excel导入消息-根据消息时间维护（增量数据）")
-    @PostMapping("/importNews/UseDate")
-    public RespBean importNewsUseDate(@RequestParam(value = "date", required = true) String date,
-                               @RequestParam(value = "startDate", required = false) String startDate,
-                               MultipartFile multipartFile) {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
-
-        //导入前先删除当天的数据
-        baseDateNewsService.deleteBaseDateNewsByDateList(date, startDate);
-
-        try {
-            List<BaseDateNews> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseDateNews.class, importParams);
-            baseDateNewsService.oprNewsData(list);
-            log.info("准备插入数据");
-            if (baseDateNewsService.insertBatch(list)) {
-                return RespBean.success("导入成功");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
-
-
+    @ApiOperationSupport(order = 30)
     @GetMapping("/getNewSTemplate")
-    @ApiOperation("Excel导入消息-获得摸板")
+    @ApiOperation("3-0 Excel导入消息-获得摸板")
     public void exportBdRePort(HttpServletResponse response) throws Exception {
         String fileName = "NewsTemplate.xlsx";
 //        URL a1 = inputController.class.getResource("templates/NewsTemplate.xlsx");
@@ -313,5 +247,78 @@ public class inputController {
         outputStream.flush();
         // 写完数据关闭流
         outputStream.close();
+    }
+
+
+    @ApiOperationSupport(order = 31)
+    @ApiOperation("3-1 Excel导入消息-根据创建时间维护（原始数据）")
+    @PostMapping("/importNews/UseCreateDate")
+    public RespBean importNewsUseCreateDate(@RequestParam(value = "clearFlag", required = false) String clearFlag,
+                                            @RequestPart MultipartFile multipartFile) throws IOException {
+        //设置导入参数
+        ImportParams importParams = new ImportParams();
+        importParams.setHeadRows(1); //表头占1行，默认1
+
+        if (StringUtils.isNotBlank(clearFlag)) {
+            baseDateNewsService.deleteByCreateDate(DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
+        }
+
+        try {
+            List<BaseDateNews> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseDateNews.class, importParams);
+            baseDateNewsService.oprNewsData(list);
+            log.info("准备插入数据");
+            if (baseDateNewsService.insertBatch(list)) {
+                return RespBean.success("导入成功");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
+    @ApiOperationSupport(order = 32)
+    @ApiOperation("3-2 Excel导入消息-根据消息时间维护（增量数据）")
+    @PostMapping("/importNews/UseDate")
+    public RespBean importNewsUseDate(@RequestParam(value = "date", required = true) String date,
+                                      @RequestParam(value = "startDate", required = false) String startDate,
+                                      @RequestPart MultipartFile multipartFile) {
+        //设置导入参数
+        ImportParams importParams = new ImportParams();
+        importParams.setHeadRows(1); //表头占1行，默认1
+
+        //导入前先删除当天的数据
+        baseDateNewsService.deleteBaseDateNewsByDateList(date, startDate);
+
+        try {
+            List<BaseDateNews> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseDateNews.class, importParams);
+            baseDateNewsService.oprNewsData(list);
+            log.info("准备插入数据");
+            if (baseDateNewsService.insertBatch(list)) {
+                return RespBean.success("导入成功");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
+    @ApiOperationSupport(order = 9999)
+    @ApiOperation("Excel导入测试")
+    @PostMapping("/import")
+    public RespBean importExcel(@RequestPart MultipartFile multipartFile) throws IOException {
+        //设置导入参数
+        ImportParams importParams = new ImportParams();
+        importParams.setHeadRows(1); //表头占1行，默认1
+
+        try {
+            List<Student> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), Student.class, importParams);
+            if (studentService.insertBatch(list)) {
+                return RespBean.success("导入成功");
+            }
+            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
     }
 }

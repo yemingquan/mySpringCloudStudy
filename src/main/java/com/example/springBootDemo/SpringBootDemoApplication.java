@@ -1,5 +1,6 @@
 package com.example.springBootDemo;
 
+import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Controller;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @SpringBootApplication
+@EnableKnife4j
 public class SpringBootDemoApplication {
 
 	@RequestMapping("/")

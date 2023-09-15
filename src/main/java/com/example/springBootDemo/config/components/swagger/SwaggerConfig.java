@@ -1,19 +1,22 @@
 package com.example.springBootDemo.config.components.swagger;
 
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.ApiKey;
-import springfox.documentation.service.AuthorizationScope;
-import springfox.documentation.service.SecurityReference;
+import springfox.documentation.builders.ResponseBuilder;
+import springfox.documentation.oas.annotations.EnableOpenApi;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,39 +27,55 @@ import java.util.List;
  * @创建时间 2020/4/7 23:39
  * @备注
  */
+@EnableOpenApi
+@Slf4j
 @Configuration
-@EnableSwagger2
-//@ConditionalOnProperty(prefix = "msg-config", name = "swagger-open", havingValue = "true")
+//@EnableSwagger2
 //@Profile({"dev", "test"})
 public class SwaggerConfig {
+    @Value("${server.port}")
+    private int port;
+    @Value("${server.servlet.context-path:}")
+    private String contextPath;
+
     @Bean
+    @SneakyThrows
     public Docket createRestApi() {
-        return new Docket(DocumentationType.SWAGGER_2).
-                useDefaultResponseMessages(false)
+
+        Docket docket = new Docket(DocumentationType.OAS_30)  // swagger2版本这里是DocumentationType.SWAGGER_2
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.regex("^(?!auth).*$"))
+                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
+                .paths(PathSelectors.any())
                 .build()
-                .securitySchemes(securitySchemes())
                 .securityContexts(securityContexts())
-//                .enable(true)
+                .enable(true)
 //                .groupName("user")
-//                .order(Ordering.byPath()); // 接口排序方式
-                ;
+                /*.order(Ordering.byPath())*/; // 接口排序方式
 
-//        return new Docket(DocumentationType.SWAGGER_2)
-//                .enable(true)
+
+
+//        /*2.0配置*/
+//        Docket docket =  new Docket(DocumentationType.SWAGGER_2).
+//                useDefaultResponseMessages(false)
 //                .apiInfo(apiInfo())
-////                .globalOperationParameters(parameters)
-////                .securitySchemes(security())
 //                .select()
-//                .apis(RequestHandlerSelectors.basePackage("com.example.springBootDemo.controller"))
-//                .paths(PathSelectors.any())
+//                .apis(RequestHandlerSelectors.any())
+//                .paths(PathSelectors.regex("^(?!auth).*$"))
 //                .build()
 //                .securitySchemes(securitySchemes())
-//                .securityContexts(securityContexts());
+//                .securityContexts(securityContexts())
+////                .enable(true)
+////                .groupName("user")
+////                .order(Ordering.byPath()); // 接口排序方式
+//                ;
 
+        String ipAddress = InetAddress.getLocalHost().getHostAddress();
+        // 控制台输出Swagger3接口文档地址
+        log.info("Swagger3接口文档地址: http://{}:{}{}/swagger-ui/index.html", ipAddress, port, contextPath);
+        // 控制台输出Knife4j增强接口文档地址
+        log.info("Knife4j增强接口文档地址: http://{}:{}{}/doc.html", ipAddress, port, contextPath);
+        return docket;
     }
 
     private List<ApiKey> securitySchemes() {
@@ -93,4 +112,14 @@ public class SwaggerConfig {
                 .version("1.0.0")
                 .build();
     }
+
+
+    private List<Response> globalResponse(){
+        List<Response> responseList = new ArrayList<>();
+        responseList.add(new ResponseBuilder().code("401").description("未认证").build());
+        responseList.add(new ResponseBuilder().code("403").description("请求被禁止").build());
+        responseList.add(new ResponseBuilder().code("404").description("找不到资源").build());
+        return responseList;
+    }
+
 }

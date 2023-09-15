@@ -13,6 +13,7 @@ import com.example.springBootDemo.entity.report.*;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -70,84 +71,7 @@ public class ReportController {
     @Resource
     private BaseBondService baseBondService;
 
-
-    @ApiOperation("Excel导出测试")
-    @GetMapping("/export")
-    public void export(HttpServletResponse response) throws IOException {
-        String fileName = "excel测试.xlsx";
-        String sheetName = "excel测试";
-//        ExportParams params = new ExportParams(title, "sheet1", ExcelType.XSSF);
-
-        EntityWrapper<Student> wrapper = new EntityWrapper<>();
-        List<Student> list = studentService.selectList(wrapper);
-
-        ExcelUtil<Student> excelUtil = new ExcelUtil<>(Student.class);
-        excelUtil.exportCustomExcel_bak(list, fileName, sheetName, response);
-    }
-
-
-    @GetMapping("/exportZtRePort")
-    @ApiOperation("1-1 涨停报表导出")
-    public void exportZtRePort(@RequestParam(value = "date", required = false) String date,
-                               @RequestParam(value = "refreshFlag", required = false) String refreshFlag,
-                               HttpServletResponse response) {
-        log.info("1-1 涨停报表导出 {}", date);
-        String fileName = "涨停1111.xlsx";
-        String sheetName = "涨停";
-        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
-
-        if(StringUtils.isNotBlank(refreshFlag)){
-            //检索10天以内的数据
-            log.info("刷新10天以内的辨识度标的");
-            confBsdStockService.genConfBsdStock(date);
-        }
-
-        List<ZtReport> list = reportService.getZtReportByDate(date);
-        ExcelUtil<ZtReport> excelUtil = new ExcelUtil<>(ZtReport.class);
-        excelUtil.BSD_STOCK_LIST = confBsdStockService.getBsdList();
-        Map<String, Map> annotationMapping = null;
-        try {
-            annotationMapping = excelUtil.OprZtReport(list);
-            excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @GetMapping("/exportMbRePort")
-    @ApiOperation("1-2 摸板报表导出")
-    public void exportMbRePort(@RequestParam(value = "date", required = false) String date,
-                               HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
-        log.info("1-2 摸板报表导出 {}", date);
-        String fileName = "摸板222.xlsx";
-        String sheetName = "摸板";
-        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
-
-        List<MbReport> list = reportService.getMbReportByDate(date);
-
-        ExcelUtil<MbReport> excelUtil = new ExcelUtil<>(MbReport.class);
-        excelUtil.BSD_STOCK_LIST = confBsdStockService.getBsdList();
-        Map<String, Map> annotationMapping = excelUtil.OprMbReport(list);
-        excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
-    }
-
-    @GetMapping("/exportBdRePort")
-    @ApiOperation("1-3 波动报表导出")
-    public void exportBdRePort(@RequestParam(value = "date", required = false) String date,
-                               HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
-        log.info("1-3 波动报表导出 {}", date);
-        String fileName = "波动333.xlsx";
-        String sheetName = "波动";
-        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
-        List<BdReport> list = reportService.getBdReportByDate(date);
-
-
-        ExcelUtil<BdReport> excelUtil = new ExcelUtil<>(BdReport.class);
-        excelUtil.BSD_STOCK_LIST = confBsdStockService.getBsdList();
-        Map<String, Map> annotationMapping = excelUtil.OprBdReport(list);
-        excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
-    }
-
+    @ApiOperationSupport(order = 1)
     @GetMapping("/exportBKReport")
     @ApiOperation("1-0 板块报表导出")
     public void exportBKReport(@RequestParam(value = "date", required = false) String date,
@@ -227,6 +151,73 @@ public class ReportController {
         }
     }
 
+    @ApiOperationSupport(order = 11)
+    @GetMapping("/exportZtRePort")
+    @ApiOperation("1-1 涨停报表导出")
+    public void exportZtRePort(@RequestParam(value = "date", required = false) String date,
+                               @RequestParam(value = "refreshFlag", required = false) String refreshFlag,
+                               HttpServletResponse response) {
+        log.info("1-1 涨停报表导出 {}", date);
+        String fileName = "涨停1111.xlsx";
+        String sheetName = "涨停";
+        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
+
+        if (StringUtils.isNotBlank(refreshFlag)) {
+            //检索10天以内的数据
+            log.info("刷新10天以内的辨识度标的");
+            confBsdStockService.genConfBsdStock(date);
+        }
+
+        List<ZtReport> list = reportService.getZtReportByDate(date);
+        ExcelUtil<ZtReport> excelUtil = new ExcelUtil<>(ZtReport.class);
+        excelUtil.BSD_STOCK_LIST = confBsdStockService.getBsdList();
+        Map<String, Map> annotationMapping = null;
+        try {
+            annotationMapping = excelUtil.OprZtReport(list);
+            excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @ApiOperationSupport(order = 12)
+    @GetMapping("/exportMbRePort")
+    @ApiOperation("1-2 摸板报表导出")
+    public void exportMbRePort(@RequestParam(value = "date", required = false) String date,
+                               HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
+        log.info("1-2 摸板报表导出 {}", date);
+        String fileName = "摸板222.xlsx";
+        String sheetName = "摸板";
+        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
+
+        List<MbReport> list = reportService.getMbReportByDate(date);
+
+        ExcelUtil<MbReport> excelUtil = new ExcelUtil<>(MbReport.class);
+        excelUtil.BSD_STOCK_LIST = confBsdStockService.getBsdList();
+        Map<String, Map> annotationMapping = excelUtil.OprMbReport(list);
+        excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
+    }
+
+    @ApiOperationSupport(order = 13)
+    @GetMapping("/exportBdRePort")
+    @ApiOperation("1-3 波动报表导出")
+    public void exportBdRePort(@RequestParam(value = "date", required = false) String date,
+                               HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
+        log.info("1-3 波动报表导出 {}", date);
+        String fileName = "波动333.xlsx";
+        String sheetName = "波动";
+        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
+        List<BdReport> list = reportService.getBdReportByDate(date);
+
+
+        ExcelUtil<BdReport> excelUtil = new ExcelUtil<>(BdReport.class);
+        excelUtil.BSD_STOCK_LIST = confBsdStockService.getBsdList();
+        Map<String, Map> annotationMapping = excelUtil.OprBdReport(list);
+        excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
+    }
+
+
+    @ApiOperationSupport(order = 21)
     @GetMapping("/exportNewsReport")
     @ApiOperation("2-1 消息报表导出(当输入date时，date为起始时间，当两个时间都输入时，startDate为起始时间，date为最终时间)")
     public void exportNewsReport(@RequestParam(value = "date", required = false) String date,
@@ -236,16 +227,17 @@ public class ReportController {
         String fileName = "消息.xlsx";
         String sheetName = "消息";
         date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
-        if(StringUtils.isNotBlank(startDate)){
+        if (StringUtils.isNotBlank(startDate)) {
             startDate = baseDateService.getBeforeTypeDate(startDate, DateTypeConstant.DEAL_LIST);
         }
-        List<NewsReport> list = baseDateNewsService.getNews(startDate,date);
+        List<NewsReport> list = baseDateNewsService.getNews(startDate, date);
 
         ExcelUtil<NewsReport> excelUtil = new ExcelUtil<>(NewsReport.class);
         Map<String, Map> annotationMapping = excelUtil.OprNewsReport(list);
         excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
     }
 
+    @ApiOperationSupport(order = 22)
     @GetMapping("/exportFinalReport")
     @ApiOperation("2-2 日终报表导出")
     public void exportFinalReport(@RequestParam(value = "date", required = false) String date,
@@ -276,7 +268,7 @@ public class ReportController {
     }
 
 
-
+    @ApiOperationSupport(order = 1)
     @GetMapping("/aaaaa")
     @ApiOperation("aaaaaaaaaaaaaaa")
     public static void aaaaa(HttpServletResponse response) throws IOException {
@@ -345,7 +337,7 @@ public class ReportController {
         String path = url.getPath();
         BufferedImage bufferedImage = ImageIO.read(new FileInputStream(path));
         ImageEntity image = ExcelUtil.imageToBytes(bufferedImage);
-        data.put("image",image);
+        data.put("image", image);
         try {
             // 简单模板导出方法
             Workbook book = ExcelExportUtil.exportExcel(params, data);
@@ -356,5 +348,18 @@ public class ReportController {
         }
     }
 
+    @ApiOperationSupport(order = 9999)
+    @ApiOperation("Excel导出测试")
+    @GetMapping("/export")
+    public void export(HttpServletResponse response) throws IOException {
+        String fileName = "excel测试.xlsx";
+        String sheetName = "excel测试";
+//        ExportParams params = new ExportParams(title, "sheet1", ExcelType.XSSF);
 
+        EntityWrapper<Student> wrapper = new EntityWrapper<>();
+        List<Student> list = studentService.selectList(wrapper);
+
+        ExcelUtil<Student> excelUtil = new ExcelUtil<>(Student.class);
+        excelUtil.exportCustomExcel_bak(list, fileName, sheetName, response);
+    }
 }
