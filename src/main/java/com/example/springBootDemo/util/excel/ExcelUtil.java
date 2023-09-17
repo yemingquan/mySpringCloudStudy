@@ -127,6 +127,52 @@ public class ExcelUtil<T> implements Serializable {
     }
 
     /**
+     * 将excel数据转换为List数据
+     * @param excel
+     * @param tClass
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
+    public static <T> List<T> excelToList(File excel, Class<T> tClass) throws Exception {
+        //设置导入参数
+        ImportParams importParams = new ImportParams();
+        importParams.setHeadRows(1); //表头占1行，默认1
+        return ExcelImportUtil.importExcel(new FileInputStream(excel), tClass, importParams);
+    }
+
+    /**
+     * 将excel数据流 转换为List数据
+     * @param mf
+     * @param tClass
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
+    public static <T> List<T> excelToList(MultipartFile mf, Class<T> tClass) throws Exception {
+        //设置导入参数
+        ImportParams importParams = new ImportParams();
+        importParams.setHeadRows(1); //表头占1行，默认1
+        return ExcelImportUtil.importExcel(mf.getInputStream(), tClass, importParams);
+    }
+
+    /**
+     * 将excel数据流 转换为List数据
+     * @param is
+     * @param tClass
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
+    public static <T> List<T> excelToList(InputStream is, Class<T> tClass) throws Exception {
+        //设置导入参数
+        ImportParams importParams = new ImportParams();
+        importParams.setHeadRows(1); //表头占1行，默认1
+        return ExcelImportUtil.importExcel(is, tClass, importParams);
+    }
+
+
+    /**
      * 将EXCEL中A,B,C,D,E列映射成0,1,2,3
      *
      * @param col

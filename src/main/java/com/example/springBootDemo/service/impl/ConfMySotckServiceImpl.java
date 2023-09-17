@@ -1,15 +1,15 @@
 package com.example.springBootDemo.service.impl;
 
-import cn.afterturn.easypoi.excel.ExcelImportUtil;
-import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.example.springBootDemo.config.components.system.SystemConfConstant;
 import com.example.springBootDemo.dao.mapper.ConfBsdStockDao;
 import com.example.springBootDemo.dao.mapper.ConfMySotckDao;
 import com.example.springBootDemo.entity.ConfBsdStock;
 import com.example.springBootDemo.entity.ConfMySotck;
 import com.example.springBootDemo.service.ConfMySotckService;
 import com.example.springBootDemo.util.excel.ExcelChangeUtil;
+import com.example.springBootDemo.util.excel.ExcelUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -42,18 +41,15 @@ public class ConfMySotckServiceImpl extends ServiceImpl<ConfMySotckDao, ConfMySo
 
     @Override
     public void imporMyStock() throws Exception {
-        String basePath = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
+        String basePath = SystemConfConstant.THS_BASE_PATH;
         File file = new File(basePath + "Table_stock.xls");
         File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
 
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<ConfMySotck> wrapper = new EntityWrapper<>();
         delete(wrapper);
 
-        List<ConfMySotck> list = ExcelImportUtil.importExcel(new FileInputStream(tempFile), ConfMySotck.class, importParams);
+        List<ConfMySotck> list = ExcelUtil.excelToList(tempFile,ConfMySotck.class);
 //            is.close();
 
 

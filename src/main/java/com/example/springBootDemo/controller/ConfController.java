@@ -3,6 +3,7 @@ package com.example.springBootDemo.controller;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.service.*;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -101,11 +102,11 @@ public class ConfController {
     }
 
     @ApiOperationSupport(order = 21)
-    @ApiOperation("2-1 题材|行业配置-文件查询")
+    @ApiOperation("2-1 题材配置-文件查询")
     @GetMapping("/exportConfBusiness")
     public void exportConfBusiness(HttpServletResponse response) {
         try {
-            confBusinessService.exportConfBusiness(response);
+            confBusinessService.exportConfBusiness(response, Lists.newArrayList());
             log.info("导入成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,14 +114,24 @@ public class ConfController {
     }
 
     @ApiOperationSupport(order = 22)
-    @ApiOperation("2-2 题材|行业配置-文件导入")
+    @ApiOperation("2-2 题材配置-文件查询带同花顺")
+    @GetMapping("/exportConfBusinessWithTHS")
+    public void exportConfBusinessWithTHS(HttpServletResponse response) {
+        try {
+            confBusinessService.exportConfBusinessWithTHS(response);
+            log.info("查询成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @ApiOperationSupport(order = 23)
+    @ApiOperation("2-3 题材配置-文件导入")
     @PostMapping("/imporConfBusiness")
     public RespBean imporConfBusiness(@RequestPart MultipartFile multipartFile) {
         try {
-            boolean flag = confBusinessService.imporConfBusiness(multipartFile);
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
+            log.info("增量导入的配置会影响myStock表数据，其中excel中的相关概念会被删除，同时会重新按照表格中的数据进行修改");
+            confBusinessService.imporConfBusiness(multipartFile);
             return RespBean.success("导入成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -128,11 +139,12 @@ public class ConfController {
         return RespBean.error("导入失败");
     }
 
-    @ApiOperationSupport(order = 23)
-    @ApiOperation("2-3 题材|行业配置-增量概念刷新")
+    @ApiOperationSupport(order = 24)
+    @ApiOperation("2-4 题材配置-增量概念刷新")
     @GetMapping("/refushConfBusiness")
     public void refushConfBusiness() {
         try {
+            log.info("刷新行业配置表中的新增部分数据，即flash_flag为0的数据。这个数据会被文件导入修改");
             confBusinessService.refushConfBusiness();
             log.info("刷新成功");
         } catch (Exception e) {
@@ -140,16 +152,5 @@ public class ConfController {
         }
     }
 
-    @ApiOperationSupport(order = 24)
-    @ApiOperation("2-4 题材|行业配置-全量概念刷新")
-    @GetMapping("/refushAllConfBusiness")
-    public void refushAllConfBusiness() {
-        try {
-            confBusinessService.refushAllConfBusiness();
-            log.info("刷新成功");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }
 

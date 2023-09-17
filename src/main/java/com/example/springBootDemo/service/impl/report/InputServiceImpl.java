@@ -1,8 +1,6 @@
 package com.example.springBootDemo.service.impl.report;
 
 
-import cn.afterturn.easypoi.excel.ExcelImportUtil;
-import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
@@ -16,6 +14,7 @@ import com.example.springBootDemo.entity.input.*;
 import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
+import com.example.springBootDemo.util.excel.ExcelUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
@@ -70,15 +69,12 @@ public class InputServiceImpl implements InputService {
 
     @Override
     public boolean importExcelZthfStock(InputStream is) throws Exception {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<BaseZthfStock> wrapper = new EntityWrapper<>();
         wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseZthfStockService.delete(wrapper);
 
-        List<BaseZthfStock> list = ExcelImportUtil.importExcel(is, BaseZthfStock.class, importParams);
+        List<BaseZthfStock> list = ExcelUtil.excelToList(is,BaseZthfStock.class);
         is.close();
 
         //查找历史主业
@@ -152,15 +148,12 @@ public class InputServiceImpl implements InputService {
 
     @Override
     public boolean importExcelZtStock(InputStream is) throws Exception {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<BaseZtStock> wrapper = new EntityWrapper<>();
         wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseZtStockService.delete(wrapper);
 
-        List<BaseZtStock> list = ExcelImportUtil.importExcel(is, BaseZtStock.class, importParams);
+        List<BaseZtStock> list = ExcelUtil.excelToList(is,BaseZtStock.class);
         is.close();
 
         //查找历史主业
@@ -180,15 +173,12 @@ public class InputServiceImpl implements InputService {
 
     @Override
     public boolean importExcelBdUpStock(InputStream is) throws Exception {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<BaseBdUpStock> wrapper = new EntityWrapper<>();
         wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseBdUpStockService.delete(wrapper);
 
-        List<BaseBdUpStock> list = ExcelImportUtil.importExcel(is, BaseBdUpStock.class, importParams);
+        List<BaseBdUpStock> list = ExcelUtil.excelToList(is,BaseBdUpStock.class);
         is.close();
 
         //查找历史主业
@@ -205,15 +195,12 @@ public class InputServiceImpl implements InputService {
 
     @Override
     public boolean importExcelBdDownStock(InputStream is) throws Exception {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<BaseBdDownStock> wrapper = new EntityWrapper<>();
         wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseBdDownStockService.delete(wrapper);
 
-        List<BaseBdDownStock> list = ExcelImportUtil.importExcel(is, BaseBdDownStock.class, importParams);
+        List<BaseBdDownStock> list = ExcelUtil.excelToList(is,BaseBdDownStock.class);
         is.close();
 
         //查找历史主业
@@ -229,15 +216,13 @@ public class InputServiceImpl implements InputService {
 
     @Override
     public boolean importExcelDtStock(InputStream is) throws Exception {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<BaseDtStock> wrapper = new EntityWrapper<>();
         wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseDtStockService.delete(wrapper);
 
-        List<BaseDtStock> list = ExcelImportUtil.importExcel(is, BaseDtStock.class, importParams);
+
+        List<BaseDtStock> list = ExcelUtil.excelToList(is,BaseDtStock.class);
         is.close();
 
         //查找历史主业
@@ -260,15 +245,12 @@ public class InputServiceImpl implements InputService {
 
     @Override
     public boolean importExcelZbStock(InputStream is) throws Exception {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<BaseZbStock> wrapper = new EntityWrapper<>();
         wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseZbStockService.delete(wrapper);
 
-        List<BaseZbStock> list = ExcelImportUtil.importExcel(is, BaseZbStock.class, importParams);
+        List<BaseZbStock> list = ExcelUtil.excelToList(is,BaseZbStock.class);
         is.close();
 
         //查找历史主业
@@ -291,11 +273,8 @@ public class InputServiceImpl implements InputService {
         EntityWrapper<BaseSubjectLine> subjectLineWr;
         EntityWrapper<BaseSubjectLineDetail> detailWr;
 
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
 
-        List<BaseSubjectDetail> imputList = ExcelImportUtil.importExcel(is, BaseSubjectDetail.class, importParams);
+        List<BaseSubjectDetail> imputList = ExcelUtil.excelToList(is,BaseSubjectDetail.class);
         is.close();
 
         //没有被删除过的时间，会被过滤

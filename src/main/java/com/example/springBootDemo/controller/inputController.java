@@ -1,8 +1,7 @@
 package com.example.springBootDemo.controller;
 
-import cn.afterturn.easypoi.excel.ExcelImportUtil;
-import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.alibaba.excel.util.DateUtils;
+import com.example.springBootDemo.config.components.system.SystemConfConstant;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.BaseDateNews;
 import com.example.springBootDemo.entity.Student;
@@ -10,6 +9,7 @@ import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.FileUtil;
 import com.example.springBootDemo.util.excel.ExcelChangeUtil;
+import com.example.springBootDemo.util.excel.ExcelUtil;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -53,29 +53,10 @@ public class inputController {
     @PostMapping("/initFP")
     public RespBean initFP(@RequestParam(value = "clearFlag", required = false) String clearFlag,
                            @RequestParam(value = "importDateFlag", required = false) String importDateFlag) {
-
-        String basePath = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
+        String thsBasePath = SystemConfConstant.THS_BASE_PATH;
         try {
-            //0清理工作-调试阶段不用开启
-            if ("1".equals(clearFlag)) {
-                File baseDir = new File(basePath);
-                Path directory = Paths.get(basePath);
-                FileUtil.deleteDirectory(directory);
-                baseDir.mkdirs();
-                log.info("导出文件已处理");
-            }
-
-            //1环境创建-文件夹
-            String date = DateUtil.format(new Date(), "yyyy-M-d");
-            File baseDir = new File("D:\\DATA\\手机备份数据\\" + date);
-            File zsPath = new File(baseDir.getPath() + "\\走势");
-            File qtPath = new File(baseDir.getPath() + "\\其他");
-            File wpPath = new File(baseDir.getPath() + "\\尾盘");
-            FileUtil.mkdirs(baseDir.getPath());
-            FileUtil.mkdirs(zsPath.getPath());
-            FileUtil.mkdirs(qtPath.getPath());
-            FileUtil.mkdirs(wpPath.getPath());
-            log.info("图片存储文件夹创立");
+            //1.初始化复盘文件夹。输入clearFlag时，会清楚所有数据，一般情况下，不需要使用
+            initDir(clearFlag, thsBasePath);
 
             //2将导出的同花顺文件转换成xlsx后，导入到数据库中
             //导入前，需要手动填写主业内容，防止生成的时候统计不对
@@ -84,7 +65,7 @@ public class inputController {
             }
 
             for (int i = 1; i <= 6; i++) {
-                File file = new File(basePath + "Table" + i + ".xls");
+                File file = new File(thsBasePath + "Table" + i + ".xls");
                 File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
                 if (i == 1) inputService.importExcelZtStock(new FileInputStream(tempFile));
                 if (i == 2) inputService.importExcelZthfStock(new FileInputStream(tempFile));
@@ -98,6 +79,29 @@ public class inputController {
             e.printStackTrace();
         }
         return RespBean.error("导入失败");
+    }
+
+    public void initDir(@RequestParam(value = "clearFlag", required = false) String clearFlag, String basePath) throws IOException {
+        //0清理工作-调试阶段不用开启
+        if ("1".equals(clearFlag)) {
+            File baseDir = new File(basePath);
+            Path directory = Paths.get(basePath);
+            FileUtil.deleteDirectory(directory);
+            baseDir.mkdirs();
+            log.info("导出文件已处理");
+        }
+
+        //1环境创建-文件夹
+        String date = DateUtil.format(new Date(), "yyyy-M-d");
+        File baseDir = new File("D:\\DATA\\手机备份数据\\" + date);
+        File zsPath = new File(baseDir.getPath() + "\\走势");
+        File qtPath = new File(baseDir.getPath() + "\\其他");
+        File wpPath = new File(baseDir.getPath() + "\\尾盘");
+        FileUtil.mkdirs(baseDir.getPath());
+        FileUtil.mkdirs(zsPath.getPath());
+        FileUtil.mkdirs(qtPath.getPath());
+        FileUtil.mkdirs(wpPath.getPath());
+        log.info("图片存储文件夹创立");
     }
 
     @ApiOperationSupport(order = 11)
@@ -254,17 +258,13 @@ public class inputController {
     @ApiOperation("3-1 Excel导入消息-根据创建时间维护（原始数据）")
     @PostMapping("/importNews/UseCreateDate")
     public RespBean importNewsUseCreateDate(@RequestParam(value = "clearFlag", required = false) String clearFlag,
-                                            @RequestPart MultipartFile multipartFile) throws IOException {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
-
+                                            @RequestPart MultipartFile multipartFile) {
         if (StringUtils.isNotBlank(clearFlag)) {
             baseDateNewsService.deleteByCreateDate(DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         }
 
         try {
-            List<BaseDateNews> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseDateNews.class, importParams);
+            List<BaseDateNews> list = ExcelUtil.excelToList(multipartFile,BaseDateNews.class);
             baseDateNewsService.oprNewsData(list);
             log.info("准备插入数据");
             if (baseDateNewsService.insertBatch(list)) {
@@ -282,15 +282,12 @@ public class inputController {
     public RespBean importNewsUseDate(@RequestParam(value = "date", required = true) String date,
                                       @RequestParam(value = "startDate", required = false) String startDate,
                                       @RequestPart MultipartFile multipartFile) {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
 
         //导入前先删除当天的数据
         baseDateNewsService.deleteBaseDateNewsByDateList(date, startDate);
 
         try {
-            List<BaseDateNews> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), BaseDateNews.class, importParams);
+            List<BaseDateNews> list = ExcelUtil.excelToList(multipartFile,BaseDateNews.class);
             baseDateNewsService.oprNewsData(list);
             log.info("准备插入数据");
             if (baseDateNewsService.insertBatch(list)) {
@@ -305,13 +302,9 @@ public class inputController {
     @ApiOperationSupport(order = 9999)
     @ApiOperation("Excel导入测试")
     @PostMapping("/import")
-    public RespBean importExcel(@RequestPart MultipartFile multipartFile) throws IOException {
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
-
+    public RespBean importExcel(@RequestPart MultipartFile multipartFile) {
         try {
-            List<Student> list = ExcelImportUtil.importExcel(multipartFile.getInputStream(), Student.class, importParams);
+            List<Student> list = ExcelUtil.excelToList(multipartFile,Student.class);
             if (studentService.insertBatch(list)) {
                 return RespBean.success("导入成功");
             }

@@ -1,5 +1,7 @@
 package com.example.springBootDemo.config.components.system.session;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.Serializable;
 import java.util.HashMap;
 
@@ -11,6 +13,7 @@ import java.util.HashMap;
  * @Copyright (c) 2020 inc. all rights reserved<p>
  * @公司名称
  */
+@Slf4j
 public class RespBean<T> extends HashMap<String,Object> implements Serializable {
 
     private static final long serialVersionUID = -4692921179644040027L;
@@ -91,6 +94,7 @@ public class RespBean<T> extends HashMap<String,Object> implements Serializable 
      * @return 成功消息
      */
     public static RespBean success(String msg) {
+        log.info("返回给前端msg[{}]",msg);
         return RespBean.success(msg, null);
     }
 

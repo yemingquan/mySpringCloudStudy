@@ -5,7 +5,10 @@
     <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.input.ConfBusiness">
         <!--@Table conf_business-->
         <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="sort" column="sort" jdbcType="VARCHAR"/>
         <result property="busName" column="bus_name" jdbcType="VARCHAR"/>
+        <result property="alias" column="alias" jdbcType="VARCHAR"/>
+        <result property="relBus" column="rel_bus" jdbcType="VARCHAR"/>
         <result property="attr" column="attr" jdbcType="VARCHAR"/>
         <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
         <result property="type" column="type" jdbcType="VARCHAR"/>
@@ -13,6 +16,7 @@
         <result property="list" column="list" jdbcType="VARCHAR"/>
         <result property="codeCoreList" column="code_core_list" jdbcType="VARCHAR"/>
         <result property="codeList" column="code_list" jdbcType="VARCHAR"/>
+        <result property="refushFlag" column="refush_flag" jdbcType="VARCHAR"/>
         <result property="state" column="state" jdbcType="VARCHAR"/>
         <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
         <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
@@ -21,7 +25,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, bus_name, attr, instructions, type, core_list, list, code_core_list, code_list, state, create_date, create_by        
+        id, sort, bus_name, alias, rel_bus, attr, instructions, type, core_list, list, code_core_list, code_list, refush_flag, state, create_date, create_by, modifed_date, modifed_by
     </sql>
 </mapper>
 

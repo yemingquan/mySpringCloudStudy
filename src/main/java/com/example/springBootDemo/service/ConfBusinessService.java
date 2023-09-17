@@ -5,6 +5,7 @@ import com.example.springBootDemo.entity.input.ConfBusiness;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 
 /**
@@ -17,9 +18,9 @@ public interface ConfBusinessService extends IService<ConfBusiness>{
 
     boolean imporConfBusiness(MultipartFile inputStream) throws Exception;
 
-    void exportConfBusiness(HttpServletResponse response) throws Exception;
+    void exportConfBusiness(HttpServletResponse response, List<ConfBusiness> addList) throws Exception;
 
     void refushConfBusiness();
 
-    void refushAllConfBusiness();
+    void exportConfBusinessWithTHS(HttpServletResponse response) throws Exception;
 }

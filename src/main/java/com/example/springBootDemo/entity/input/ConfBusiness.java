@@ -34,10 +34,35 @@ public class ConfBusiness implements Serializable {
     @TableId(type = IdType.AUTO)
     private Integer id;
     /**
+     * 刷新标记,0不刷新,1需要刷新
+     */
+    @Excel(name = "需要刷新")
+    private String refushFlag;
+    /**
+     * 行业/题材
+     */
+    @Excel(name = "类型")
+    private String type;
+    /**
+     * 自定义序号
+     */
+    @Excel(name = "序号")
+    private String sort;
+    /**
      * 行业名称
      */
     @Excel(name = "名称")
     private String busName;
+    /**
+     * 别名
+     */
+    @Excel(name = "别名")
+    private String alias;
+    /**
+     * 关联板块
+     */
+    @Excel(name = "关联板块")
+    private String relBus;
     /**
      * 属性/影响 ;分隔
      */
@@ -49,11 +74,6 @@ public class ConfBusiness implements Serializable {
     @Excel(name = "说明", width = 100)
     private String instructions;
     /**
-     * 行业/题材
-     */
-    @Excel(name = "类型")
-    private String type;
-    /**
      * 核心标的集合，逗号分割
      */
     @Excel(name = "辨识度标的", width = 25)
@@ -61,15 +81,17 @@ public class ConfBusiness implements Serializable {
     /**
      * 标的集合，逗号分割
      */
-    @Excel(name = "标的", width = 60)
+    @Excel(name = "标的", width = 140)
     private String list;
     /**
      * 核心标的code集合，逗号分割
      */
+    @Excel(name = "辨识度code", width = 25)
     private String codeCoreList;
     /**
      * 标的code集合，逗号分割
      */
+    @Excel(name = "标的code", width = 140)
     private String codeList;
     /**
      * 状态，有效1，无效0

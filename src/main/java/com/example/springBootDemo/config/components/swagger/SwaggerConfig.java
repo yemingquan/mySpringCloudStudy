@@ -72,7 +72,7 @@ public class SwaggerConfig {
 
         String ipAddress = InetAddress.getLocalHost().getHostAddress();
         // 控制台输出Swagger3接口文档地址
-        log.info("Swagger3接口文档地址: http://{}:{}{}/swagger-ui/index.html", ipAddress, port, contextPath);
+        log.info("Swagger3接口文档地址(注意是否导入对应的jar包): http://{}:{}{}/swagger-ui/index.html", ipAddress, port, contextPath);
         // 控制台输出Knife4j增强接口文档地址
         log.info("Knife4j增强接口文档地址: http://{}:{}{}/doc.html", ipAddress, port, contextPath);
         return docket;

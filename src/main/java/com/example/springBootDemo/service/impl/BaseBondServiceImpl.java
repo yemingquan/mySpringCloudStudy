@@ -1,18 +1,18 @@
 package com.example.springBootDemo.service.impl;
 
-import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.example.springBootDemo.config.components.system.SystemConfConstant;
 import com.example.springBootDemo.dao.mapper.BaseBondDao;
 import com.example.springBootDemo.entity.input.BaseBond;
 import com.example.springBootDemo.service.BaseBondService;
 import com.example.springBootDemo.util.excel.ExcelChangeUtil;
+import com.example.springBootDemo.util.excel.ExcelUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -32,18 +32,15 @@ public class BaseBondServiceImpl extends ServiceImpl<BaseBondDao, BaseBond> impl
 
     @Override
     public void imporKZZ() throws Exception {
-        String basePath = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
+        String basePath = SystemConfConstant.THS_BASE_PATH;
         File file = new File(basePath + "Table_kzz.xls");
         File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
 
-        //设置导入参数
-        ImportParams importParams = new ImportParams();
-        importParams.setHeadRows(1); //表头占1行，默认1
         //导入前先删除当天的数据
         EntityWrapper<BaseBond> wrapper = new EntityWrapper<>();
         delete(wrapper);
 
-        List<BaseBond> list = ExcelImportUtil.importExcel(new FileInputStream(tempFile), BaseBond.class, importParams);
+        List<BaseBond> list = ExcelUtil.excelToList(tempFile, BaseBond.class);
 //            is.close();
         list.stream().forEach(po -> {
             //如果没有涨幅说明转债有问题
