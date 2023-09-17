@@ -62,7 +62,7 @@ public class NewsReport implements Serializable {
     /**
      * 预期
      */
-//    @Excel(name = "标的")
+    @Excel(name = "标的")
     private String expect;
 
 //    @Excel(name = "模式")

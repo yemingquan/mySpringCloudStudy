@@ -27,5 +27,17 @@
     <sql id="Base_Column_List">
         id, sort, bus_name, alias, rel_bus, attr, instructions, type, core_list, list, code_core_list, code_list, refush_flag, state, create_date, create_by, modifed_date, modifed_by
     </sql>
+
+
+    <select id="queryPlateCore" resultType="com.example.springBootDemo.entity.input.ConfBusiness">
+        SELECT
+        a.core_list,
+        substring_index(substring_index(CONCAT(a.bus_name,',',a.alias), ',', b.help_topic_id + 1),',',- 1 ) AS bus_name
+        FROM
+        conf_business a
+        JOIN mysql.help_topic b   ON  (  length(CONCAT(a.bus_name,',',a.alias)) - length(REPLACE (CONCAT(a.bus_name,',',a.alias), ',', '')) + 1  ) >b.help_topic_id
+        where core_list  is not null
+    </select>
+
 </mapper>
 

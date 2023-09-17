@@ -6,10 +6,13 @@ import com.example.springBootDemo.config.components.constant.DateTypeConstant;
 import com.example.springBootDemo.config.components.enums.NewsEnum;
 import com.example.springBootDemo.dao.mapper.BaseDateNewsDao;
 import com.example.springBootDemo.entity.BaseDateNews;
+import com.example.springBootDemo.entity.input.ConfBusiness;
 import com.example.springBootDemo.entity.report.NewsReport;
 import com.example.springBootDemo.service.BaseDateNewsService;
 import com.example.springBootDemo.service.BaseDateService;
+import com.example.springBootDemo.service.ConfBusinessService;
 import com.example.springBootDemo.util.DateUtil;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -31,16 +36,42 @@ import java.util.List;
 public class BaseDateNewsServiceImpl extends ServiceImpl<BaseDateNewsDao, BaseDateNews> implements BaseDateNewsService {
     @Resource
     private BaseDateNewsDao baseDateNewsDao;
-
     @Resource
     private BaseDateNewsService baseDateNewsService;
-
     @Autowired
     BaseDateService baseDateService;
+    @Resource
+    private ConfBusinessService confBusinessService;
 
     @Override
     public List<NewsReport> getNews(String startDate, String date) {
-        return baseDateNewsDao.getNews(startDate,date);
+        //检索出所有新闻
+        List<NewsReport> list = baseDateNewsDao.getNews(startDate, date);
+        //检索出所有板块的核心标的
+        List<ConfBusiness> coreList = confBusinessService.queryPlateCore();
+        Map<String, String> map = coreList.stream().collect(Collectors.toMap(ConfBusiness::getBusName, ConfBusiness::getCoreList, (item1, item2) -> item1));
+
+        for (NewsReport nr : list) {
+            String mainBusiness = nr.getMainBusiness();
+            String str = changeMainBusiness(map, mainBusiness);
+            nr.setExpect(str);
+        }
+        return list;
+    }
+
+    private String changeMainBusiness(Map<String, String> map, String business) {
+        if (StringUtils.isBlank(business) || map == null) {
+            return "";
+        }
+        List<String> list = Lists.newArrayList(business.split(","));
+        List<String> resultList = Lists.newArrayList();
+        for (String str : list) {
+            String value = map.get(str);
+            if (value != null) {
+                resultList.add(value);
+            }
+        }
+        return resultList.stream().collect(Collectors.joining(","));
     }
 
     @Override
@@ -91,7 +122,7 @@ public class BaseDateNewsServiceImpl extends ServiceImpl<BaseDateNewsDao, BaseDa
             }
             //脱敏
             String content = news.getContent();
-            content = content.replaceAll("领导人","领d人");
+            content = content.replaceAll("领导人", "领d人");
             news.setContent(content);
             //影响范围
 //                news.setScope(NewsEnum.getCode(NewsConstant.SCOPE, news.getScope()));

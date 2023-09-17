@@ -238,22 +238,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         log.info("处理成功");
     }
 
-    private String addBusiness(String busName, String business) {
-        List<String> list = Lists.newArrayList();
-        if (StringUtils.isNotBlank(business)) {
-            list = Lists.newArrayList(business.split(","));
-        }
-        list.add(busName);
-        return list.stream().collect(Collectors.joining(","));
-    }
 
-    private String removeBusiness(String busName, String business) {
-        if (StringUtils.isBlank(business)) {
-            return "";
-        }
-        List<String> list = Lists.newArrayList(business.replaceAll(busName,"").split(","));
-        return list.stream().collect(Collectors.joining(","));
-    }
 
     @Override
     public void exportConfBusinessWithTHS(HttpServletResponse response) throws Exception {
@@ -299,4 +284,25 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         exportConfBusiness(response, thsList);
     }
 
+    @Override
+    public List<ConfBusiness> queryPlateCore() {
+        return confBusinessDao.queryPlateCore();
+    }
+
+    private String addBusiness(String ele, String business) {
+        List<String> list = Lists.newArrayList();
+        if (StringUtils.isNotBlank(business)) {
+            list = Lists.newArrayList(business.split(","));
+        }
+        list.add(ele);
+        return list.stream().collect(Collectors.joining(","));
+    }
+
+    private String removeBusiness(String ele, String business) {
+        if (StringUtils.isBlank(business)) {
+            return "";
+        }
+        List<String> list = Lists.newArrayList(business.replaceAll(ele,"").split(","));
+        return list.stream().collect(Collectors.joining(","));
+    }
 }

@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
 import com.example.springBootDemo.entity.input.ConfBusiness;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * 行业配置化(ConfBusiness)表数据库访问层
  *
@@ -13,5 +15,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface ConfBusinessDao extends BaseMapper<ConfBusiness>{
 
+    List<ConfBusiness> queryPlateCore();
 }
 
