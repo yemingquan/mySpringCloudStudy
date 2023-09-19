@@ -289,6 +289,11 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         return confBusinessDao.queryPlateCore();
     }
 
+    @Override
+    public List<ConfBusiness> getAliasRelation() {
+        return confBusinessDao.getAliasRelation();
+    }
+
     private String addBusiness(String ele, String business) {
         List<String> list = Lists.newArrayList();
         if (StringUtils.isNotBlank(business)) {

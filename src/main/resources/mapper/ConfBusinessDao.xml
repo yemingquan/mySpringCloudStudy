@@ -39,5 +39,14 @@
         where core_list  is not null
     </select>
 
+    <select id="getAliasRelation" resultType="com.example.springBootDemo.entity.input.ConfBusiness">
+        SELECT
+        a.bus_name,
+        substring_index(substring_index(a.alias, ',', b.help_topic_id + 1),',',- 1 ) AS alias
+        FROM
+        conf_business a
+        JOIN mysql.help_topic b   ON  ( length(a.alias) - length(REPLACE (a.alias, ',', '')) + 1  ) >b.help_topic_id
+        where core_list  is not null
+    </select>
 </mapper>
 

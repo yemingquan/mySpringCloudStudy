@@ -1,19 +1,21 @@
 package com.example.springBootDemo.controller;
 
-import cn.afterturn.easypoi.entity.ImageEntity;
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
+import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.constant.DateTypeConstant;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
-import com.example.springBootDemo.entity.Goods;
 import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.entity.input.BaseSubjectDetail;
+import com.example.springBootDemo.entity.input.ConfBusiness;
 import com.example.springBootDemo.entity.report.*;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -27,14 +29,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
-import java.text.SimpleDateFormat;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @所属模块<p>
@@ -70,6 +71,8 @@ public class ReportController {
     private ConfMySotckService confMySotckService;
     @Resource
     private BaseBondService baseBondService;
+    @Resource
+    private ConfBusinessService confBusinessService;
 
     @ApiOperationSupport(order = 1)
     @GetMapping("/exportBKReport")
@@ -271,7 +274,98 @@ public class ReportController {
     @ApiOperationSupport(order = 1)
     @GetMapping("/aaaaa")
     @ApiOperation("aaaaaaaaaaaaaaa")
-    public static void aaaaa(HttpServletResponse response) throws IOException {
+    public void aaaaa(@RequestParam(value = "date", required = false) String date,
+                      HttpServletResponse response) throws Exception {
+//        date = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
+        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
+        //获取基础数据，用于后续的数据生成
+        List<ZtReport> list1 = reportService.getZtReportByDate(date);
+        //将连板梯队按照各自的梯队排好 注意5板以及以上放一块，板块内部根据主业分类，这里还要找到最高板
+        Map<Integer, List<ZtReport>> comboMap = list1.stream().collect(Collectors.groupingBy(ZtReport::getCombo));
+        Map<String, String> ECHELON_COMBO_MAP = Maps.newHashMap();
+        ECHELON_COMBO_MAP.put("COMBO_SIZE", "(" + list1.size() + ")");
+
+        //根据梯队分类，内部根据主业二次分类，value值展示为[股票(支业-说明),股票2(支业-说明)]。
+        // 最终结果为：主业1：[股票(支业-说明),股票2(支业-说明)]|主业2：[股票(支业-说明),股票2(支业-说明)]
+        int maxCombo = -1;
+        for (Integer combo : comboMap.keySet()) {
+            List<ZtReport> ztList = comboMap.get(combo);
+
+            //最高板逻辑
+            if (maxCombo < combo) {
+                maxCombo = combo;
+            }
+
+            //连板明细
+            StringBuffer sb = new StringBuffer();
+            if (combo >= 5) {
+                getEchelonConectThen5(ztList, sb);
+                String str = ECHELON_COMBO_MAP.get("COMBO_" + 5);
+                if (StringUtils.isEmpty(str)) {
+                    ECHELON_COMBO_MAP.put("COMBO_" + 5, sb.toString());
+                } else {
+                    str = str + sb.toString();
+                    ECHELON_COMBO_MAP.put("COMBO_" + 5, str);
+                }
+            } else {
+                //连板数
+                getEchelonConect(ztList, sb);
+                ECHELON_COMBO_MAP.put("COMBO_SIZE_" + combo, "(" + ztList.size() + ")");
+                ECHELON_COMBO_MAP.put("COMBO_" + combo, sb.toString());
+            }
+        }
+        ECHELON_COMBO_MAP.put("COMBO_MAX", "(" + maxCombo + ")");
+        //5b及以上连板数
+        List<ZtReport> combo5List = list1.stream().filter(po -> po.getCombo() >= 5).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(combo5List)) {
+            ECHELON_COMBO_MAP.put("COMBO_SIZE_5", "-高度(" + combo5List.size() + ")");
+        }
+
+
+        Map<String, String> NEWS_MAP = Maps.newHashMap();
+        //周期15天内的利好消息频率  展示效果：汽车(5),数字经济（6）
+        // 一天内多个时，算1个。取别名时归类为一个，比如光模块、CPO则算一个。
+        Date endDate = DateUtil.getNextDay(DateUtil.parseDate(date), 15);
+        String endDateStr = DateUtil.format(endDate, DateUtils.DATE_FORMAT_10);
+        List<NewsReport> newsList = baseDateNewsService.getNews(date, endDateStr);
+        Map<Date, List<NewsReport>> news15Map = newsList.stream().collect(Collectors.groupingBy(NewsReport::getDate));
+        //获取别名的映射关系
+        List<ConfBusiness> aliasList = confBusinessService.getAliasRelation();
+        Map<String, String> aliasMap = aliasList.stream().collect(Collectors.toMap(ConfBusiness::getAlias, ConfBusiness::getBusName, (item1, item2) -> item2));
+        StringBuffer sb = new StringBuffer();
+        for (Date d : news15Map.keySet()) {
+            List<NewsReport> tempList = news15Map.get(d);
+            String mainBusiness = tempList.stream().map(po -> {
+                String str = po.getMainBusiness();
+                StringBuffer sbTemp = new StringBuffer();
+                if (StringUtils.isBlank(str)) {
+                    return sbTemp;
+                }
+                List<String> list = Lists.newArrayList(str.split(","));
+                for (String s : list) {
+                    String result = aliasMap.get(s);
+                    if (result == null) {
+                        result = s;
+                    }
+                    sbTemp.append(result+",");
+                }
+                return sbTemp;
+            }).distinct().collect(Collectors.joining(","));
+            sb.append(mainBusiness);
+        }
+        List<String> businessList = Lists.newArrayList(sb.toString().split(","));
+        Map<String, Long> businessMap = businessList.stream().collect(Collectors.groupingBy(p -> p, Collectors.counting()));
+        log.info("businessMap:{}", businessMap);
+        businessMap.remove("");
+        NEWS_MAP.put("NEWS_FREQUENCY", businessMap.toString());
+
+
+        //距离最近的假期（小于3天），长假倒计时（距离大于4天及以上的假期，还有几天，名称是什么）
+        NEWS_MAP.put("NEWS_COUNT_DOWN_SHORT", "还有xx天休息");
+        NEWS_MAP.put("NEWS_COUNT_DOWN_LONG", "距离xx还有xx天");
+
+
+
         /*空格分割
         三目运算 {{test ? obj:obj2}}
         n: 表示 这个cell是数值类型 {{n:}}
@@ -290,61 +384,110 @@ public class ReportController {
         ]] 换行符 多行遍历导出
         sum： 统计数据
         整体风格和el表达式类似，大家应该也比较熟悉 采用的写法是{{属性}}，然后根据表达式里面的数据取值*/
-        Goods goods1 = new Goods(110, "苹果", 1, new Date(), 0, "1");
-        Goods goods2 = new Goods(111, "格子衫", 2, new Date(), 0, "0");
-        Goods goods3 = new Goods(112, "拉菲红酒", 3, new Date(), 1, "1");
-        Goods goods4 = new Goods(113, "玫瑰", 4, new Date(), 1, "0");
-
-        List<Goods> goodsList = new ArrayList<>();
-        goodsList.add(goods1);
-        goodsList.add(goods2);
-        goodsList.add(goods3);
-        goodsList.add(goods4);
-
-        //可以抽取为日期工具类
-        Date date1 = new Date();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        String date = df.format(date1);
-
-        for (int i = 0; i < goodsList.size(); ++i) {
-            //添加序号列
-            goodsList.get(i).setOrder(i + 1);
-            //Date类型日期转换
-            goodsList.get(i).setDateStr(df.format(goodsList.get(i).getShelfLife()));
-            //type转换成显示文字
-            if (goodsList.get(i).getType() == 1) {
-                goodsList.get(i).setTypeName("食品");
-            } else if (goodsList.get(i).getType() == 2) {
-                goodsList.get(i).setTypeName("服装");
-            } else if (goodsList.get(i).getType() == 3) {
-                goodsList.get(i).setTypeName("酒水");
-            } else if (goodsList.get(i).getType() == 4) {
-                goodsList.get(i).setTypeName("花卉");
-            }
-        }
-
-        for (Goods goods : goodsList) System.out.println(goods);
+//        Goods goods1 = new Goods(110, "苹果", 1, new Date(), 0, "1");
+//        Goods goods2 = new Goods(111, "格子衫", 2, new Date(), 0, "0");
+//        Goods goods3 = new Goods(112, "拉菲红酒", 3, new Date(), 1, "1");
+//        Goods goods4 = new Goods(113, "玫瑰", 4, new Date(), 1, "0");
+//
+//        List<Goods> goodsList = new ArrayList<>();
+//        goodsList.add(goods1);
+//        goodsList.add(goods2);
+//        goodsList.add(goods3);
+//        goodsList.add(goods4);
+//
+//        //可以抽取为日期工具类
+////        Date date1 = new Date();
+//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+////        String date = df.format(date1);
+//
+//        for (int i = 0; i < goodsList.size(); ++i) {
+//            //添加序号列
+//            goodsList.get(i).setOrder(i + 1);
+//            //Date类型日期转换
+//            goodsList.get(i).setDateStr(df.format(goodsList.get(i).getShelfLife()));
+//            //type转换成显示文字
+//            if (goodsList.get(i).getType() == 1) {
+//                goodsList.get(i).setTypeName("食品");
+//            } else if (goodsList.get(i).getType() == 2) {
+//                goodsList.get(i).setTypeName("服装");
+//            } else if (goodsList.get(i).getType() == 3) {
+//                goodsList.get(i).setTypeName("酒水");
+//            } else if (goodsList.get(i).getType() == 4) {
+//                goodsList.get(i).setTypeName("花卉");
+//            }
+//        }
+//        for (Goods goods : goodsList) System.out.println(goods);
 
         // 获取导出excel指定模版，第二个参数true代表显示一个Excel中的所有 sheet
         URL a5 = ClassLoader.getSystemResource("templates/aaaa.xlsx");
         TemplateExportParams params = new TemplateExportParams(a5.getPath(), true);
         Map<String, Object> data = new HashMap<String, Object>();
-        data.put("date", date);//导出一般都要日期
-        data.put("one", goods1);//导出一个对象
-        data.put("list", goodsList);//导出list集合
+//        data.put("date", date);//导出一般都要日期
+//        data.put("one", goods1);//导出一个对象
+//        data.put("list", goodsList);//导出list集合
+        data.putAll(ECHELON_COMBO_MAP);
+        data.putAll(NEWS_MAP);
 
-        URL url = ClassLoader.getSystemResource("templates/Screenshot.jpg");
-        String path = url.getPath();
-        BufferedImage bufferedImage = ImageIO.read(new FileInputStream(path));
-        ImageEntity image = ExcelUtil.imageToBytes(bufferedImage);
-        data.put("image", image);
+//        URL url = ClassLoader.getSystemResource("templates/Screenshot.jpg");
+//        String path = url.getPath();
+//        BufferedImage bufferedImage = ImageIO.read(new FileInputStream(path));
+//        ImageEntity image = ExcelUtil.imageToBytes(bufferedImage);
+//        data.put("image", image);
         try {
             // 简单模板导出方法
             Workbook book = ExcelExportUtil.exportExcel(params, data);
-            //下载方法
-            ExcelUtil.export(response, book, "abcd");
+
+            String fileName = new String("abcd.xlsx".getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+            OutputStream outputStream = response.getOutputStream();
+            response.flushBuffer();
+            book.write(outputStream);
+            // 写完数据关闭流
+            outputStream.close();
+
+//            //下载方法
+//            ExcelUtil.export(response, book, "abcd");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+//    public  Map<String, Long> sortMap(Map<String, Long> map) {
+//        //利用Map的entrySet方法，转化为list进行排序
+//        List<Map.Entry<String, Long>> entryList = new ArrayList<>(map.entrySet());
+//        //利用Collections的sort方法对list排序
+//        Collections.sort(entryList, new Comparator<Map.Entry<String, Long>>() {
+//            @Override
+//            public int compare(Map.Entry<String, Long> o1, Map.Entry<String, Long> o2) {
+//                //正序排列，倒序反过来
+//                return (long)(o1.getValue() - o2.getValue());
+//            }
+//        });
+//        //遍历排序好的list，一定要放进LinkedHashMap，因为只有LinkedHashMap是根据插入顺序进行存储
+//        LinkedHashMap<String, Long> linkedHashMap = new LinkedHashMap<String, Long>();
+//        for (Map.Entry<String,Long> e : entryList
+//        ) {
+//            linkedHashMap.put(e.getKey(),e.getValue());
+//        }
+//        return linkedHashMap;
+//    }
+
+    public void getEchelonConect(List<ZtReport> ztList, StringBuffer sb) {
+        Map<String, List<ZtReport>> insideMap = ztList.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
+        for (String mb : insideMap.keySet()) {
+            List<ZtReport> mbList = insideMap.get(mb);
+            List<String> tempList = mbList.stream().map(po -> po.getStockName()).collect(Collectors.toList());
+            sb.append(mb.replace("最-", "") + "(" + tempList.size() + ")" + tempList + "\n");
+        }
+    }
+
+    public void getEchelonConectThen5(List<ZtReport> ztList, StringBuffer sb) {
+        Map<String, List<ZtReport>> insideMap = ztList.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
+        for (String mb : insideMap.keySet()) {
+            List<ZtReport> mbList = insideMap.get(mb);
+            List<String> tempList = mbList.stream().map(po -> po.getStockName() + "-" + po.getCombo()).collect(Collectors.toList());
+            sb.append(mb.replace("最-", "") + "(" + tempList.size() + ")" + tempList + "\n");
         }
     }
 

@@ -19,7 +19,7 @@ public class ZtReport extends BaseStock implements Serializable {
 
     private String id;
 
-    @Excel(name = "类型")
+    @Excel(name = "上涨原因")
     private String reason;
 
     @Excel(name = "上市板块")

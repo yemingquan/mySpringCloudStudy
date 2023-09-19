@@ -25,4 +25,6 @@ public interface ConfBusinessService extends IService<ConfBusiness>{
     void exportConfBusinessWithTHS(HttpServletResponse response) throws Exception;
 
     List<ConfBusiness> queryPlateCore();
+
+    List<ConfBusiness> getAliasRelation();
 }

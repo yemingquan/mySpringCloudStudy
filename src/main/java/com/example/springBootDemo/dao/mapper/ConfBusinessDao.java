@@ -16,5 +16,7 @@ import java.util.List;
 public interface ConfBusinessDao extends BaseMapper<ConfBusiness>{
 
     List<ConfBusiness> queryPlateCore();
+
+    List<ConfBusiness> getAliasRelation();
 }
 

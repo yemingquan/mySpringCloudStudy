@@ -74,7 +74,7 @@ public class InputServiceImpl implements InputService {
         wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseZthfStockService.delete(wrapper);
 
-        List<BaseZthfStock> list = ExcelUtil.excelToList(is,BaseZthfStock.class);
+        List<BaseZthfStock> list = ExcelUtil.excelToList(is, BaseZthfStock.class);
         is.close();
 
         //查找历史主业
@@ -98,8 +98,8 @@ public class InputServiceImpl implements InputService {
         String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -20), DateUtils.DATE_FORMAT_10);
         List<SubjectReport> subList = baseSubjectLineDetailService.getSubjectReport(date, startDate);
         return subList.stream()
-                .sorted(Comparator.comparing(SubjectReport::getCountZt,Comparator.reverseOrder()))
-                .sorted(Comparator.comparing(SubjectReport::getCreateDate,Comparator.reverseOrder()))
+                .sorted(Comparator.comparing(SubjectReport::getCountZt, Comparator.reverseOrder()))
+                .sorted(Comparator.comparing(SubjectReport::getCreateDate, Comparator.reverseOrder()))
                 .map(SubjectReport::getMainBusiness).distinct().collect(Collectors.toList());
     }
 
@@ -113,8 +113,11 @@ public class InputServiceImpl implements InputService {
             return;
         }
         String nowMainBusiness = conf.getMainBusiness();
+        String nowNicheBusiness = conf.getNicheBusiness();
+        nowMainBusiness = nowMainBusiness + "," + nowNicheBusiness;
         if (StringUtils.isNotEmpty(nowMainBusiness)) {
             List<String> oldMBList = Lists.newArrayList(nowMainBusiness.split(","));
+            oldMBList = oldMBList.stream().distinct().collect(Collectors.toList());
             oldMBList.remove("");
             if (CollectionUtils.isNotEmpty(oldMBList)) {
                 List<String> newMBList = Lists.newArrayList();
@@ -153,7 +156,7 @@ public class InputServiceImpl implements InputService {
         wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseZtStockService.delete(wrapper);
 
-        List<BaseZtStock> list = ExcelUtil.excelToList(is,BaseZtStock.class);
+        List<BaseZtStock> list = ExcelUtil.excelToList(is, BaseZtStock.class);
         is.close();
 
         //查找历史主业
@@ -178,7 +181,7 @@ public class InputServiceImpl implements InputService {
         wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseBdUpStockService.delete(wrapper);
 
-        List<BaseBdUpStock> list = ExcelUtil.excelToList(is,BaseBdUpStock.class);
+        List<BaseBdUpStock> list = ExcelUtil.excelToList(is, BaseBdUpStock.class);
         is.close();
 
         //查找历史主业
@@ -200,7 +203,7 @@ public class InputServiceImpl implements InputService {
         wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseBdDownStockService.delete(wrapper);
 
-        List<BaseBdDownStock> list = ExcelUtil.excelToList(is,BaseBdDownStock.class);
+        List<BaseBdDownStock> list = ExcelUtil.excelToList(is, BaseBdDownStock.class);
         is.close();
 
         //查找历史主业
@@ -222,7 +225,7 @@ public class InputServiceImpl implements InputService {
         baseDtStockService.delete(wrapper);
 
 
-        List<BaseDtStock> list = ExcelUtil.excelToList(is,BaseDtStock.class);
+        List<BaseDtStock> list = ExcelUtil.excelToList(is, BaseDtStock.class);
         is.close();
 
         //查找历史主业
@@ -250,7 +253,7 @@ public class InputServiceImpl implements InputService {
         wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
         baseZbStockService.delete(wrapper);
 
-        List<BaseZbStock> list = ExcelUtil.excelToList(is,BaseZbStock.class);
+        List<BaseZbStock> list = ExcelUtil.excelToList(is, BaseZbStock.class);
         is.close();
 
         //查找历史主业
@@ -274,7 +277,7 @@ public class InputServiceImpl implements InputService {
         EntityWrapper<BaseSubjectLineDetail> detailWr;
 
 
-        List<BaseSubjectDetail> imputList = ExcelUtil.excelToList(is,BaseSubjectDetail.class);
+        List<BaseSubjectDetail> imputList = ExcelUtil.excelToList(is, BaseSubjectDetail.class);
         is.close();
 
         //没有被删除过的时间，会被过滤
@@ -405,13 +408,15 @@ public class InputServiceImpl implements InputService {
             ;
             stockNameList.addAll(set);
 
-            QueryStockDto queryStock = QueryStockDto.builder()
-                    .startDate(startDate)
-                    .endDate(endDate)
-                    .stockNameList(stockNameList)
-                    .build();
-            Integer combo = baseZtStockService.getMaxCombo(queryStock);
-            line.setCombo(combo);
+            if (CollectionUtils.isNotEmpty(stockNameList)) {
+                QueryStockDto queryStock = QueryStockDto.builder()
+                        .startDate(startDate)
+                        .endDate(endDate)
+                        .stockNameList(stockNameList)
+                        .build();
+                Integer combo = baseZtStockService.getMaxCombo(queryStock);
+                line.setCombo(combo);
+            }
             baseSubjectLineService.insertOrUpdate(line);
         }
     }
