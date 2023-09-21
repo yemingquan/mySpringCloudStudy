@@ -23,6 +23,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -347,18 +349,59 @@ public class ReportController {
                     if (result == null) {
                         result = s;
                     }
-                    sbTemp.append(result+",");
+                    sbTemp.append(result + ",");
                 }
                 return sbTemp;
             }).distinct().collect(Collectors.joining(","));
             sb.append(mainBusiness);
         }
         List<String> businessList = Lists.newArrayList(sb.toString().split(","));
-        Map<String, Long> businessMap = businessList.stream().collect(Collectors.groupingBy(p -> p, Collectors.counting()));
-        log.info("businessMap:{}", businessMap);
+        Map<String, Integer> businessMap = CollectionUtils.getCardinalityMap(businessList);
         businessMap.remove("");
-        NEWS_MAP.put("NEWS_FREQUENCY", businessMap.toString());
+        LinkedHashMap<String, Integer> sortReverseOrderMap = (LinkedHashMap<String, Integer>) sortMapByValues(businessMap);
+//        Map<String, Long> businessMap = businessList.stream().collect(Collectors.groupingBy(p -> p, Collectors.counting()));
+//        log.info("businessMap:{}", businessMap);
 
+
+//        MapUtils 常用操作java.util.Map 和 java.util.SortedMap。
+//        常用方法有：
+//        isNotEmpty ( ) 是否不为空
+//        isEmpty ( ) 是否为空
+//        putAll ( ) 添加所有元素
+//        getString ( ) 获取String类型的值
+//        getObject ( ) 获取Object类型的值
+//        getInteger ( )获取Integer类型的值
+//        get*** ( ) 类似上面的
+//        EMPTY_MAP 获取一个不可修改的空类型Map
+//        unmodifiableMap 获取一个不可以修改的Map（不能新增或删除）
+//        unmodifiableSortedMap 获取一个不可以修改的有序的Map（不能新增或删除）
+//        fixedSizeMap 获取一个固定长度的map
+//        multiValueMap 获取一个多值的map(即一个key可以对应多个value值)
+//                invertMap 返回一个key与value对调的map
+//        predicatedMap() 返回一个满足predicate条件的map
+//        lazyMap 返回一个lazy的map（值在需要的时候可以创建）
+        //key:频率,value:多个板块
+        MultiValueMap<Integer, String> MultiValueNewsMap = new LinkedMultiValueMap<>();
+        for (String str : sortReverseOrderMap.keySet()) {
+            int count = businessMap.get(str);
+            MultiValueNewsMap.add(count, str);
+        }
+
+        //打印所有值
+        int count = 15;
+        Map<Integer, List<String>> newsFrequencyMap = Maps.newLinkedHashMap();
+        Set<Integer> keySet = MultiValueNewsMap.keySet();
+        for (int key : keySet) {
+            List<String> values = MultiValueNewsMap.get(key);
+            if (count - values.size() < 0) {
+                break;
+            } else {
+                newsFrequencyMap.put(key, values);
+                count = count - values.size();
+            }
+        }
+        log.info("newsFrequencyMap:{}", newsFrequencyMap.toString());
+        NEWS_MAP.put("NEWS_FREQUENCY", newsFrequencyMap.toString());
 
         //距离最近的假期（小于3天），长假倒计时（距离大于4天及以上的假期，还有几天，名称是什么）
         NEWS_MAP.put("NEWS_COUNT_DOWN_SHORT", "还有xx天休息");
@@ -384,47 +427,13 @@ public class ReportController {
         ]] 换行符 多行遍历导出
         sum： 统计数据
         整体风格和el表达式类似，大家应该也比较熟悉 采用的写法是{{属性}}，然后根据表达式里面的数据取值*/
-//        Goods goods1 = new Goods(110, "苹果", 1, new Date(), 0, "1");
-//        Goods goods2 = new Goods(111, "格子衫", 2, new Date(), 0, "0");
-//        Goods goods3 = new Goods(112, "拉菲红酒", 3, new Date(), 1, "1");
-//        Goods goods4 = new Goods(113, "玫瑰", 4, new Date(), 1, "0");
-//
-//        List<Goods> goodsList = new ArrayList<>();
-//        goodsList.add(goods1);
-//        goodsList.add(goods2);
-//        goodsList.add(goods3);
-//        goodsList.add(goods4);
-//
-//        //可以抽取为日期工具类
-////        Date date1 = new Date();
-//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-////        String date = df.format(date1);
-//
-//        for (int i = 0; i < goodsList.size(); ++i) {
-//            //添加序号列
-//            goodsList.get(i).setOrder(i + 1);
-//            //Date类型日期转换
-//            goodsList.get(i).setDateStr(df.format(goodsList.get(i).getShelfLife()));
-//            //type转换成显示文字
-//            if (goodsList.get(i).getType() == 1) {
-//                goodsList.get(i).setTypeName("食品");
-//            } else if (goodsList.get(i).getType() == 2) {
-//                goodsList.get(i).setTypeName("服装");
-//            } else if (goodsList.get(i).getType() == 3) {
-//                goodsList.get(i).setTypeName("酒水");
-//            } else if (goodsList.get(i).getType() == 4) {
-//                goodsList.get(i).setTypeName("花卉");
-//            }
-//        }
-//        for (Goods goods : goodsList) System.out.println(goods);
+
 
         // 获取导出excel指定模版，第二个参数true代表显示一个Excel中的所有 sheet
         URL a5 = ClassLoader.getSystemResource("templates/aaaa.xlsx");
         TemplateExportParams params = new TemplateExportParams(a5.getPath(), true);
         Map<String, Object> data = new HashMap<String, Object>();
 //        data.put("date", date);//导出一般都要日期
-//        data.put("one", goods1);//导出一个对象
-//        data.put("list", goodsList);//导出list集合
         data.putAll(ECHELON_COMBO_MAP);
         data.putAll(NEWS_MAP);
 
@@ -451,6 +460,39 @@ public class ReportController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public <K extends Comparable, V extends Comparable> Map<K, V> sortMapByValues(Map<K, V> aMap) {
+        HashMap<K, V> finalOut = new LinkedHashMap<>();
+        aMap.entrySet()
+                .stream()
+                .sorted((p1, p2) -> p2.getValue().compareTo(p1.getValue()))
+                .collect(Collectors.toList()).forEach(ele -> finalOut.put(ele.getKey(), ele.getValue()));
+        return finalOut;
+    }
+
+    public <K extends Comparable, V extends Comparable> Map<K, V> sortMapByValuesReverseOrder(Map<K, V> aMap) {
+        HashMap<K, V> finalOut = new LinkedHashMap<>();
+        aMap.entrySet()
+                .stream()
+                .sorted((p1, p2) -> p1.getValue().compareTo(p2.getValue()))
+                .collect(Collectors.toList()).forEach(ele -> finalOut.put(ele.getKey(), ele.getValue()));
+        return finalOut;
+    }
+
+
+    public static Object getKey(Map map, Object value) {
+        Set set = map.entrySet(); //通过entrySet()方法把map中的每个键值对变成对应成Set集合中的一个对象
+        Iterator<Map.Entry<Object, Object>> iterator = set.iterator();
+        ArrayList<Object> arrayList = new ArrayList();
+        while (iterator.hasNext()) {
+            //Map.Entry是一种类型，指向map中的一个键值对组成的对象
+            Map.Entry<Object, Object> entry = iterator.next();
+            if (entry.getValue().equals(value)) {
+                arrayList.add(entry.getKey());
+            }
+        }
+        return arrayList;
     }
 
 //    public  Map<String, Long> sortMap(Map<String, Long> map) {

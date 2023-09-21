@@ -482,6 +482,8 @@ public class InputServiceImpl implements InputService {
         if (Math.abs(entitySize) < 2) {
             if (Math.abs(amplitude) > 9) {
                 instructions.append("大分歧;");
+            }if (Math.abs(amplitude) == 0) {
+                instructions.append("一字;");
             } else {
                 instructions.append("十字星;");
             }
@@ -560,6 +562,8 @@ public class InputServiceImpl implements InputService {
         if (Math.abs(entitySize) < 2) {
             if (Math.abs(amplitude) > 9) {
                 instructions.append("大分歧;");
+            }if (Math.abs(amplitude) == 0) {
+                instructions.append("一字;");
             } else {
                 instructions.append("十字星;");
             }
