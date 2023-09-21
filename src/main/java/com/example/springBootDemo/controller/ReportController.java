@@ -5,6 +5,7 @@ import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.constant.DateTypeConstant;
+import com.example.springBootDemo.entity.BaseDate;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.entity.input.BaseSubjectDetail;
@@ -277,14 +278,161 @@ public class ReportController {
     @GetMapping("/aaaaa")
     @ApiOperation("aaaaaaaaaaaaaaa")
     public void aaaaa(@RequestParam(value = "date", required = false) String date,
-                      HttpServletResponse response) throws Exception {
-//        date = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
-        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
+                      HttpServletResponse response) {
+        String dealDateStr = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
+        Date dealDate = DateUtil.format(dealDateStr, DateUtils.DATE_FORMAT_10);
+        Map<String, Object> data = new HashMap<String, Object>();
+
+        //基础数据
+        getBasicData(dealDate, data);
+        //连板数据
+        getEchelonComboData(dealDateStr, data);
+        //消息类数据
+        getNewsData(dealDateStr, dealDate, data);
+
+        /*空格分割
+        三目运算 {{test ? obj:obj2}}
+        n: 表示 这个cell是数值类型 {{n:}}
+        le: 代表长度{{le:()}} 在if/else 运用{{le:() > 8 ? obj1 : obj2}}
+        fd: 格式化时间 {{fd:(obj;yyyy-MM-dd)}}
+        fn: 格式化数字 {{fn:(obj;###.00)}}
+        fe: 遍历数据,创建row 该标签的意思是会遍历集合数据，会创建新行，如下图1图2效果
+        !fe: 遍历数据不创建row
+        $fe: 下移插入,把当前行,下面的行全部下移.size()行,然后插入
+        #fe: 横向遍历
+        v_fe: 横向遍历值
+        !if: 删除当前列 {{!if:(test)}}
+        单引号表示常量值 ‘’ 比如’1’ 那么输出的就是 1
+        &NULL& 空格
+        &INDEX& 表示循环中的序号,自动添加
+        ]] 换行符 多行遍历导出
+        sum： 统计数据
+        整体风格和el表达式类似，大家应该也比较熟悉 采用的写法是{{属性}}，然后根据表达式里面的数据取值*/
+        // 开始生成数据
+        // 获取导出excel指定模版，第二个参数true代表显示一个Excel中的所有 sheet
+        URL a5 = ClassLoader.getSystemResource("templates/aaaa.xlsx");
+        TemplateExportParams params = new TemplateExportParams(a5.getPath(), true);
+
+        //图片
+//        URL url = ClassLoader.getSystemResource("templates/Screenshot.jpg");
+//        String path = url.getPath();
+//        BufferedImage bufferedImage = ImageIO.read(new FileInputStream(path));
+//        ImageEntity image = ExcelUtil.imageToBytes(bufferedImage);
+//        data.put("image", image);
+        try {
+            // 简单模板导出方法
+            Workbook book = ExcelExportUtil.exportExcel(params, data);
+
+            String fileName = new String("abcd.xlsx".getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+            OutputStream outputStream = response.getOutputStream();
+            response.flushBuffer();
+            book.write(outputStream);
+            // 写完数据关闭流
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getBasicData(Date dealDate, Map<String, Object> data) {
+        Map<String, String> BASIC_MAP = Maps.newHashMap();
+        BaseDate baseDate = baseDateService.queryBaseDateBydate(dealDate);
+        data.put("BASIC_DATE", baseDate);
+        //距离最近的假期，长假倒计时（距离大于4天及以上的假期，还有几天，名称是什么）
+        Date nextRest = baseDateService.getAfterTypeDate(dealDate, DateTypeConstant.REST_LIST);
+        int countDownShort = DateUtil.getIntervalOfDays(dealDate, nextRest);
+        BASIC_MAP.put("BASIC_COUNT_DOWN_SHORT", "还有" + (countDownShort-1) + "天休息");
+        Date nextHoliday = baseDateService.getAfterTypeDate(dealDate, DateTypeConstant.HOLIDAY_LIST);
+        String dateDetail = baseDateService.queryDateDetail(nextHoliday);
+        BASIC_MAP.put("BASIC_COUNT_DOWN_LONG", dateDetail);
+        data.putAll(BASIC_MAP);
+    }
+
+    public void getNewsData(String dealDateStr, Date dealDate, Map<String, Object> data) {
+        Map<String, String> NEWS_MAP = Maps.newHashMap();
+        //周期15天内的利好消息频率  展示效果：汽车(5),数字经济（6）
+        // 一天内多个时，算1个。取别名时归类为一个，比如光模块、CPO则算一个。
+        Date endDate = DateUtil.getNextDay(DateUtil.parseDate(dealDateStr), 15);
+        String endDateStr = DateUtil.format(endDate, DateUtils.DATE_FORMAT_10);
+        List<NewsReport> newsList = baseDateNewsService.getNews(dealDateStr, endDateStr);
+        Map<Date, List<NewsReport>> news15Map = newsList.stream().collect(Collectors.groupingBy(NewsReport::getDate));
+        //获取别名的映射关系
+        List<ConfBusiness> aliasList = confBusinessService.getAliasRelation();
+        Map<String, String> aliasMap = aliasList.stream().collect(Collectors.toMap(ConfBusiness::getAlias, ConfBusiness::getBusName, (item1, item2) -> item2));
+        StringBuffer sb = new StringBuffer();
+        for (Date d : news15Map.keySet()) {
+            List<NewsReport> tempList = news15Map.get(d);
+            String mainBusiness = tempList.stream().map(po -> {
+                String str = po.getMainBusiness();
+                StringBuffer sbTemp = new StringBuffer();
+                if (StringUtils.isBlank(str)) {
+                    return sbTemp;
+                }
+                List<String> list = Lists.newArrayList(str.split(","));
+                for (String s : list) {
+                    String result = aliasMap.get(s);
+                    if (result == null) {
+                        result = s;
+                    }
+                    sbTemp.append(result + ",");
+                }
+                return sbTemp;
+            }).distinct().collect(Collectors.joining(","));
+            sb.append(mainBusiness);
+        }
+        List<String> businessList = Lists.newArrayList(sb.toString().split(","));
+        Map<String, Integer> businessMap = CollectionUtils.getCardinalityMap(businessList);
+        businessMap.remove("");
+        LinkedHashMap<String, Integer> sortReverseOrderMap = (LinkedHashMap<String, Integer>) sortMapByValues(businessMap);
+//        Map<String, Long> businessMap = businessList.stream().collect(Collectors.groupingBy(p -> p, Collectors.counting()));
+//        log.info("businessMap:{}", businessMap);
+
+        //key:频率,value:多个板块
+        MultiValueMap<Integer, String> MultiValueNewsMap = new LinkedMultiValueMap<>();
+        for (String str : sortReverseOrderMap.keySet()) {
+            int count = businessMap.get(str);
+            MultiValueNewsMap.add(count, str);
+        }
+
+        //打印所有值,长度最多15
+        int count = 15;
+        Map<Integer, List<String>> newsFrequencyMap = Maps.newLinkedHashMap();
+        Set<Integer> keySet = MultiValueNewsMap.keySet();
+        for (int key : keySet) {
+            List<String> values = MultiValueNewsMap.get(key);
+            if (count - values.size() < 0) {
+                break;
+            } else {
+                newsFrequencyMap.put(key, values);
+                count = count - values.size();
+            }
+        }
+        log.info("newsFrequencyMap:{}", newsFrequencyMap.toString());
+        NEWS_MAP.put("NEWS_FREQUENCY", newsFrequencyMap.toString());
+
+
+        //未来最近的3个月的重要信息,
+        Date startWeek = DateUtil.getNextDay(dealDate, -1);
+        Date endWeek = DateUtil.getNextDay(dealDate, 7);
+        List<NewsReport> weekMsgs = baseDateNewsService.getNews(startWeek, endWeek);
+        data.put("NEWS_WEEK_NEWS", weekMsgs);
+
+        //未来最近的3个月的重要信息,
+        Date threeM = DateUtil.getNextDay(dealDate, 90);
+        List<NewsReport> list = baseDateNewsService.getNews(dealDate, threeM);
+        List<NewsReport> importantNews = list.stream().filter(po -> po.getImportant() > 0).collect(Collectors.toList());
+        data.put("NEWS_IMPORTANT_NEWS", importantNews);
+        data.putAll(NEWS_MAP);
+    }
+
+    public void getEchelonComboData(String dealDateStr, Map<String, Object> data) {
+        Map<String, String> ECHELON_COMBO_MAP = Maps.newHashMap();
         //获取基础数据，用于后续的数据生成
-        List<ZtReport> list1 = reportService.getZtReportByDate(date);
+        List<ZtReport> list1 = reportService.getZtReportByDate(dealDateStr);
         //将连板梯队按照各自的梯队排好 注意5板以及以上放一块，板块内部根据主业分类，这里还要找到最高板
         Map<Integer, List<ZtReport>> comboMap = list1.stream().collect(Collectors.groupingBy(ZtReport::getCombo));
-        Map<String, String> ECHELON_COMBO_MAP = Maps.newHashMap();
         ECHELON_COMBO_MAP.put("COMBO_SIZE", "(" + list1.size() + ")");
 
         //根据梯队分类，内部根据主业二次分类，value值展示为[股票(支业-说明),股票2(支业-说明)]。
@@ -322,144 +470,7 @@ public class ReportController {
         if (CollectionUtils.isNotEmpty(combo5List)) {
             ECHELON_COMBO_MAP.put("COMBO_SIZE_5", "-高度(" + combo5List.size() + ")");
         }
-
-
-        Map<String, String> NEWS_MAP = Maps.newHashMap();
-        //周期15天内的利好消息频率  展示效果：汽车(5),数字经济（6）
-        // 一天内多个时，算1个。取别名时归类为一个，比如光模块、CPO则算一个。
-        Date endDate = DateUtil.getNextDay(DateUtil.parseDate(date), 15);
-        String endDateStr = DateUtil.format(endDate, DateUtils.DATE_FORMAT_10);
-        List<NewsReport> newsList = baseDateNewsService.getNews(date, endDateStr);
-        Map<Date, List<NewsReport>> news15Map = newsList.stream().collect(Collectors.groupingBy(NewsReport::getDate));
-        //获取别名的映射关系
-        List<ConfBusiness> aliasList = confBusinessService.getAliasRelation();
-        Map<String, String> aliasMap = aliasList.stream().collect(Collectors.toMap(ConfBusiness::getAlias, ConfBusiness::getBusName, (item1, item2) -> item2));
-        StringBuffer sb = new StringBuffer();
-        for (Date d : news15Map.keySet()) {
-            List<NewsReport> tempList = news15Map.get(d);
-            String mainBusiness = tempList.stream().map(po -> {
-                String str = po.getMainBusiness();
-                StringBuffer sbTemp = new StringBuffer();
-                if (StringUtils.isBlank(str)) {
-                    return sbTemp;
-                }
-                List<String> list = Lists.newArrayList(str.split(","));
-                for (String s : list) {
-                    String result = aliasMap.get(s);
-                    if (result == null) {
-                        result = s;
-                    }
-                    sbTemp.append(result + ",");
-                }
-                return sbTemp;
-            }).distinct().collect(Collectors.joining(","));
-            sb.append(mainBusiness);
-        }
-        List<String> businessList = Lists.newArrayList(sb.toString().split(","));
-        Map<String, Integer> businessMap = CollectionUtils.getCardinalityMap(businessList);
-        businessMap.remove("");
-        LinkedHashMap<String, Integer> sortReverseOrderMap = (LinkedHashMap<String, Integer>) sortMapByValues(businessMap);
-//        Map<String, Long> businessMap = businessList.stream().collect(Collectors.groupingBy(p -> p, Collectors.counting()));
-//        log.info("businessMap:{}", businessMap);
-
-
-//        MapUtils 常用操作java.util.Map 和 java.util.SortedMap。
-//        常用方法有：
-//        isNotEmpty ( ) 是否不为空
-//        isEmpty ( ) 是否为空
-//        putAll ( ) 添加所有元素
-//        getString ( ) 获取String类型的值
-//        getObject ( ) 获取Object类型的值
-//        getInteger ( )获取Integer类型的值
-//        get*** ( ) 类似上面的
-//        EMPTY_MAP 获取一个不可修改的空类型Map
-//        unmodifiableMap 获取一个不可以修改的Map（不能新增或删除）
-//        unmodifiableSortedMap 获取一个不可以修改的有序的Map（不能新增或删除）
-//        fixedSizeMap 获取一个固定长度的map
-//        multiValueMap 获取一个多值的map(即一个key可以对应多个value值)
-//                invertMap 返回一个key与value对调的map
-//        predicatedMap() 返回一个满足predicate条件的map
-//        lazyMap 返回一个lazy的map（值在需要的时候可以创建）
-        //key:频率,value:多个板块
-        MultiValueMap<Integer, String> MultiValueNewsMap = new LinkedMultiValueMap<>();
-        for (String str : sortReverseOrderMap.keySet()) {
-            int count = businessMap.get(str);
-            MultiValueNewsMap.add(count, str);
-        }
-
-        //打印所有值
-        int count = 15;
-        Map<Integer, List<String>> newsFrequencyMap = Maps.newLinkedHashMap();
-        Set<Integer> keySet = MultiValueNewsMap.keySet();
-        for (int key : keySet) {
-            List<String> values = MultiValueNewsMap.get(key);
-            if (count - values.size() < 0) {
-                break;
-            } else {
-                newsFrequencyMap.put(key, values);
-                count = count - values.size();
-            }
-        }
-        log.info("newsFrequencyMap:{}", newsFrequencyMap.toString());
-        NEWS_MAP.put("NEWS_FREQUENCY", newsFrequencyMap.toString());
-
-        //距离最近的假期（小于3天），长假倒计时（距离大于4天及以上的假期，还有几天，名称是什么）
-        NEWS_MAP.put("NEWS_COUNT_DOWN_SHORT", "还有xx天休息");
-        NEWS_MAP.put("NEWS_COUNT_DOWN_LONG", "距离xx还有xx天");
-
-
-
-        /*空格分割
-        三目运算 {{test ? obj:obj2}}
-        n: 表示 这个cell是数值类型 {{n:}}
-        le: 代表长度{{le:()}} 在if/else 运用{{le:() > 8 ? obj1 : obj2}}
-        fd: 格式化时间 {{fd:(obj;yyyy-MM-dd)}}
-        fn: 格式化数字 {{fn:(obj;###.00)}}
-        fe: 遍历数据,创建row 该标签的意思是会遍历集合数据，会创建新行，如下图1图2效果
-        !fe: 遍历数据不创建row
-        $fe: 下移插入,把当前行,下面的行全部下移.size()行,然后插入
-        #fe: 横向遍历
-        v_fe: 横向遍历值
-        !if: 删除当前列 {{!if:(test)}}
-        单引号表示常量值 ‘’ 比如’1’ 那么输出的就是 1
-        &NULL& 空格
-        &INDEX& 表示循环中的序号,自动添加
-        ]] 换行符 多行遍历导出
-        sum： 统计数据
-        整体风格和el表达式类似，大家应该也比较熟悉 采用的写法是{{属性}}，然后根据表达式里面的数据取值*/
-
-
-        // 获取导出excel指定模版，第二个参数true代表显示一个Excel中的所有 sheet
-        URL a5 = ClassLoader.getSystemResource("templates/aaaa.xlsx");
-        TemplateExportParams params = new TemplateExportParams(a5.getPath(), true);
-        Map<String, Object> data = new HashMap<String, Object>();
-//        data.put("date", date);//导出一般都要日期
         data.putAll(ECHELON_COMBO_MAP);
-        data.putAll(NEWS_MAP);
-
-//        URL url = ClassLoader.getSystemResource("templates/Screenshot.jpg");
-//        String path = url.getPath();
-//        BufferedImage bufferedImage = ImageIO.read(new FileInputStream(path));
-//        ImageEntity image = ExcelUtil.imageToBytes(bufferedImage);
-//        data.put("image", image);
-        try {
-            // 简单模板导出方法
-            Workbook book = ExcelExportUtil.exportExcel(params, data);
-
-            String fileName = new String("abcd.xlsx".getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
-            OutputStream outputStream = response.getOutputStream();
-            response.flushBuffer();
-            book.write(outputStream);
-            // 写完数据关闭流
-            outputStream.close();
-
-//            //下载方法
-//            ExcelUtil.export(response, book, "abcd");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public <K extends Comparable, V extends Comparable> Map<K, V> sortMapByValues(Map<K, V> aMap) {
@@ -495,25 +506,6 @@ public class ReportController {
         return arrayList;
     }
 
-//    public  Map<String, Long> sortMap(Map<String, Long> map) {
-//        //利用Map的entrySet方法，转化为list进行排序
-//        List<Map.Entry<String, Long>> entryList = new ArrayList<>(map.entrySet());
-//        //利用Collections的sort方法对list排序
-//        Collections.sort(entryList, new Comparator<Map.Entry<String, Long>>() {
-//            @Override
-//            public int compare(Map.Entry<String, Long> o1, Map.Entry<String, Long> o2) {
-//                //正序排列，倒序反过来
-//                return (long)(o1.getValue() - o2.getValue());
-//            }
-//        });
-//        //遍历排序好的list，一定要放进LinkedHashMap，因为只有LinkedHashMap是根据插入顺序进行存储
-//        LinkedHashMap<String, Long> linkedHashMap = new LinkedHashMap<String, Long>();
-//        for (Map.Entry<String,Long> e : entryList
-//        ) {
-//            linkedHashMap.put(e.getKey(),e.getValue());
-//        }
-//        return linkedHashMap;
-//    }
 
     public void getEchelonConect(List<ZtReport> ztList, StringBuffer sb) {
         Map<String, List<ZtReport>> insideMap = ztList.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
@@ -548,3 +540,22 @@ public class ReportController {
         excelUtil.exportCustomExcel_bak(list, fileName, sheetName, response);
     }
 }
+
+
+//        MapUtils 常用操作java.util.Map 和 java.util.SortedMap。
+//        常用方法有：
+//        isNotEmpty ( ) 是否不为空
+//        isEmpty ( ) 是否为空
+//        putAll ( ) 添加所有元素
+//        getString ( ) 获取String类型的值
+//        getObject ( ) 获取Object类型的值
+//        getInteger ( )获取Integer类型的值
+//        get*** ( ) 类似上面的
+//        EMPTY_MAP 获取一个不可修改的空类型Map
+//        unmodifiableMap 获取一个不可以修改的Map（不能新增或删除）
+//        unmodifiableSortedMap 获取一个不可以修改的有序的Map（不能新增或删除）
+//        fixedSizeMap 获取一个固定长度的map
+//        multiValueMap 获取一个多值的map(即一个key可以对应多个value值)
+//                invertMap 返回一个key与value对调的map
+//        predicatedMap() 返回一个满足predicate条件的map
+//        lazyMap 返回一个lazy的map（值在需要的时候可以创建）

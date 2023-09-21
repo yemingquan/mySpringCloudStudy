@@ -2,6 +2,7 @@ package com.example.springBootDemo.service.impl;
 
 import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.example.springBootDemo.config.components.constant.DateTypeConstant;
 import com.example.springBootDemo.dao.mapper.BaseDateDao;
 import com.example.springBootDemo.entity.BaseDate;
 import com.example.springBootDemo.service.BaseDateService;
@@ -64,5 +65,47 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
         String resultDateStr = DateUtil.format(resultDate, DateUtils.DATE_FORMAT_10);
         log.info("后一个交易日时间为：{}",resultDateStr);
         return resultDateStr;
+    }
+
+    @Override
+    public String queryDateDetail(String dateStr) {
+        if (StringUtils.isEmpty(dateStr)) {
+            dateStr = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
+        }
+        Date date = DateUtil.parseDate(dateStr);
+        return queryDateDetail(date);
+    }
+
+    /**
+     * 查询日期描述明细
+     * @param date
+     * @return
+     */
+    @Override
+    public String queryDateDetail(Date date) {
+        StringBuffer sb = new StringBuffer();
+        BaseDate baseDate = queryBaseDateBydate(date);
+        String type = baseDate.getType();
+
+        if(DateTypeConstant.DATE_TYPE_HOLIDAY.equals(type)){
+            Date endDate = getAfterTypeDate(date, DateTypeConstant.WORK_LIST);
+            Integer countDown= DateUtil.getIntervalOfDays(date,endDate);
+            Integer range= DateUtil.getIntervalOfDays(new Date(),date);
+            sb.append( "距离"+baseDate.getName()+"("+countDown+")天假期,还有("+range+")天");
+        }else{
+            sb.append( "工作日类型还没有配置");
+        }
+        log.info(sb.toString());
+        return sb.toString();
+    }
+
+    /**
+     * 查询某一天的具体情况
+     * @param date
+     * @return
+     */
+    @Override
+    public BaseDate queryBaseDateBydate(Date date) {
+        return baseDateDao.queryBaseDateBydate(date);
     }
 }

@@ -80,5 +80,11 @@
             #{item}
         </foreach>
     </select>
+
+    <select id="queryBaseDateBydate" resultType="com.example.springBootDemo.entity.BaseDate" parameterType="java.util.Date">
+        SELECT *
+        FROM base_Date
+        where DATE = #{date}
+    </select>
 </mapper>
 

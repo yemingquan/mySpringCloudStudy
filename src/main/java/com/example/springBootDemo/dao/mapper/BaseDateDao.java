@@ -22,5 +22,7 @@ public interface BaseDateDao extends BaseMapper<BaseDate>{
     Date getBeforeTypeDate(@Param("date")Date date, @Param("typeList")List<String> typeList);
 
     Date getAfterTypeDate(@Param("date")Date date, @Param("typeList")List<String> typeList);
+
+    BaseDate queryBaseDateBydate(@Param("date")Date date);
 }
 

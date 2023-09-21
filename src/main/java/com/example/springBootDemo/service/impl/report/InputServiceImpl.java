@@ -487,9 +487,9 @@ public class InputServiceImpl implements InputService {
             } else {
                 instructions.append("十字星;");
             }
-        } else if (entitySize > 7) {
+        } else if (entitySize > 6) {
             instructions.append("大阳线;");
-        } else if (entitySize < -7) {
+        } else if (entitySize < -6) {
             instructions.append("负反馈;");
         }
         po.setInstructions(instructions.toString());

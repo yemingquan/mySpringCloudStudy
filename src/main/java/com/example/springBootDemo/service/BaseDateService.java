@@ -24,4 +24,10 @@ public interface BaseDateService extends IService<BaseDate>{
     Date getAfterTypeDate(Date date, List<String> typeList);
 
     String getAfterTypeDate(String dateStr, List<String> typeList);
+
+    String queryDateDetail(String dateStr);
+
+    String queryDateDetail(Date dealDate);
+
+    BaseDate queryBaseDateBydate(Date date);
 }

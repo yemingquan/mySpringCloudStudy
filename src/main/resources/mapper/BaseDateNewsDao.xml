@@ -18,7 +18,7 @@
         <result property="expectMode" column="expect_mode" jdbcType="VARCHAR"/>
         <result property="reality" column="reality" jdbcType="VARCHAR"/>
         <result property="priorityLevel" column="priority_level" jdbcType="VARCHAR"/>
-        <result property="important" column="important" jdbcType="VARCHAR"/>
+        <result property="important" column="important" jdbcType="INTEGER"/>
         <result property="source" column="source" jdbcType="VARCHAR"/>
         <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
         <result property="state" column="state" jdbcType="VARCHAR"/>

@@ -5,6 +5,7 @@ import com.example.springBootDemo.entity.BaseDateNews;
 import com.example.springBootDemo.entity.report.NewsReport;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -17,6 +18,8 @@ import java.util.List;
 public interface BaseDateNewsService extends IService<BaseDateNews>{
 
     List<NewsReport> getNews(@Param("startDate") String startDate,@Param("date") String date);
+
+    List<NewsReport> getNews(Date startDate, Date date);
 
     void deleteBaseDateNewsByDateList(String date, String startDate);
 

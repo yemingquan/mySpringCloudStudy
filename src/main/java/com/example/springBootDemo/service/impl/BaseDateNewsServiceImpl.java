@@ -1,5 +1,6 @@
 package com.example.springBootDemo.service.impl;
 
+import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.config.components.constant.DateTypeConstant;
@@ -55,8 +56,17 @@ public class BaseDateNewsServiceImpl extends ServiceImpl<BaseDateNewsDao, BaseDa
             String mainBusiness = nr.getMainBusiness();
             String str = changeMainBusiness(map, mainBusiness);
             nr.setExpect(str);
+            int range = DateUtil.getIntervalOfDays(new Date(), nr.getDate());
+            nr.setRange(range);
         }
         return list;
+    }
+
+    @Override
+    public List<NewsReport> getNews(Date startDate, Date date) {
+        String startDateStr = DateUtil.format(startDate, DateUtils.DATE_FORMAT_10);
+        String dateStr = DateUtil.format(date, DateUtils.DATE_FORMAT_10);
+        return getNews(startDateStr, dateStr);
     }
 
     private String changeMainBusiness(Map<String, String> map, String business) {

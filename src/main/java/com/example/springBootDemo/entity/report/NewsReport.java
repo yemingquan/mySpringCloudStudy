@@ -1,6 +1,7 @@
 package com.example.springBootDemo.entity.report;
 
 import com.alibaba.excel.util.DateUtils;
+import com.baomidou.mybatisplus.annotations.TableField;
 import com.example.springBootDemo.util.excel.Excel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +28,11 @@ public class NewsReport implements Serializable {
      * 主键
      */
     private String id;
+    /**
+     * 距离兑现还相差多少天
+     */
+    @TableField(exist = false)
+    private Integer range;
 
     @Excel(name = "名称")
     private String name;
@@ -80,7 +86,7 @@ public class NewsReport implements Serializable {
      * 重要程度0-9，9最高
      */
 //    @Excel(name = "重要")
-    private String important;
+    private Integer important;
     /**
      * 消息来源
      */
