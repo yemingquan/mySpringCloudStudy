@@ -31,43 +31,43 @@
         (
             select stock_code,stock_name,plate,group_concat(instructions  separator ';') instructions,group_concat(main_Business  separator ';') main_Business,group_concat(niche_Business  separator ';') niche_Business
                 from base_zt_stock
-                    <if test="date != null ">
-                        where create_date > #{date}-10
+                    <if test="date != null and date != ''">
+                         where create_date >  DATE_SUB(STR_TO_DATE( #{date}, '%Y-%m-%d') , INTERVAL 10 DAY)
                     </if>
                 GROUP BY stock_code,stock_name,plate
             UNION
             select stock_code,stock_name,plate,group_concat(instructions  separator ';') instructions,group_concat(main_Business  separator ';') main_Business,group_concat(niche_Business  separator ';') niche_Business
                 from base_zthf_stock
-                    <if test="date != null ">
-                        where create_date > #{date}-10
+                    <if test="date != null and date != ''">
+                         where create_date >  DATE_SUB(STR_TO_DATE( #{date}, '%Y-%m-%d') , INTERVAL 10 DAY)
                     </if>
                  GROUP BY stock_code,stock_name,plate
             UNION
             select stock_code,stock_name,plate,group_concat(instructions  separator ';') instructions,group_concat(main_Business  separator ';') main_Business,group_concat(niche_Business  separator ';') niche_Business
                 from base_zb_stock
-                    <if test="date != null ">
-                        where create_date > #{date}-10
+                    <if test="date != null and date != ''">
+                         where create_date >  DATE_SUB(STR_TO_DATE( #{date}, '%Y-%m-%d') , INTERVAL 10 DAY)
                     </if>
                  GROUP BY stock_code,stock_name,plate
             UNION
             select stock_code,stock_name,plate,group_concat(instructions  separator ';') instructions,group_concat(main_Business  separator ';') main_Business,group_concat(niche_Business  separator ';') niche_Business
                 FROM base_dt_stock
-                    <if test="date != null ">
-                        where create_date > #{date}-10
+                    <if test="date != null and date != ''">
+                         where create_date >  DATE_SUB(STR_TO_DATE( #{date}, '%Y-%m-%d') , INTERVAL 10 DAY)
                     </if>
                 GROUP BY stock_code,stock_name,plate
             UNION
             select stock_code,stock_name,plate,group_concat(instructions  separator ';') instructions,group_concat(main_Business  separator ';') main_Business,group_concat(niche_Business  separator ';') niche_Business
                 FROM base_bd_up_stock
-                    <if test="date != null ">
-                        where create_date > #{date}-10
+                    <if test="date != null and date != ''">
+                         where create_date >  DATE_SUB(STR_TO_DATE( #{date}, '%Y-%m-%d') , INTERVAL 10 DAY)
                     </if>
                 GROUP BY stock_code,stock_name,plate
             UNION
             select stock_code,stock_name,plate,group_concat(instructions  separator ';') instructions,group_concat(main_Business  separator ';') main_Business,group_concat(niche_Business  separator ';') niche_Business
                 FROM base_bd_down_stock
-                    <if test="date != null ">
-                        where create_date > #{date}-10
+                    <if test="date != null and date != ''">
+                         where create_date >  DATE_SUB(STR_TO_DATE( #{date}, '%Y-%m-%d') , INTERVAL 10 DAY)  
                     </if>
                 GROUP BY stock_code,stock_name,plate
        ) a

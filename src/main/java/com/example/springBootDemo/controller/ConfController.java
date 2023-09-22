@@ -50,7 +50,7 @@ public class ConfController {
     }
 
     @ApiOperationSupport(order = 2)
-    @ApiOperation("刷新股票配置信息")
+    @ApiOperation("增量刷新股票配置信息")
     @PostMapping("/reflshMyStock")
     public RespBean reflshMyStock() {
         try {

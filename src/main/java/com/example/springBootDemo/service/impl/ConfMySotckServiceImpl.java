@@ -13,15 +13,13 @@ import com.example.springBootDemo.util.excel.ExcelUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -49,7 +47,7 @@ public class ConfMySotckServiceImpl extends ServiceImpl<ConfMySotckDao, ConfMySo
         EntityWrapper<ConfMySotck> wrapper = new EntityWrapper<>();
         delete(wrapper);
 
-        List<ConfMySotck> list = ExcelUtil.excelToList(tempFile,ConfMySotck.class);
+        List<ConfMySotck> list = ExcelUtil.excelToList(tempFile, ConfMySotck.class);
 //            is.close();
 
 
@@ -91,9 +89,10 @@ public class ConfMySotckServiceImpl extends ServiceImpl<ConfMySotckDao, ConfMySo
         //我的股票 全量搜索
         List<ConfMySotck> list = selectList(new EntityWrapper<>());
         //将6个基础标的股票通过辨识度对象检索出来
-        List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth(null);
+//        List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth(DateUtil.format(new Date()));
+        List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth("2023-09-21");
         //股票和主业的映射关系
-        Map<String, String> map = Maps.newHashMap();
+        Map<String, List<String>> map = Maps.newHashMap();
         Map<String, List<ConfBsdStock>> stockMap = bsdList.stream().collect(Collectors.groupingBy(ConfBsdStock::getStockCode));
         for (String stockCode : stockMap.keySet()) {
             List<ConfBsdStock> mapList = stockMap.get(stockCode);
@@ -111,19 +110,26 @@ public class ConfMySotckServiceImpl extends ServiceImpl<ConfMySotckDao, ConfMySo
             set.remove("");
 
             List<String> tempList = Lists.newArrayList(set);
-            String mainBusiness = tempList.stream().collect(Collectors.joining((",")));
-            map.put(stockCode, mainBusiness);
+            map.put(stockCode, tempList);
         }
 
-        //把主业全量修改到 我的股票中
+        //把主业增量修改到 我的股票中
+        List<ConfMySotck> updateList = Lists.newArrayList();
         for (ConfMySotck myStock : list) {
-            String mainBusiness = map.get(myStock.getStockCode());
-            if (StringUtils.isNotBlank(mainBusiness)) {
-                myStock.setMainBusiness(mainBusiness);
+            List<String> mbList = map.get(myStock.getStockCode());
+            if (CollectionUtils.isNotEmpty(mbList)) {
+                String oldBusiness = myStock.getMainBusiness() != null ? myStock.getMainBusiness() : "";
+                List<String> oldMBList = Lists.newArrayList(oldBusiness.split(","));
+                Collection<String> tempList = CollectionUtils.union(oldMBList, mbList);
+                tempList.remove(";");
+                tempList.remove("");
+                String newBusiness = tempList.stream().collect(Collectors.joining((",")));
+
+                myStock.setMainBusiness(newBusiness);
                 myStock.setCreateDate(new Date());
+                updateList.add(myStock);
             }
         }
-
-        updateBatchById(list, list.size());
+        updateBatchById(updateList, updateList.size());
     }
 }

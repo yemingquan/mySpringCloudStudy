@@ -257,7 +257,7 @@ public class ReportController {
             confCxStockService.imporCX();
             log.info("可转债");
             baseBondService.imporKZZ();
-            log.info("刷新股票的主业");
+            log.info("增量刷新股票的主业");
             confMySotckService.reflshMyStock();
             log.info("日期功能刷新");
 
