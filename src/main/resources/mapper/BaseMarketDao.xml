@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springBootDemo.dao.mapper.BaseMarketDao">
+
+    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseMarket">
+        <!--@Table base_market-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="date" column="date" jdbcType="TIMESTAMP"/>
+        <result property="keyWords" column="key_words" jdbcType="VARCHAR"/>
+        <result property="marketState" column="market_state" jdbcType="VARCHAR"/>
+        <result property="subject" column="subject" jdbcType="VARCHAR"/>
+        <result property="vol" column="vol" jdbcType="VARCHAR"/>
+        <result property="teacherThinking" column="teacher_thinking" jdbcType="VARCHAR"/>
+        <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+        <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
+        <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+        <result property="modifedDate" column="modifed_date" jdbcType="TIMESTAMP"/>
+        <result property="modifedBy" column="modifed_by" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, date, key_words, market_state, subject, vol, teacher_thinking, instructions, state, create_date, create_by, modifed_date, modifed_by, remark        
+    </sql>
+</mapper>
+

@@ -181,6 +181,8 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
 
             stock.setMainBusiness(mbResult);
             stock.setNicheBusiness(nbResult);
+            stock.setModifedBy("增量概念刷新-抹掉概念");
+            stock.setModifedDate(new Date());
         }
         log.info("概念:[{}]查询已有概念的标的，并将其中的概念抹去：{}",cb.getBusName(),mySotckList);
         if(CollectionUtils.isNotEmpty(mySotckList)){
@@ -225,6 +227,8 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
                 String result = addBusiness(busName, business);
                 stock.setNicheBusiness(result);
             }
+            stock.setModifedBy("增量概念刷新-修改概念");
+            stock.setModifedDate(new Date());
         }
         log.info("概念:[{}]修改库中相关概念:[{}]",cb.getBusName(),mySotckList2);
         if(CollectionUtils.isNotEmpty(mySotckList2)){
