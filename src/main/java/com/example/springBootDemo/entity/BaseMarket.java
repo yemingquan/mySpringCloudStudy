@@ -1,5 +1,7 @@
 package com.example.springBootDemo.entity;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
 import com.baomidou.mybatisplus.enums.IdType;
@@ -27,38 +29,39 @@ import java.util.Date;
 @TableName("base_market")
 public class BaseMarket implements Serializable {
     private static final long serialVersionUID = 356412307508911502L;
-    /**
-     * 主键
-     */
-    @TableId(type = IdType.AUTO)
-    private Integer id;
-    /**
-     * 日期
-     */
+
+    @Excel(name = "日期")
+    @TableId(type = IdType.INPUT)
     private Date date;
-    /**
-     * 关键词
-     */
+
+    @Excel(name = "星期")
+    @TableField(exist = false)
+    private String week;
+
+    @Excel(name = "关键词")
     private String keyWords;
-    /**
-     * 市场状态
-     */
-    private String marketState;
+
+    @Excel(name = "市场动态")
+    private String marketTrends;
     /**
      * 市场主题/情绪节点
      */
+    @Excel(name = "市场主题")
     private String subject;
     /**
      * 量能
      */
+    @Excel(name = "量能")
     private String vol;
     /**
      * 老师的思路
      */
+    @Excel(name = "老师的思路")
     private String teacherThinking;
     /**
-     * 说明
+     * 说明（过去的数据则用来存：连板梯队）
      */
+    @Excel(name = "连板梯队")
     private String instructions;
     /**
      * 状态，有效1，无效0

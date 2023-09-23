@@ -4,6 +4,7 @@ import com.alibaba.excel.util.DateUtils;
 import com.example.springBootDemo.config.components.system.SystemConfConstant;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.BaseDateNews;
+import com.example.springBootDemo.entity.BaseMarket;
 import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
@@ -47,6 +48,8 @@ public class inputController {
     BaseDateNewsService baseDateNewsService;
     @Autowired
     BaseDateService baseDateService;
+    @Autowired
+    BaseMarketService baseMarketService;
 
     @ApiOperationSupport(order = 1)
     @ApiOperation("0-复盘初始化")
@@ -291,6 +294,28 @@ public class inputController {
             baseDateNewsService.oprNewsData(list);
             log.info("准备插入数据");
             if (baseDateNewsService.insertBatch(list)) {
+                return RespBean.success("导入成功");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
+    @ApiOperationSupport(order = 41)
+    @ApiOperation("4-1 Excel导入消息-市场概要信息")
+    @PostMapping("/market")
+    public RespBean market(@RequestPart MultipartFile multipartFile) {
+        try {
+            List<BaseMarket> list = ExcelUtil.excelToList(multipartFile,BaseMarket.class);
+            for (BaseMarket bm :list){
+                String marketTrends = bm.getMarketTrends();
+                if(StringUtils.isNotBlank(marketTrends)){
+//                    log.info("日期:{},market_trends长度:{}",DateUtil.format(bm.getDate(), DateUtils.DATE_FORMAT_10), marketTrends.length());
+                }
+            }
+            log.info("准备插入数据");
+            if (baseMarketService.insertOrUpdateBatch(list)) {
                 return RespBean.success("导入成功");
             }
         } catch (Exception e) {
