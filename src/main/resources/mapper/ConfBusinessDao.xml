@@ -32,10 +32,10 @@
     <select id="queryPlateCore" resultType="com.example.springBootDemo.entity.input.ConfBusiness">
         SELECT
         a.core_list,
-        substring_index(substring_index(CONCAT(a.bus_name,',',a.alias), ',', b.help_topic_id + 1),',',- 1 ) AS bus_name
+        substring_index(substring_index(CONCAT(a.bus_name,IFNULL(CONCAT(',',a.alias),'')), ',', b.help_topic_id + 1),',',- 1 ) AS bus_name
         FROM
         conf_business a
-        JOIN mysql.help_topic b   ON  (  length(CONCAT(a.bus_name,',',a.alias)) - length(REPLACE (CONCAT(a.bus_name,',',a.alias), ',', '')) + 1  ) >b.help_topic_id
+        JOIN mysql.help_topic b   ON  (  length(CONCAT(a.bus_name,IFNULL(CONCAT(',',a.alias),''))) - length(REPLACE (CONCAT(a.bus_name,IFNULL(CONCAT(',',a.alias),'')), ',', '')) + 1  ) >b.help_topic_id
         where core_list  is not null
     </select>
 
@@ -46,7 +46,6 @@
         FROM
         conf_business a
         JOIN mysql.help_topic b   ON  ( length(a.alias) - length(REPLACE (a.alias, ',', '')) + 1  ) >b.help_topic_id
-        where core_list  is not null
     </select>
 </mapper>
 

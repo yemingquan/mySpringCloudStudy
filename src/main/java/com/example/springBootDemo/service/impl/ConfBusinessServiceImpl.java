@@ -76,6 +76,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
                 List<String> list = Lists.newArrayList(listStr.split(","));
                 list.removeAll(removeList);
                 listStr = list.stream().collect(Collectors.joining(","));
+                log.info("概念:{} size:{}",cb.getBusName(),listStr.length());
             }
 
             if (StringUtils.isNotBlank(coreListStr)
@@ -86,7 +87,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
                     && (StringUtils.isBlank(codeList) || codeList.split(",").length != listStr.split(",").length)) {
                 cb.setCodeList(getCode(map, listStr));
             }
-            log.info("概念:{} size:{}",cb.getBusName(),listStr.length());
+
         }
 
         return confBusinessService.insertBatch(cbList, cbList.size());
@@ -108,7 +109,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
 
     @Override
     public void exportConfBusiness(HttpServletResponse response, List<ConfBusiness> addList) throws Exception {
-        String fileName = "ConfBusinessExcel.xls";
+        String fileName = "ConfBusinessExcel.xlsx";
         EntityWrapper<ConfBusiness> wrapper = new EntityWrapper<>();
         wrapper.eq("state", 1);
         List<ConfBusiness> list = confBusinessDao.selectList(wrapper);
