@@ -214,6 +214,7 @@
 
 	<!--maven插件-->
 	<build>
+
 		<!--&lt;!&ndash;在build中配置resources,来防止我们资源导出失败的问题&ndash;&gt;
 		<resources>
 			&lt;!&ndash; 扫描src/main/java下所有xx.xml文件 &ndash;&gt;
@@ -236,6 +237,15 @@
 			</resource>
 		</resources>-->
 		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<!-- 热部署-2 -->
+                <configuration>
+                    <!--<executable>true</executable>-->
+                    <fork>true</fork>
+                </configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

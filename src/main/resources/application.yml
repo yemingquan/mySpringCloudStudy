@@ -3,14 +3,20 @@ server:
 #  context-path: aaa
 spring:
   application:
-    name: login-service
+    name: login-handle
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     #    url: jdbc:mysql://192.168.1.109:3306/demo?characterEncoding=utf8&useUnicode=true
     url: jdbc:mysql://localhost:3306/stock?serverTimezone=Asia/Shanghai&useSSL=false&allowMultiQueries=true
     username: root
     password: 123456
-
+  mail:
+    host: smtp.qq.com
+    username: ymq815129539@qq.com
+    password: oizvaxuutqomghfe
+    default-encoding: UTF-8
+    port: 465
+    properties.mail.smtp.ssl.enable: true
 
 mybatis-plus:
   type-aliases-package: com.example.springBootDemo.entity
