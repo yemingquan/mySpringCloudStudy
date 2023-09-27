@@ -41,7 +41,7 @@ public class SendMsgHandle {
         }
 //      发送方式以及内容打印
         String sendName = SendTypeEnum.getName(sendVo.getSendType());
-        log.info("发送方式：{}，接受者：{}，标题{}，内容{}", sendName, sendVo.getReceiver(), sendVo.getTitle(), sendVo.getContent());
+        log.info("发送方式:{}，接受者:{}，标题:{}，内容:{}", sendName, sendVo.getReceiver(), sendVo.getTitle(), sendVo.getContent());
         return sendMethod.sendMsg(sendVo.getReceiver(), sendVo.getTitle(), sendVo.getContent());
     }
 
