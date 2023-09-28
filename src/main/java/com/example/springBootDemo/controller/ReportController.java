@@ -334,6 +334,7 @@ public class ReportController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        log.info("导出成功");
     }
 
     public void getBasicData(Date dealDate, Map<String, Object> data) {
@@ -343,10 +344,13 @@ public class ReportController {
         //距离最近的假期，长假倒计时（距离大于4天及以上的假期，还有几天，名称是什么）
         Date nextRest = baseDateService.getAfterTypeDate(dealDate, DateTypeConstant.REST_LIST);
         int countDownShort = DateUtil.getIntervalOfDays(dealDate, nextRest);
-        BASIC_MAP.put("BASIC_COUNT_DOWN_SHORT", "还有" + (countDownShort-1) + "天休息");
+        BASIC_MAP.put("BASIC_COUNT_DOWN_SHORT", "还有" + countDownShort + "天休息");
         Date nextHoliday = baseDateService.getAfterTypeDate(dealDate, DateTypeConstant.HOLIDAY_LIST);
-        String dateDetail = baseDateService.queryDateDetail(nextHoliday);
-        BASIC_MAP.put("BASIC_COUNT_DOWN_LONG", dateDetail);
+        String holidayDateDetail = baseDateService.queryDateDetail(nextHoliday);
+        BASIC_MAP.put("BASIC_COUNT_DOWN_LONG", holidayDateDetail);
+        Date nextDealDay = baseDateService.getAfterTypeDate(dealDate, DateTypeConstant.DEAL_LIST);
+        String dealDateDetail  = baseDateService.queryDateDetail(nextDealDay);
+        BASIC_MAP.put("BASIC_NEXT_DEAL_DATE", dealDateDetail);
         data.putAll(BASIC_MAP);
     }
 

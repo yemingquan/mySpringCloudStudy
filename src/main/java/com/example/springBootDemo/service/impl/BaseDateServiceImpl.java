@@ -46,7 +46,7 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
         Date date = DateUtil.parseDate(dateStr);
         Date resultDate = baseDateDao.getBeforeTypeDate(date, typeList);
         String resultDateStr = DateUtil.format(resultDate, DateUtils.DATE_FORMAT_10);
-        log.info("前一个交易日时间为：{}",resultDateStr);
+        log.info("前一个交易日时间为：{}", resultDateStr);
         return resultDateStr;
     }
 
@@ -63,7 +63,7 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
         Date date = DateUtil.parseDate(dateStr);
         Date resultDate = baseDateDao.getAfterTypeDate(date, typeList);
         String resultDateStr = DateUtil.format(resultDate, DateUtils.DATE_FORMAT_10);
-        log.info("后一个交易日时间为：{}",resultDateStr);
+        log.info("后一个交易日时间为：{}", resultDateStr);
         return resultDateStr;
     }
 
@@ -78,6 +78,7 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
 
     /**
      * 查询日期描述明细
+     *
      * @param date
      * @return
      */
@@ -87,13 +88,17 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
         BaseDate baseDate = queryBaseDateBydate(date);
         String type = baseDate.getType();
 
-        if(DateTypeConstant.DATE_TYPE_HOLIDAY.equals(type)){
+        if (DateTypeConstant.DATE_TYPE_HOLIDAY.equals(type)) {
             Date endDate = getAfterTypeDate(date, DateTypeConstant.WORK_LIST);
-            Integer countDown= DateUtil.getIntervalOfDays(date,endDate);
-            Integer range= DateUtil.getIntervalOfDays(new Date(),date);
-            sb.append( "距离"+baseDate.getName()+"("+countDown+")天假期,还有("+range+")天");
-        }else{
-            sb.append( "工作日类型还没有配置");
+            Integer countDown = DateUtil.getIntervalOfDays(date, endDate);
+            Integer range = DateUtil.getIntervalOfDays(new Date(), date);
+            sb.append("距离" + baseDate.getName() + "(" + countDown + ")天假期,还有(" + range + ")天");
+        } else if (DateTypeConstant.DATE_TYPE_WORK.equals(type)) {
+            Date endDate = getAfterTypeDate(date, DateTypeConstant.WORK_LIST);
+            Integer range = DateUtil.getIntervalOfDays(date, endDate);
+            sb.append("下一个交易日-" + DateUtil.format(baseDate.getDate(), DateUtils.DATE_FORMAT_10) + "(" + baseDate.getWeek() + "),还有(" + range + ")天");
+        } else {
+            sb.append("工作日类型还没有配置");
         }
         log.info(sb.toString());
         return sb.toString();
@@ -101,6 +106,7 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
 
     /**
      * 查询某一天的具体情况
+     *
      * @param date
      * @return
      */

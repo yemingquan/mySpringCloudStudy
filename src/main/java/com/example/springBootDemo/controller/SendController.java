@@ -23,7 +23,7 @@ import javax.validation.Valid;
  */
 @Slf4j
 @RestController
-@Api(tags = {"发送消息"})
+@Api(tags = {"推送模块"})
 @RequestMapping("send")
 public class SendController {
 

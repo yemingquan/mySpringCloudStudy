@@ -74,7 +74,7 @@
         SELECT
         MIN(DATE)
         FROM base_Date
-        WHERE DATE >= #{date}
+        WHERE DATE > #{date}
         AND TYPE IN
         <foreach collection="typeList" item="item" open="(" close=")" separator=",">
             #{item}
