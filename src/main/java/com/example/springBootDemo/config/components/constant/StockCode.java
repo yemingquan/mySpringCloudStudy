@@ -1,6 +1,9 @@
 package com.example.springBootDemo.config.components.constant;
 
 import com.google.common.collect.Lists;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -17,12 +20,22 @@ public class StockCode {
 
     {
         BSD_STOCK_LIST = Lists.newArrayList(
-                "百利电气", "金科股份", "永鼎股份", "法尔胜",
-                "云南城投", "金科股份", "荣盛发展",
-                "太平洋", "首创证券", "中信证券",
-                "中央商场", "国芳集团",  "人人乐",
-                "鸿博股份", "金桥信息", "浪潮信息", "工业富联", "拓维信息", "中科曙光"
+
         );
     }
 
+    @AllArgsConstructor
+    public enum BusinessTypeEnum{
+        INDUSTRY("industry","行业"),
+        SUBJECT("subject","题材"),
+        ATTR("attr(","属性");
+
+        @Setter
+        @Getter
+        private String code;
+
+        @Setter
+        @Getter
+        private String name;
+    }
 }

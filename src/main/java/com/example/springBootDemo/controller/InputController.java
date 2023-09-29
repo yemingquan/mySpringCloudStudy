@@ -36,7 +36,7 @@ import java.util.List;
 @Api(tags = "基础数据-输入")
 @RequestMapping("report")
 @RestController
-public class inputController {
+public class InputController {
 
     @Autowired
     InputService inputService;

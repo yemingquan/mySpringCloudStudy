@@ -4,6 +4,7 @@ import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.example.springBootDemo.config.components.constant.StockCode;
 import com.example.springBootDemo.config.components.system.SystemConfConstant;
 import com.example.springBootDemo.dao.mapper.ConfBusinessDao;
 import com.example.springBootDemo.entity.ConfCxStock;
@@ -71,12 +72,12 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
             String coreListStr = cb.getCoreList();
 
             //标的池中去掉核心标的
-            if (StringUtils.isNotBlank(coreListStr)&&StringUtils.isNotBlank(listStr)) {
+            if (StringUtils.isNotBlank(coreListStr) && StringUtils.isNotBlank(listStr)) {
                 List<String> removeList = Lists.newArrayList(coreListStr.split(","));
                 List<String> list = Lists.newArrayList(listStr.split(","));
                 list.removeAll(removeList);
                 listStr = list.stream().collect(Collectors.joining(","));
-                log.info("概念:{} size:{}",cb.getBusName(),listStr.length());
+                log.info("概念:{} size:{}", cb.getBusName(), listStr.length());
             }
 
             if (StringUtils.isNotBlank(coreListStr)
@@ -109,7 +110,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
 
     @Override
     public void exportConfBusiness(HttpServletResponse response, List<ConfBusiness> addList) throws Exception {
-        String fileName = "ConfBusinessExcel.xlsx";
+        String fileName = "ConfBusinessExcel.xls";
         EntityWrapper<ConfBusiness> wrapper = new EntityWrapper<>();
         wrapper.eq("state", 1);
         List<ConfBusiness> list = confBusinessDao.selectList(wrapper);
@@ -140,7 +141,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         wrapper.eq("refush_flag", 1);
         List<ConfBusiness> list = confBusinessService.selectList(wrapper);
 
-        log.info("共有{}条概念需要处理",list.size());
+        log.info("共有{}条概念需要处理", list.size());
         for (int i = 0; i < list.size(); i++) {
             ConfBusiness cb = list.get(i);
             refushRecordConfBusiness(cb);
@@ -154,43 +155,80 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
      * @param cb
      */
     public void refushRecordConfBusiness(ConfBusiness cb) {
-        String busName = cb.getBusName();log.info("开始处理概念:[{}]",busName);
+        String busName = cb.getBusName();
+        log.info("开始处理概念:[{}]", busName);
         String alias = cb.getAlias();
-        if(StringUtils.isBlank(alias)){
+        String type = cb.getType();
+        if (StringUtils.isBlank(alias)) {
             alias = "";
         }
 
-        //1 检索数据库中已有概念的标的，并将其中的概念抹去
-        List<String> businessList = Lists.newArrayList(alias.split(","));
-        businessList.add(busName);
-        EntityWrapper<ConfMySotck> cmsWrapper = new EntityWrapper<>();
-        for(String str:businessList){
-            cmsWrapper.like("MAIN_BUSINESS", str).or().like("NICHE_BUSINESS", str);
+        if (StockCode.BusinessTypeEnum.ATTR.getName().equals(type)) {
+            //1 检索数据库中已有概念的标的，并将其中的概念抹去
+            clearAttr(cb, busName, alias);
+            //2 搜索配置中的标的，并将对应的概念加上，然后落库
+            //3.修改库中相关概念
+            queryAndUpdateAttr(cb, busName);
+        } else {
+            //1 检索数据库中已有概念的标的，并将其中的概念抹去
+            clearBusiness(cb, busName, alias);
+            //2 搜索配置中的标的，并将对应的概念加上，然后落库
+            //3.修改库中相关概念
+            queryAndUpdateBusiness(cb, busName);
         }
-        List<ConfMySotck> mySotckList = confMySotckService.selectList(cmsWrapper);
 
-        for (ConfMySotck stock : mySotckList) {
-            String mb = stock.getMainBusiness();
-            String nb = stock.getNicheBusiness();
+        //4.修改配置表信息
+        log.info("概念:[{}]修改刷新标记", cb.getBusName());
+        cb.setRefushFlag("0");
+        confBusinessService.updateById(cb);
+        log.info("处理成功");
+    }
 
-            String mbResult = mb;
-            String nbResult = nb;
-            for (String str : businessList) {
-                mbResult = removeBusiness(str, mbResult);
-                nbResult = removeBusiness(str, nbResult);
-            }
+    private void queryAndUpdateAttr(ConfBusiness cb, String busName) {
+        //2 搜索配置中的标的，并将对应的概念加上，然后落库
+        List<String> codeList = Lists.newArrayList();
+        String coreCode = cb.getCodeCoreList();
+        String code = cb.getCodeList();
+        List<String> ccList = Lists.newArrayList();
+        List<String> cList = Lists.newArrayList();
 
-            stock.setMainBusiness(mbResult);
-            stock.setNicheBusiness(nbResult);
-            stock.setModifedBy("增量概念刷新-抹掉概念");
+        if (StringUtils.isNotBlank(coreCode)) {
+            ccList = Lists.newArrayList(coreCode.split(","));
+            codeList.addAll(ccList);
+        }
+        if (StringUtils.isNotBlank(code)) {
+            cList = Lists.newArrayList(code.split(","));
+            codeList.addAll(cList);
+        }
+
+        if (CollectionUtils.isEmpty(codeList)) {
+            log.info("busName:{}没有需要处理的数据", busName);
+            return;
+        }
+
+        EntityWrapper<ConfMySotck> cmsWrapper2 = new EntityWrapper<>();
+        cmsWrapper2.in("STOCK_CODE", codeList);
+        List<ConfMySotck> mySotckList2 = confMySotckService.selectList(cmsWrapper2);
+
+        //3.修改库中相关概念
+        for (ConfMySotck stock : mySotckList2) {
+            String attr = stock.getAttr();
+            attr = addBusiness(busName, attr);
+            stock.setAttr(attr);
+
+            stock.setModifedBy("增量概念刷新-修改概念");
             stock.setModifedDate(new Date());
         }
-        log.info("概念:[{}]查询已有概念的标的，并将其中的概念抹去：{}",cb.getBusName(),mySotckList);
-        if(CollectionUtils.isNotEmpty(mySotckList)){
-            confMySotckService.updateBatchById(mySotckList,mySotckList.size());
+        log.info("概念:[{}]修改库中相关概念:[{}]", cb.getBusName(), mySotckList2);
+        if (CollectionUtils.isNotEmpty(mySotckList2)) {
+            confMySotckService.insertOrUpdateBatch(mySotckList2, mySotckList2.size());
         }
+    }
 
 
+
+
+    public void queryAndUpdateBusiness(ConfBusiness cb, String busName) {
         //2 搜索配置中的标的，并将对应的概念加上，然后落库
         List<String> codeList = Lists.newArrayList();
         String coreCode = cb.getCodeCoreList();
@@ -231,18 +269,67 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
             stock.setModifedBy("增量概念刷新-修改概念");
             stock.setModifedDate(new Date());
         }
-        log.info("概念:[{}]修改库中相关概念:[{}]",cb.getBusName(),mySotckList2);
-        if(CollectionUtils.isNotEmpty(mySotckList2)){
+        log.info("概念:[{}]修改库中相关概念:[{}]", cb.getBusName(), mySotckList2);
+        if (CollectionUtils.isNotEmpty(mySotckList2)) {
             confMySotckService.insertOrUpdateBatch(mySotckList2, mySotckList2.size());
         }
-
-        //4.修改配置表信息
-        log.info("概念:[{}]修改刷新标记",cb.getBusName());
-        cb.setRefushFlag("0");
-        confBusinessService.updateById(cb);
-        log.info("处理成功");
     }
 
+    private void clearAttr(ConfBusiness cb, String busName, String alias) {
+        List<String> attrList = Lists.newArrayList(alias.split(","));
+        attrList.add(busName);
+        EntityWrapper<ConfMySotck> cmsWrapper = new EntityWrapper<>();
+        cmsWrapper.in("attr", attrList);
+        List<ConfMySotck> mySotckList = confMySotckService.selectList(cmsWrapper);
+
+        for (ConfMySotck stock : mySotckList) {
+            String attr = stock.getAttr();
+
+            for (String str : attrList) {
+                attr = removeBusiness(str, attr);
+            }
+
+            stock.setAttr(attr);
+            stock.setModifedBy("增量概念刷新-抹掉概念");
+            stock.setModifedDate(new Date());
+        }
+        log.info("概念:[{}]查询已有概念的标的，并将其中的概念抹去：{}", cb.getBusName(), mySotckList);
+        if (CollectionUtils.isNotEmpty(mySotckList)) {
+            confMySotckService.updateBatchById(mySotckList, mySotckList.size());
+        }
+
+    }
+
+    public void clearBusiness(ConfBusiness cb, String busName, String alias) {
+        List<String> businessList = Lists.newArrayList(alias.split(","));
+        businessList.add(busName);
+        EntityWrapper<ConfMySotck> cmsWrapper = new EntityWrapper<>();
+        for (String str : businessList) {
+            cmsWrapper.like("MAIN_BUSINESS", str).or().like("NICHE_BUSINESS", str);
+        }
+        List<ConfMySotck> mySotckList = confMySotckService.selectList(cmsWrapper);
+
+        for (ConfMySotck stock : mySotckList) {
+            String mb = stock.getMainBusiness();
+            String nb = stock.getNicheBusiness();
+
+            String mbResult = mb;
+            String nbResult = nb;
+            for (String str : businessList) {
+                mbResult = removeBusiness(str, mbResult);
+                nbResult = removeBusiness(str, nbResult);
+            }
+
+            stock.setMainBusiness(mbResult);
+            stock.setNicheBusiness(nbResult);
+            stock.setModifedBy("增量概念刷新-抹掉概念");
+            stock.setModifedDate(new Date());
+        }
+        log.info("概念:[{}]查询已有概念的标的，并将其中的概念抹去：{}", cb.getBusName(), mySotckList);
+        if (CollectionUtils.isNotEmpty(mySotckList)) {
+            confMySotckService.updateBatchById(mySotckList, mySotckList.size());
+        }
+    }
 
 
     @Override
@@ -265,7 +352,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
             for (ConfCxStock ccs : confList) {
                 File file2 = new File(thsBasePath + "\\plate\\" + ccs.getStockCode() + ".xls");
                 if (file2.exists() == false) {
-                    log.info("概念:{}-明细文件:[{}] 未查询到数据", ccs.getStockName(),file2.getName());
+                    log.info("概念:{}-明细文件:[{}] 未查询到数据", ccs.getStockName(), file2.getName());
                     continue;
                 }
                 File tempFile2 = ExcelChangeUtil.csvToXlsxConverter(file2, file2.getName());
@@ -312,7 +399,8 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         if (StringUtils.isBlank(business)) {
             return "";
         }
-        List<String> list = Lists.newArrayList(business.replaceAll(ele,"").split(","));
+        List<String> list = Lists.newArrayList(business.replaceAll(ele, "").split(","));
+        list.remove("");
         return list.stream().collect(Collectors.joining(","));
     }
 }

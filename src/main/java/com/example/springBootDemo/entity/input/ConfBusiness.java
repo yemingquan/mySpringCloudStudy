@@ -39,7 +39,7 @@ public class ConfBusiness implements Serializable {
     @Excel(name = "需要刷新")
     private String refushFlag;
     /**
-     * 行业/题材
+     * 行业/题材/属性
      */
     @Excel(name = "类型")
     private String type;

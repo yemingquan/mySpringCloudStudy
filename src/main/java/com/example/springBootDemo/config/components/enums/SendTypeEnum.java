@@ -1,5 +1,6 @@
 package com.example.springBootDemo.config.components.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +14,7 @@ import java.util.Arrays;
  * @Copyright (c) 2020 inc. all rights reserved<p>
  * @公司名称
  */
+@AllArgsConstructor
 public enum SendTypeEnum {
 
     //推送方式：1短信 2邮件 3微信
@@ -31,12 +33,6 @@ public enum SendTypeEnum {
     @Getter
     @Setter
     private String beanName;
-
-    SendTypeEnum(String code, String name,String beanName) {
-        setCode(code);
-        setName(name);
-        setBeanName(beanName);
-    }
 
     public static String getBeanName(String code) {
         SendTypeEnum en = Arrays.stream(values()).filter(e -> e.getCode().equals(code)).findFirst().orElse(null);

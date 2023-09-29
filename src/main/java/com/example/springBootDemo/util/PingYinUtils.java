@@ -41,7 +41,7 @@ public class PingYinUtils {
         defaultFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);
         defaultFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
         for (int i = 0; i < newChar.length; i++) {
-            if (newChar[i] > 128) {
+            if (newChar[i] >= 0x4e00 && newChar[i] <= 0x9fbb) {
                 try {
                     pinyinStr += PinyinHelper.toHanyuPinyinStringArray(newChar[i], defaultFormat)[0].charAt(0);
                 } catch (BadHanyuPinyinOutputFormatCombination e) {
@@ -51,7 +51,7 @@ public class PingYinUtils {
                 pinyinStr += newChar[i];
             }
         }
-        log.info(":{}首字母大写:{}", chinese, pinyinStr);
+        log.info(":{} 首字母大写:{}", chinese, pinyinStr);
         return pinyinStr;
     }
 
