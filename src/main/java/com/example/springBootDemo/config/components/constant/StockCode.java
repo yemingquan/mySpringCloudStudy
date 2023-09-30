@@ -26,6 +26,7 @@ public class StockCode {
 
     @AllArgsConstructor
     public enum BusinessTypeEnum{
+        FLAG("flag","标记"),
         INDUSTRY("industry","行业"),
         SUBJECT("subject","题材"),
         ATTR("attr(","属性");

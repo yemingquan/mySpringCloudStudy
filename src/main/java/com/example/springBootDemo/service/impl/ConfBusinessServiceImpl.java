@@ -53,7 +53,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         EntityWrapper<ConfBusiness> wrapper = new EntityWrapper<>();
         confBusinessService.delete(wrapper);
 
-        List<ConfBusiness> cbList = ExcelUtil.importExcel(0,1,mf, ConfBusiness.class);
+        List<ConfBusiness> cbList = ExcelUtil.importExcel(0, 1, mf, ConfBusiness.class);
 
         EntityWrapper<ConfMySotck> cmsWrapper = new EntityWrapper<>();
         List<ConfMySotck> mySotckList = confMySotckService.selectList(cmsWrapper);
@@ -75,7 +75,11 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
                 List<String> list = Lists.newArrayList(listStr.split(","));
                 list.removeAll(removeList);
                 listStr = list.stream().collect(Collectors.joining(","));
-                log.info("概念:{} size:{}", cb.getBusName(), listStr.length());
+                log.info("概念:{}list size:{}", cb.getBusName(), listStr.length());
+            }
+            String instructions = cb.getInstructions();
+            if (StringUtils.isNotBlank(instructions) && instructions.length() > 255) {
+                log.info("概念:{} 说明 size:{}", cb.getBusName(), instructions.length());
             }
 
             if (StringUtils.isNotBlank(coreListStr)
@@ -86,6 +90,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
                     && (StringUtils.isBlank(codeList) || codeList.split(",").length != listStr.split(",").length)) {
                 cb.setCodeList(getCode(map, listStr));
             }
+
 
         }
 
@@ -123,7 +128,6 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
     }
 
 
-
     @Override
     public void refushConfBusiness() {
         //全量配置
@@ -157,9 +161,13 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         if (StockCode.BusinessTypeEnum.ATTR.getName().equals(type)) {
             //1 检索数据库中已有概念的标的，并将其中的概念抹去
             clearAttr(cb, busName, alias);
+            clearBusiness(cb, busName, alias);
             //2 搜索配置中的标的，并将对应的概念加上，然后落库
             //3.修改库中相关概念
             queryAndUpdateAttr(cb, busName);
+        }
+        if (StockCode.BusinessTypeEnum.FLAG.getName().equals(type)) {
+            log.info("标记数据:[{}]不做处理:", busName);
         } else {
             //1 检索数据库中已有概念的标的，并将其中的概念抹去
             clearBusiness(cb, busName, alias);
@@ -204,7 +212,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         //3.修改库中相关概念
         for (ConfMySotck stock : mySotckList2) {
             String attr = stock.getAttr();
-            attr = addBusiness(busName, attr);
+            attr = addEleBusiness(busName, attr);
             stock.setAttr(attr);
 
             stock.setModifedBy("增量概念刷新-修改概念");
@@ -215,8 +223,6 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
             confMySotckService.insertOrUpdateBatch(mySotckList2, mySotckList2.size());
         }
     }
-
-
 
 
     public void queryAndUpdateBusiness(ConfBusiness cb, String busName) {
@@ -248,15 +254,30 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         //3.修改库中相关概念
         for (ConfMySotck stock : mySotckList2) {
             String stockCode = stock.getStockCode();
+            //主要名称设置
             if (ccList.contains(stockCode)) {
                 String business = stock.getMainBusiness();
-                String result = addBusiness(busName, business);
+                String result = addEleBusiness(busName, business);
                 stock.setMainBusiness(result);
             } else {
                 String business = stock.getNicheBusiness();
-                String result = addBusiness(busName, business);
+                String result = addEleBusiness(busName, business);
                 stock.setNicheBusiness(result);
             }
+
+            //关联板块设置
+            String relBus = cb.getRelBus();
+            String business = stock.getMainBusiness();
+            business = addBusiness(relBus, business);
+            stock.setMainBusiness(business);
+
+            //别名设置
+            String nicheBusiness = stock.getNicheBusiness();
+            String alias = cb.getAlias();
+            nicheBusiness = addBusiness(alias, nicheBusiness);
+            nicheBusiness = removeBusiness(business, nicheBusiness);
+            stock.setNicheBusiness(nicheBusiness);
+
             stock.setModifedBy("增量概念刷新-修改概念");
             stock.setModifedDate(new Date());
         }
@@ -277,7 +298,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
             String attr = stock.getAttr();
 
             for (String str : attrList) {
-                attr = removeBusiness(str, attr);
+                attr = removeEleBusiness(str, attr);
             }
 
             stock.setAttr(attr);
@@ -294,6 +315,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
     public void clearBusiness(ConfBusiness cb, String busName, String alias) {
         List<String> businessList = Lists.newArrayList(alias.split(","));
         businessList.add(busName);
+        //注意这里没有删除关联板块属性
         EntityWrapper<ConfMySotck> cmsWrapper = new EntityWrapper<>();
         for (String str : businessList) {
             cmsWrapper.like("MAIN_BUSINESS", str).or().like("NICHE_BUSINESS", str);
@@ -307,8 +329,8 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
             String mbResult = mb;
             String nbResult = nb;
             for (String str : businessList) {
-                mbResult = removeBusiness(str, mbResult);
-                nbResult = removeBusiness(str, nbResult);
+                mbResult = removeEleBusiness(str, mbResult);
+                nbResult = removeEleBusiness(str, nbResult);
             }
 
             stock.setMainBusiness(mbResult);
@@ -377,21 +399,52 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         return confBusinessDao.getAliasRelation();
     }
 
-    private String addBusiness(String ele, String business) {
+    private String addEleBusiness(String ele, String business) {
         List<String> list = Lists.newArrayList();
         if (StringUtils.isNotBlank(business)) {
             list = Lists.newArrayList(business.split(","));
         }
-        list.add(ele);
-        return list.stream().collect(Collectors.joining(","));
+        if (StringUtils.isNotBlank(ele)) {
+            list.add(ele);
+        }
+        list.remove("");
+        return list.stream().distinct().collect(Collectors.joining(","));
     }
 
-    private String removeBusiness(String ele, String business) {
+    private String addBusiness(String eles, String business) {
+        List<String> list = Lists.newArrayList();
+        if (StringUtils.isNotBlank(business)) {
+            list = Lists.newArrayList(business.split(","));
+        }
+        if (StringUtils.isNotBlank(eles)) {
+            List<String> tempList = Lists.newArrayList(eles.split(","));
+            list.addAll(tempList);
+        }
+        list.remove("");
+        return list.stream().distinct().collect(Collectors.joining(","));
+    }
+
+
+    private String removeEleBusiness(String ele, String business) {
         if (StringUtils.isBlank(business)) {
             return "";
         }
-        List<String> list = Lists.newArrayList(business.replaceAll(ele, "").split(","));
+        List<String> list = Lists.newArrayList(business.split(","));
+        list.remove(ele);
         list.remove("");
-        return list.stream().collect(Collectors.joining(","));
+        return list.stream().distinct().collect(Collectors.joining(","));
+    }
+
+    private String removeBusiness(String eles, String business) {
+        if (StringUtils.isBlank(business)) {
+            return "";
+        }
+        List<String> list = Lists.newArrayList(business.split(","));
+        if (StringUtils.isNotBlank(eles)) {
+            List<String> tempList = Lists.newArrayList(eles.split(","));
+            list.removeAll(tempList);
+        }
+        list.remove("");
+        return list.stream().distinct().collect(Collectors.joining(","));
     }
 }
