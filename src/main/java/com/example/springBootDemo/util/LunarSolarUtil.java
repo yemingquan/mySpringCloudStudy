@@ -1,7 +1,7 @@
 package com.example.springBootDemo.util;
 
 
-import com.alibaba.excel.util.DateUtils;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import lombok.Data;
 
 import java.lang.reflect.Array;
@@ -218,7 +218,7 @@ public class LunarSolarUtil {
     public static String getLunarDateStr(String dateStr) {
         Date date = DateUtil.parseDate(dateStr);
         Date result = getLunarDate(date);
-        String str = DateUtil.format(result, DateUtils.DATE_FORMAT_10);
+        String str = DateUtil.format(result, DateConstant.DATE_FORMAT_10);
         return str;
     }
 

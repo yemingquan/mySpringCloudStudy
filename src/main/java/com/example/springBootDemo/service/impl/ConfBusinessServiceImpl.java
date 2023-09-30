@@ -26,8 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,7 +53,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         EntityWrapper<ConfBusiness> wrapper = new EntityWrapper<>();
         confBusinessService.delete(wrapper);
 
-        List<ConfBusiness> cbList = ExcelUtil.importExcel(mf, ConfBusiness.class);
+        List<ConfBusiness> cbList = ExcelUtil.importExcel(0,1,mf, ConfBusiness.class);
 
         EntityWrapper<ConfMySotck> cmsWrapper = new EntityWrapper<>();
         List<ConfMySotck> mySotckList = confMySotckService.selectList(cmsWrapper);
@@ -110,7 +108,6 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
 
     @Override
     public void exportConfBusiness(HttpServletResponse response, List<ConfBusiness> addList) throws Exception {
-        String fileName = "ConfBusinessExcel.xls";
         EntityWrapper<ConfBusiness> wrapper = new EntityWrapper<>();
         wrapper.eq("state", 1);
         List<ConfBusiness> list = confBusinessDao.selectList(wrapper);
@@ -120,18 +117,12 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
                 .sorted(Comparator.comparing(ConfBusiness::getSort, Comparator.nullsFirst(String::compareTo)))
                 .collect(Collectors.toList());
         //生成excel文档
-        Workbook workbook = ExcelExportUtil.exportExcel(new ExportParams("行业配置化", "sheet"),
-                ConfBusiness.class, list);
-
-        fileName = new String(fileName.getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
-        response.setContentType("application/octet-stream");
-        response.setHeader("Content-disposition", "attachment;filename=" + fileName);
-        OutputStream outputStream = response.getOutputStream();
-        response.flushBuffer();
-        workbook.write(outputStream);
-        // 写完数据关闭流
-        outputStream.close();
+        ExportParams params = ExcelUtil.getSimpleExportParams(list, ConfBusiness.class);
+        Workbook workbook = ExcelExportUtil.exportExcel(params, ConfBusiness.class, list);
+        ExcelUtil.exportExel(response, "ConfBusinessExcel", workbook);
     }
+
+
 
     @Override
     public void refushConfBusiness() {

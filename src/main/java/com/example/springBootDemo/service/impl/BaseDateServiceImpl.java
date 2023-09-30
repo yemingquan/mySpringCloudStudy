@@ -1,8 +1,7 @@
 package com.example.springBootDemo.service.impl;
 
-import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
-import com.example.springBootDemo.config.components.constant.DateTypeConstant;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.dao.mapper.BaseDateDao;
 import com.example.springBootDemo.entity.BaseDate;
 import com.example.springBootDemo.service.BaseDateService;
@@ -41,11 +40,11 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
     @Override
     public String getBeforeTypeDate(String dateStr, List<String> typeList) {
         if (StringUtils.isEmpty(dateStr)) {
-            dateStr = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
+            dateStr = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
         }
         Date date = DateUtil.parseDate(dateStr);
         Date resultDate = baseDateDao.getBeforeTypeDate(date, typeList);
-        String resultDateStr = DateUtil.format(resultDate, DateUtils.DATE_FORMAT_10);
+        String resultDateStr = DateUtil.format(resultDate, DateConstant.DATE_FORMAT_10);
         log.info("前一个交易日时间为：{}", resultDateStr);
         return resultDateStr;
     }
@@ -58,11 +57,11 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
     @Override
     public String getAfterTypeDate(String dateStr, List<String> typeList) {
         if (StringUtils.isEmpty(dateStr)) {
-            dateStr = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
+            dateStr = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
         }
         Date date = DateUtil.parseDate(dateStr);
         Date resultDate = baseDateDao.getAfterTypeDate(date, typeList);
-        String resultDateStr = DateUtil.format(resultDate, DateUtils.DATE_FORMAT_10);
+        String resultDateStr = DateUtil.format(resultDate, DateConstant.DATE_FORMAT_10);
         log.info("后一个交易日时间为：{}", resultDateStr);
         return resultDateStr;
     }
@@ -70,7 +69,7 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
     @Override
     public String queryDateDetail(String dateStr) {
         if (StringUtils.isEmpty(dateStr)) {
-            dateStr = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
+            dateStr = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
         }
         Date date = DateUtil.parseDate(dateStr);
         return queryDateDetail(date);
@@ -88,15 +87,15 @@ public class BaseDateServiceImpl extends ServiceImpl<BaseDateDao, BaseDate> impl
         BaseDate baseDate = queryBaseDateBydate(date);
         String type = baseDate.getType();
 
-        if (DateTypeConstant.DATE_TYPE_HOLIDAY.equals(type)) {
-            Date endDate = getAfterTypeDate(date, DateTypeConstant.WORK_LIST);
+        if (DateConstant.DATE_TYPE_HOLIDAY.equals(type)) {
+            Date endDate = getAfterTypeDate(date, DateConstant.WORK_LIST);
             Integer countDown = DateUtil.getIntervalOfDays(date, endDate);
             Integer range = DateUtil.getIntervalOfDays(new Date(), date);
             sb.append("距离" + baseDate.getName() + "(" + countDown + ")天假期,还有(" + range + ")天");
-        } else if (DateTypeConstant.DATE_TYPE_WORK.equals(type)) {
-            Date endDate = getAfterTypeDate(date, DateTypeConstant.WORK_LIST);
+        } else if (DateConstant.DATE_TYPE_WORK.equals(type)) {
+            Date endDate = getAfterTypeDate(date, DateConstant.WORK_LIST);
             Integer range = DateUtil.getIntervalOfDays(date, endDate);
-            sb.append("下一个交易日-" + DateUtil.format(baseDate.getDate(), DateUtils.DATE_FORMAT_10) + "(" + baseDate.getWeek() + "),还有(" + range + ")天");
+            sb.append("下一个交易日-" + DateUtil.format(baseDate.getDate(), DateConstant.DATE_FORMAT_10) + "(" + baseDate.getWeek() + "),还有(" + range + ")天");
         } else {
             sb.append("工作日类型还没有配置");
         }

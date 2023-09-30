@@ -1,6 +1,6 @@
 package com.example.springBootDemo.controller;
 
-import com.alibaba.excel.util.DateUtils;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.config.components.system.SystemConfConstant;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.BaseDateNews;
@@ -207,12 +207,12 @@ public class InputController {
     @ApiOperationSupport(order = 21)
     @ApiOperation("2-1 题材明细导入(只导入指定日期的数据，其他日期的数据不完整时，建议删除)")
     @PostMapping("/importSubjectDetail")
-    public RespBean importSubjectDetail(@RequestParam(value = "date", required = true) String date,
+    public RespBean importSubjectDetail(@RequestParam(value = "date", required = false) String date,
                                         @RequestParam(value = "startDate", required = false) String startDate,
                                         @RequestPart MultipartFile multipartFile) {
         try {
             if (StringUtils.isEmpty(date)) {
-                date = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
+                date = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
             }
             //导入前先删除当天的数据
             baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(date, startDate);
@@ -263,7 +263,7 @@ public class InputController {
     public RespBean importNewsUseCreateDate(@RequestParam(value = "clearFlag", required = false) String clearFlag,
                                             @RequestPart MultipartFile multipartFile) {
         if (StringUtils.isNotBlank(clearFlag)) {
-            baseDateNewsService.deleteByCreateDate(DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
+            baseDateNewsService.deleteByCreateDate(DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
         }
 
         try {
@@ -311,7 +311,7 @@ public class InputController {
             for (BaseMarket bm :list){
                 String marketTrends = bm.getMarketTrends();
                 if(StringUtils.isNotBlank(marketTrends)){
-//                    log.info("日期:{},market_trends长度:{}",DateUtil.format(bm.getDate(), DateUtils.DATE_FORMAT_10), marketTrends.length());
+//                    log.info("日期:{},market_trends长度:{}",DateUtil.format(bm.getDate(), DateConstant.DATE_FORMAT_10), marketTrends.length());
                 }
             }
             log.info("准备插入数据");

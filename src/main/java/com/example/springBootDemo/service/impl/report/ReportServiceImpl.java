@@ -3,7 +3,7 @@ package com.example.springBootDemo.service.impl.report;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.example.springBootDemo.config.components.constant.DateTypeConstant;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.entity.BaseMarketDetail;
 import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.input.*;
@@ -124,7 +124,7 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         //查询是否是昨天强势的方向
-        Date date = baseDateService.getBeforeTypeDate(list.get(0).getCreateDate(), DateTypeConstant.DEAL_LIST);
+        Date date = baseDateService.getBeforeTypeDate(list.get(0).getCreateDate(), DateConstant.DEAL_LIST);
         //取上一个交易日
         date = DateUtil.getNextDay(date, -1);
         List<String> activeList = baseSubjectLineDetailService.getActiveBusinessList(date);

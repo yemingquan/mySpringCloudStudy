@@ -1,7 +1,7 @@
 package com.example.springBootDemo.entity.report;
 
-import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.annotations.TableField;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.util.excel.Excel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,7 +39,7 @@ public class NewsReport implements Serializable {
     /**
      * 日期
      */
-    @Excel(name = "日期",dateFormat= DateUtils.DATE_FORMAT_10)
+    @Excel(name = "日期",dateFormat= DateConstant.DATE_FORMAT_10)
     private Date date;
 
     @Excel(name = "星期")

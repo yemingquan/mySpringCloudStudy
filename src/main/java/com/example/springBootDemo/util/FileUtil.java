@@ -54,7 +54,6 @@ public class FileUtil {
 
     /**
      * 根据流的前端来判断文件类型
-     * TODO 未测试
      *
      * @param inputStream
      * @return

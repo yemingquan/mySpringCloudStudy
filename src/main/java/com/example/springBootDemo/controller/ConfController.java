@@ -105,9 +105,9 @@ public class ConfController {
     @ApiOperation("2-1 题材配置-文件查询")
     @GetMapping("/exportConfBusiness")
     public void exportConfBusiness(HttpServletResponse response) {
-        try {
+            try {
             confBusinessService.exportConfBusiness(response, Lists.newArrayList());
-            log.info("导入成功");
+            log.info("查询成功");
         } catch (Exception e) {
             e.printStackTrace();
         }

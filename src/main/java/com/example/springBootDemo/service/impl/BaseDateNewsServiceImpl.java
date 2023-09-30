@@ -1,9 +1,8 @@
 package com.example.springBootDemo.service.impl;
 
-import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
-import com.example.springBootDemo.config.components.constant.DateTypeConstant;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.config.components.enums.NewsEnum;
 import com.example.springBootDemo.dao.mapper.BaseDateNewsDao;
 import com.example.springBootDemo.entity.BaseDateNews;
@@ -64,8 +63,8 @@ public class BaseDateNewsServiceImpl extends ServiceImpl<BaseDateNewsDao, BaseDa
 
     @Override
     public List<NewsReport> getNews(Date startDate, Date date) {
-        String startDateStr = DateUtil.format(startDate, DateUtils.DATE_FORMAT_10);
-        String dateStr = DateUtil.format(date, DateUtils.DATE_FORMAT_10);
+        String startDateStr = DateUtil.format(startDate, DateConstant.DATE_FORMAT_10);
+        String dateStr = DateUtil.format(date, DateConstant.DATE_FORMAT_10);
         return getNews(startDateStr, dateStr);
     }
 
@@ -105,7 +104,7 @@ public class BaseDateNewsServiceImpl extends ServiceImpl<BaseDateNewsDao, BaseDa
     @Override
     public void oprNewsData(List<BaseDateNews> list) {
         log.info("处理新闻数据");
-        Date dealDate = baseDateService.getBeforeTypeDate(new Date(), DateTypeConstant.DEAL_LIST);
+        Date dealDate = baseDateService.getBeforeTypeDate(new Date(), DateConstant.DEAL_LIST);
 
         for (int i = 0; i < list.size(); i++) {
             BaseDateNews news = list.get(i);

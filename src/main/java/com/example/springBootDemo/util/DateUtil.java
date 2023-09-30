@@ -9,7 +9,7 @@ package com.example.springBootDemo.util;
  * @公司名称
  */
 
-import com.alibaba.excel.util.DateUtils;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public class DateUtil {
 
-//    public static SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DATE_FORMAT_10);
+//    public static SimpleDateFormat sdf = new SimpleDateFormat(DateConstant.DATE_FORMAT_10);
 
     public static String parseStr(String str) {
         String sDate = "";
@@ -132,7 +132,7 @@ public class DateUtil {
     public static SimpleDateFormat getSimpleDateFormatPattern(String dateStr) {
         SimpleDateFormat format = null;
         if (Pattern.matches("\\d{4}-\\d{1,2}-\\d{1,2}", dateStr)) {
-            format = new SimpleDateFormat(DateUtils.DATE_FORMAT_10);
+            format = new SimpleDateFormat(DateConstant.DATE_FORMAT_10);
             System.out.println("用的yyyy-MM-dd");
         } else if (Pattern.matches("\\d{4}\\d{2}\\d{2}", dateStr)) {
             format = new SimpleDateFormat("yyyyMMdd");
@@ -167,7 +167,7 @@ public class DateUtil {
         SimpleDateFormat format = null;
         try {
             if (Pattern.matches("\\d{4}-\\d{2}-\\d{2}", dateStr)) {
-                format = new SimpleDateFormat(DateUtils.DATE_FORMAT_10);
+                format = new SimpleDateFormat(DateConstant.DATE_FORMAT_10);
                 return format.parse(dateStr);
             } else if (Pattern.matches("\\d{4}/\\d{2}/\\d{2}", dateStr)) {
                 format = new SimpleDateFormat("yyyy/MM/dd");
@@ -739,7 +739,6 @@ public class DateUtil {
         try {
             c.setTime(parseDate(formatStr, dateStr));
         } catch (Exception e) {
-            // TODO Auto-generated catch block
 // e.printStackTrace();
             return null;
         }
@@ -751,7 +750,6 @@ public class DateUtil {
         try {
             c.setTime(parseDateByPattern(dateStr));
         } catch (Exception e) {
-            // TODO Auto-generated catch block
 // e.printStackTrace();
             return null;
         }
@@ -771,7 +769,7 @@ public class DateUtil {
 
         SimpleDateFormat format = null;
         if (Pattern.matches("\\d{4}-\\d{1,2}-\\d{1,2}", dateStr)) {
-            format = new SimpleDateFormat(DateUtils.DATE_FORMAT_10);
+            format = new SimpleDateFormat(DateConstant.DATE_FORMAT_10);
         } else if (Pattern.matches("\\d{4}\\d{2}\\d{2}", dateStr)) {
             format = new SimpleDateFormat("yyyyMMdd");
         } else if (Pattern.matches("\\d{4}年\\d{2}月\\d{2}日", dateStr)) {
@@ -791,7 +789,6 @@ public class DateUtil {
         try {
             return format.parse(dateStr);
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
@@ -1659,7 +1656,7 @@ public class DateUtil {
     }
 
     void testDateCompare2() throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DATE_FORMAT_10);
+        SimpleDateFormat sdf = new SimpleDateFormat(DateConstant.DATE_FORMAT_10);
         Date date1 = sdf.parse("2009-12-31");
         Date date2 = sdf.parse("2019-01-31");
 

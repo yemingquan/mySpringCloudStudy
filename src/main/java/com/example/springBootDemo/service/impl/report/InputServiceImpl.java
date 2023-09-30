@@ -2,8 +2,8 @@ package com.example.springBootDemo.service.impl.report;
 
 
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.entity.BaseSubject;
 import com.example.springBootDemo.entity.BaseSubjectLine;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
@@ -71,7 +71,7 @@ public class InputServiceImpl implements InputService {
     public boolean importExcelZthfStock(InputStream is) throws Exception {
         //导入前先删除当天的数据
         EntityWrapper<BaseZthfStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
+        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
         baseZthfStockService.delete(wrapper);
 
         List<BaseZthfStock> list = ExcelUtil.excelToList(is, BaseZthfStock.class);
@@ -94,8 +94,8 @@ public class InputServiceImpl implements InputService {
 
     public List<String> getMainBusinessList() {
 //        return Lists.newArrayList();
-        String date = DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10);
-        String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -20), DateUtils.DATE_FORMAT_10);
+        String date = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
+        String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -20), DateConstant.DATE_FORMAT_10);
         List<SubjectReport> subList = baseSubjectLineDetailService.getSubjectReport(date, startDate);
         return subList.stream()
                 .sorted(Comparator.comparing(SubjectReport::getCountZt, Comparator.reverseOrder()))
@@ -153,7 +153,7 @@ public class InputServiceImpl implements InputService {
     public boolean importExcelZtStock(InputStream is) throws Exception {
         //导入前先删除当天的数据
         EntityWrapper<BaseZtStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
+        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
         baseZtStockService.delete(wrapper);
 
         List<BaseZtStock> list = ExcelUtil.excelToList(is, BaseZtStock.class);
@@ -178,7 +178,7 @@ public class InputServiceImpl implements InputService {
     public boolean importExcelBdUpStock(InputStream is) throws Exception {
         //导入前先删除当天的数据
         EntityWrapper<BaseBdUpStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
+        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
         baseBdUpStockService.delete(wrapper);
 
         List<BaseBdUpStock> list = ExcelUtil.excelToList(is, BaseBdUpStock.class);
@@ -200,7 +200,7 @@ public class InputServiceImpl implements InputService {
     public boolean importExcelBdDownStock(InputStream is) throws Exception {
         //导入前先删除当天的数据
         EntityWrapper<BaseBdDownStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
+        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
         baseBdDownStockService.delete(wrapper);
 
         List<BaseBdDownStock> list = ExcelUtil.excelToList(is, BaseBdDownStock.class);
@@ -221,7 +221,7 @@ public class InputServiceImpl implements InputService {
     public boolean importExcelDtStock(InputStream is) throws Exception {
         //导入前先删除当天的数据
         EntityWrapper<BaseDtStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
+        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
         baseDtStockService.delete(wrapper);
 
 
@@ -250,7 +250,7 @@ public class InputServiceImpl implements InputService {
     public boolean importExcelZbStock(InputStream is) throws Exception {
         //导入前先删除当天的数据
         EntityWrapper<BaseZbStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), DateUtils.DATE_FORMAT_10));
+        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
         baseZbStockService.delete(wrapper);
 
         List<BaseZbStock> list = ExcelUtil.excelToList(is, BaseZbStock.class);

@@ -1,7 +1,7 @@
 package com.example.springBootDemo.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.example.springBootDemo.config.components.constant.DateTypeConstant;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.BaseDate;
 import com.example.springBootDemo.service.BaseDateNewsService;
@@ -63,7 +63,7 @@ public class DateController {
                 Date date = calendar.getTime();
                 Date lunar = LunarSolarUtil.getLunarDate(date);
                 String week = DateUtil.getWeek(date);
-                List<String> weekend = DateTypeConstant.WEEKEND;
+                List<String> weekend = DateConstant.WEEKEND;
                 String type = "0";
                 if (weekend.contains(week)) {
                     type = "1";

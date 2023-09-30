@@ -3,11 +3,13 @@ package com.example.springBootDemo.util.excel;
 
 import cn.afterturn.easypoi.entity.ImageEntity;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
-import com.alibaba.excel.util.DateUtils;
-import com.example.springBootDemo.config.components.constant.DateTypeConstant;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.config.components.enums.NewsEnum;
 import com.example.springBootDemo.entity.base.BaseStock;
+import com.example.springBootDemo.entity.input.ConfBusiness;
 import com.example.springBootDemo.entity.report.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
@@ -63,6 +65,18 @@ public class ExcelUtil<T> implements Serializable {
         );
     }
 
+    /**
+     * 自定义head 和row的参数
+     * excel 导入
+     *
+     * @param file      excel文件
+     * @param pojoClass pojo类型
+     * @param <T>
+     * @return
+     */
+    public static <T> List<T> importExcel(int titleRows,int headRows ,MultipartFile file, Class<T> pojoClass) throws IOException {
+        return importExcel(file, titleRows, headRows, pojoClass);
+    }
 
     /**
      * excel 导入
@@ -128,6 +142,7 @@ public class ExcelUtil<T> implements Serializable {
 
     /**
      * 将excel数据转换为List数据
+     *
      * @param excel
      * @param tClass
      * @param <T>
@@ -143,6 +158,7 @@ public class ExcelUtil<T> implements Serializable {
 
     /**
      * 将excel数据流 转换为List数据
+     *
      * @param mf
      * @param tClass
      * @param <T>
@@ -158,6 +174,7 @@ public class ExcelUtil<T> implements Serializable {
 
     /**
      * 将excel数据流 转换为List数据
+     *
      * @param is
      * @param tClass
      * @param <T>
@@ -1069,7 +1086,7 @@ public class ExcelUtil<T> implements Serializable {
                 //根据主业给与背景随机颜色
                 map.put("backgroundColor", colorMap.get(po.getSubName()));
                 //当天日期改为红色
-                if (date.equals(DateUtil.format(createDate, DateUtils.DATE_FORMAT_10))) {
+                if (date.equals(DateUtil.format(createDate, DateConstant.DATE_FORMAT_10))) {
                     map.put("color", IndexedColors.RED);
                 } else {
                     map.put("color", IndexedColors.BLACK);
@@ -1098,7 +1115,7 @@ public class ExcelUtil<T> implements Serializable {
         int num = 0;
         for (Date temp : ztMap.keySet()) {
             String week = DateUtil.getWeek(temp);
-            if (DateTypeConstant.WEEKEND.contains(week)) {
+            if (DateConstant.WEEKEND.contains(week)) {
                 colorMap.put(temp, IndexedColors.WHITE);
             } else {
                 colorMap.put(temp, colorArr[num++ % colorArr.length]);
@@ -1128,7 +1145,7 @@ public class ExcelUtil<T> implements Serializable {
                 //根据主业给与背景随机颜色
                 map.put("backgroundColor", colorMap.get(po.getDate()));
                 //当天日期改为红色
-//                if (DateUtil.format(localDate, DateUtils.DATE_FORMAT_10).equals(DateUtil.format(date, DateUtils.DATE_FORMAT_10))) {
+//                if (DateUtil.format(localDate, DateConstant.DATE_FORMAT_10).equals(DateUtil.format(date, DateConstant.DATE_FORMAT_10))) {
                 if (NewsEnum.SCOPE_ENVIRONMENT.getName().equals(po.getScope()) || NewsEnum.SCOPE_MAIN.getName().equals(po.getScope())) {
                     map.put("color", IndexedColors.RED);
                 } else {
@@ -1136,7 +1153,7 @@ public class ExcelUtil<T> implements Serializable {
                 }
 
                 //创建时间为当天时，加粗显示
-                if ( DateUtil.getIntervalOfDays(createDate, localDate)<=2) {
+                if (DateUtil.getIntervalOfDays(createDate, localDate) <= 2) {
                     map.put("bold", true);
                 } else {
                     map.put("bold", false);
@@ -1150,26 +1167,46 @@ public class ExcelUtil<T> implements Serializable {
         return annotationMapping;
     }
 
-    /**
-     * export导出请求头设置
-     * 这个是测试fe那边导入进来的方法
-     * @param response
-     * @param workbook
-     * @param fileName
-     * @throws Exception
-     */
-    public static void export(HttpServletResponse response, Workbook workbook, String fileName) throws Exception {
-        response.reset();
-        response.setContentType("application/x-msdownload");
-        fileName = fileName + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        response.setHeader("Content-disposition", "attachment; filename=" + new String(fileName.getBytes("UTF-8"), "ISO-8859-1") + ".xlsx");
-        ServletOutputStream outStream = null;
-        try {
-            outStream = response.getOutputStream();
-            workbook.write(outStream);
-        } finally {
-            outStream.close();
+    public static void exportExel(HttpServletResponse response, String fileName, Workbook workbook) throws IOException {
+        if (!fileName.contains(".")) {
+            fileName = fileName + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())+ ".xlsx";
         }
+        fileName = new String(fileName.getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
+
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+        ServletOutputStream outputStream = response.getOutputStream();
+        response.flushBuffer();
+        try {
+            outputStream = response.getOutputStream();
+            workbook.write(outputStream);
+        } finally {
+            outputStream.close();
+        }
+    }
+
+    public static ExportParams getSimpleExportParams(List<ConfBusiness> list, Class tClass) {
+        Map<String, Object> excelParam = new HashMap<>();
+        ExportParams params = new ExportParams();
+        params.setType(ExcelType.XSSF);
+        excelParam.put("title", params);
+        excelParam.put("entity", tClass);
+        excelParam.put("data", list);
+        return params;
+    }
+
+    public static ExportParams getExportParams(String title, String sheetName, List<ConfBusiness> list, Class tClass) {
+        Map<String, Object> excelParam = new HashMap<>();
+        ExportParams params = new ExportParams();
+        if (StringUtils.isNotBlank(title)) {
+            params.setTitle(title);
+        }
+        params.setSheetName(sheetName);
+        params.setType(ExcelType.XSSF);
+        excelParam.put("title", params);
+        excelParam.put("entity", tClass);
+        excelParam.put("data", list);
+        return params;
     }
 
     public static ImageEntity imageToBytes(BufferedImage bImage) throws IOException {

@@ -1,5 +1,4 @@
 package com.example.springBootDemo.entity.input;
-
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
@@ -9,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -26,6 +26,7 @@ import java.util.Date;
 @AllArgsConstructor
 @ApiModel(description = "行业配置化")
 @TableName("conf_business")
+@Accessors(chain = true)
 public class ConfBusiness implements Serializable {
     private static final long serialVersionUID = -40100652532530046L;
     /**

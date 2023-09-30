@@ -81,18 +81,7 @@ public class GameController {
         outputStream.close();
     }
 
-    @ApiOperationSupport(order = 1)
-    @GetMapping("/test")
-    @ApiOperation("1-0 测试接口")
-    public void test(HttpServletResponse response) throws Exception {
-//        log.info("1-1{}", 'Ａ' + 1);
-//        log.info("1-1{}", ('Ａ' + 1 < 128));
-//
-//        for (int i = 65313; ; i++) {
-//            char c = (char) i;
-//            log.info("char:{},字符:{}", i, c);
-//        }
-    }
+
 
 }
 

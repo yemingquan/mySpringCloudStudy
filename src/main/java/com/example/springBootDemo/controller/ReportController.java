@@ -2,12 +2,9 @@ package com.example.springBootDemo.controller;
 
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
-import com.alibaba.excel.util.DateUtils;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.example.springBootDemo.config.components.constant.DateTypeConstant;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.entity.BaseDate;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
-import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.entity.input.BaseSubjectDetail;
 import com.example.springBootDemo.entity.input.ConfBusiness;
 import com.example.springBootDemo.entity.report.*;
@@ -33,10 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -89,7 +83,7 @@ public class ReportController {
         long start;
         String fileName = "板块0000.xlsx";
         String sheetName = "板块";
-        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
+        date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
         try {
             //获取基础数据，用于后续的数据生成
@@ -166,7 +160,7 @@ public class ReportController {
         log.info("1-1 涨停报表导出 {}", date);
         String fileName = "涨停1111.xlsx";
         String sheetName = "涨停";
-        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
+        date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
         if (StringUtils.isNotBlank(refreshFlag)) {
             //检索10天以内的数据
@@ -194,7 +188,7 @@ public class ReportController {
         log.info("1-2 摸板报表导出 {}", date);
         String fileName = "摸板222.xlsx";
         String sheetName = "摸板";
-        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
+        date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
         List<MbReport> list = reportService.getMbReportByDate(date);
 
@@ -212,7 +206,7 @@ public class ReportController {
         log.info("1-3 波动报表导出 {}", date);
         String fileName = "波动333.xlsx";
         String sheetName = "波动";
-        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
+        date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
         List<BdReport> list = reportService.getBdReportByDate(date);
 
 
@@ -232,9 +226,9 @@ public class ReportController {
         log.info("2-1 消息报表导出 {}", date);
         String fileName = "消息.xlsx";
         String sheetName = "消息";
-        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
+        date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
         if (StringUtils.isNotBlank(startDate)) {
-            startDate = baseDateService.getBeforeTypeDate(startDate, DateTypeConstant.DEAL_LIST);
+            startDate = baseDateService.getBeforeTypeDate(startDate, DateConstant.DEAL_LIST);
         }
         List<NewsReport> list = baseDateNewsService.getNews(startDate, date);
 
@@ -279,8 +273,8 @@ public class ReportController {
     @ApiOperation("aaaaaaaaaaaaaaa")
     public void aaaaa(@RequestParam(value = "date", required = false) String date,
                       HttpServletResponse response) {
-        String dealDateStr = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
-        Date dealDate = DateUtil.format(dealDateStr, DateUtils.DATE_FORMAT_10);
+        String dealDateStr = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+        Date dealDate = DateUtil.format(dealDateStr, DateConstant.DATE_FORMAT_10);
         Map<String, Object> data = new HashMap<String, Object>();
 
         //基础数据
@@ -322,15 +316,7 @@ public class ReportController {
         try {
             // 简单模板导出方法
             Workbook book = ExcelExportUtil.exportExcel(params, data);
-
-            String fileName = new String("abcd.xlsx".getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
-            OutputStream outputStream = response.getOutputStream();
-            response.flushBuffer();
-            book.write(outputStream);
-            // 写完数据关闭流
-            outputStream.close();
+            ExcelUtil.exportExel(response,"abcd",book);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -342,13 +328,13 @@ public class ReportController {
         BaseDate baseDate = baseDateService.queryBaseDateBydate(dealDate);
         data.put("BASIC_DATE", baseDate);
         //距离最近的假期，长假倒计时（距离大于4天及以上的假期，还有几天，名称是什么）
-        Date nextRest = baseDateService.getAfterTypeDate(dealDate, DateTypeConstant.REST_LIST);
+        Date nextRest = baseDateService.getAfterTypeDate(dealDate, DateConstant.REST_LIST);
         int countDownShort = DateUtil.getIntervalOfDays(dealDate, nextRest);
         BASIC_MAP.put("BASIC_COUNT_DOWN_SHORT", "还有" + countDownShort + "天休息");
-        Date nextHoliday = baseDateService.getAfterTypeDate(dealDate, DateTypeConstant.HOLIDAY_LIST);
+        Date nextHoliday = baseDateService.getAfterTypeDate(dealDate, DateConstant.HOLIDAY_LIST);
         String holidayDateDetail = baseDateService.queryDateDetail(nextHoliday);
         BASIC_MAP.put("BASIC_COUNT_DOWN_LONG", holidayDateDetail);
-        Date nextDealDay = baseDateService.getAfterTypeDate(dealDate, DateTypeConstant.DEAL_LIST);
+        Date nextDealDay = baseDateService.getAfterTypeDate(dealDate, DateConstant.DEAL_LIST);
         String dealDateDetail  = baseDateService.queryDateDetail(nextDealDay);
         BASIC_MAP.put("BASIC_NEXT_DEAL_DATE", dealDateDetail);
         data.putAll(BASIC_MAP);
@@ -359,7 +345,7 @@ public class ReportController {
         //周期15天内的利好消息频率  展示效果：汽车(5),数字经济（6）
         // 一天内多个时，算1个。取别名时归类为一个，比如光模块、CPO则算一个。
         Date endDate = DateUtil.getNextDay(DateUtil.parseDate(dealDateStr), 15);
-        String endDateStr = DateUtil.format(endDate, DateUtils.DATE_FORMAT_10);
+        String endDateStr = DateUtil.format(endDate, DateConstant.DATE_FORMAT_10);
         List<NewsReport> newsList = baseDateNewsService.getNews(dealDateStr, endDateStr);
         Map<Date, List<NewsReport>> news15Map = newsList.stream().collect(Collectors.groupingBy(NewsReport::getDate));
         //获取别名的映射关系
@@ -529,20 +515,7 @@ public class ReportController {
         }
     }
 
-    @ApiOperationSupport(order = 9999)
-    @ApiOperation("Excel导出测试")
-    @GetMapping("/export")
-    public void export(HttpServletResponse response) throws IOException {
-        String fileName = "excel测试.xlsx";
-        String sheetName = "excel测试";
-//        ExportParams params = new ExportParams(title, "sheet1", ExcelType.XSSF);
 
-        EntityWrapper<Student> wrapper = new EntityWrapper<>();
-        List<Student> list = studentService.selectList(wrapper);
-
-        ExcelUtil<Student> excelUtil = new ExcelUtil<>(Student.class);
-        excelUtil.exportCustomExcel_bak(list, fileName, sheetName, response);
-    }
 }
 
 

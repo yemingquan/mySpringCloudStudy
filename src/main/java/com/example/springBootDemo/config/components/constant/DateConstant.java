@@ -14,7 +14,10 @@ import java.util.List;
  * @公司名称
  */
 @Service
-public class DateTypeConstant {
+public class DateConstant {
+
+    public static final String DATE_FORMAT_10 = "yyyy-MM-dd";
+
     //0工作日、1周末、2节日、3调休
     public static final String DATE_TYPE_WORK = "0";
     public static final String DATE_TYPE_WORKEND = "1";
