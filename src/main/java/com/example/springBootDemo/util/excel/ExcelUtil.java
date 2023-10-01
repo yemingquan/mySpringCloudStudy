@@ -426,6 +426,8 @@ public class ExcelUtil<T> implements Serializable {
                 //设置样式
                 setRowStyle(workbook, cell, attr, true);
             }
+            //冻结首行
+            sheet.createFreezePane( 0, 1, 0, 1 );
             log.info("自定义excel导出-表头设置耗时:{}ms ", stopWatch.getTime());
             stopWatch.reset();
 
@@ -502,7 +504,7 @@ public class ExcelUtil<T> implements Serializable {
                 row.setHeight((short) -1);
             }
             // 自适应列宽 表头不动
-            int cellNum = sheet.getLastRowNum();
+            int cellNum = row.getLastCellNum();
             for (int z = 0; z < cellNum; z++) {
                 CellRangeAddress region = new CellRangeAddress(0, rowNums, z, z); //起始行号，终止行号，起始列号，终止列号
                 int maxCharWidth = 0;
