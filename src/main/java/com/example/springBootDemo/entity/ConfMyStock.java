@@ -29,20 +29,20 @@ import java.util.Date;
 public class ConfMyStock implements Serializable {
     private static final long serialVersionUID = 139155789162003218L;
     /**
-     * 主键
-     */
-    @TableId(type = IdType.AUTO)
-    private Integer id;
-    /**
      * 股票编码
      */
     @Excel(name = "代码")
+    @TableId(type = IdType.INPUT)
     private String stockCode;
     /**
      * 股票名称
      */
     @Excel(name = "名称")
     private String stockName;
+    /**
+     * 上市日期
+     */
+    private Date issueDate;
     /**
      * 所属板块
      */
