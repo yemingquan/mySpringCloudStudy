@@ -65,7 +65,7 @@ public class ReportController {
     @Resource
     private ConfCxStockService confCxStockService;
     @Resource
-    private ConfMySotckService confMySotckService;
+    private ConfMyStockService confMyStockService;
     @Resource
     private BaseBondService baseBondService;
     @Resource
@@ -246,7 +246,7 @@ public class ReportController {
             log.info("可转债");
             baseBondService.imporKZZ();
             log.info("增量刷新股票的主业");
-            confMySotckService.reflshMyStock();
+            confMyStockService.reflshMyStock();
             log.info("日期功能刷新");
 
         } catch (Exception e) {

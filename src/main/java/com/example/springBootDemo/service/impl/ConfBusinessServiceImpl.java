@@ -8,10 +8,10 @@ import com.example.springBootDemo.config.components.constant.StockCode;
 import com.example.springBootDemo.config.components.system.SystemConfConstant;
 import com.example.springBootDemo.dao.mapper.ConfBusinessDao;
 import com.example.springBootDemo.entity.ConfCxStock;
-import com.example.springBootDemo.entity.ConfMySotck;
+import com.example.springBootDemo.entity.ConfMyStock;
 import com.example.springBootDemo.entity.input.ConfBusiness;
 import com.example.springBootDemo.service.ConfBusinessService;
-import com.example.springBootDemo.service.ConfMySotckService;
+import com.example.springBootDemo.service.ConfMyStockService;
 import com.example.springBootDemo.util.excel.ExcelChangeUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
 import com.google.common.collect.Lists;
@@ -44,7 +44,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
     @Resource
     private ConfBusinessService confBusinessService;
     @Resource
-    private ConfMySotckService confMySotckService;
+    private ConfMyStockService confMyStockService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -55,9 +55,9 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
 
         List<ConfBusiness> cbList = ExcelUtil.importExcel(0, 1, mf, ConfBusiness.class);
 
-        EntityWrapper<ConfMySotck> cmsWrapper = new EntityWrapper<>();
-        List<ConfMySotck> mySotckList = confMySotckService.selectList(cmsWrapper);
-        Map<String, String> map = mySotckList.stream().collect(Collectors.toMap(ConfMySotck::getStockName, ConfMySotck::getStockCode, (item1, item2) -> item1));
+        EntityWrapper<ConfMyStock> cmsWrapper = new EntityWrapper<>();
+        List<ConfMyStock> mySotckList = confMyStockService.selectList(cmsWrapper);
+        Map<String, String> map = mySotckList.stream().collect(Collectors.toMap(ConfMyStock::getStockName, ConfMyStock::getStockCode, (item1, item2) -> item1));
 
         //code和创建时间要不要加一个 2023-9-14
         for (ConfBusiness cb : cbList) {
@@ -205,12 +205,12 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
             return;
         }
 
-        EntityWrapper<ConfMySotck> cmsWrapper2 = new EntityWrapper<>();
+        EntityWrapper<ConfMyStock> cmsWrapper2 = new EntityWrapper<>();
         cmsWrapper2.in("STOCK_CODE", codeList);
-        List<ConfMySotck> mySotckList2 = confMySotckService.selectList(cmsWrapper2);
+        List<ConfMyStock> mySotckList2 = confMyStockService.selectList(cmsWrapper2);
 
         //3.修改库中相关概念
-        for (ConfMySotck stock : mySotckList2) {
+        for (ConfMyStock stock : mySotckList2) {
             String attr = stock.getAttr();
             attr = addEleBusiness(busName, attr);
             stock.setAttr(attr);
@@ -220,7 +220,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         }
         log.info("概念:[{}]修改库中相关概念:[{}]", cb.getBusName(), mySotckList2);
         if (CollectionUtils.isNotEmpty(mySotckList2)) {
-            confMySotckService.insertOrUpdateBatch(mySotckList2, mySotckList2.size());
+            confMyStockService.insertOrUpdateBatch(mySotckList2, mySotckList2.size());
         }
     }
 
@@ -247,12 +247,12 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
             return;
         }
 
-        EntityWrapper<ConfMySotck> cmsWrapper2 = new EntityWrapper<>();
+        EntityWrapper<ConfMyStock> cmsWrapper2 = new EntityWrapper<>();
         cmsWrapper2.in("STOCK_CODE", codeList);
-        List<ConfMySotck> mySotckList2 = confMySotckService.selectList(cmsWrapper2);
+        List<ConfMyStock> mySotckList2 = confMyStockService.selectList(cmsWrapper2);
 
         //3.修改库中相关概念
-        for (ConfMySotck stock : mySotckList2) {
+        for (ConfMyStock stock : mySotckList2) {
             String stockCode = stock.getStockCode();
             //主要名称设置
             if (ccList.contains(stockCode)) {
@@ -283,18 +283,18 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         }
         log.info("概念:[{}]修改库中相关概念:[{}]", cb.getBusName(), mySotckList2);
         if (CollectionUtils.isNotEmpty(mySotckList2)) {
-            confMySotckService.insertOrUpdateBatch(mySotckList2, mySotckList2.size());
+            confMyStockService.insertOrUpdateBatch(mySotckList2, mySotckList2.size());
         }
     }
 
     private void clearAttr(ConfBusiness cb, String busName, String alias) {
         List<String> attrList = Lists.newArrayList(alias.split(","));
         attrList.add(busName);
-        EntityWrapper<ConfMySotck> cmsWrapper = new EntityWrapper<>();
+        EntityWrapper<ConfMyStock> cmsWrapper = new EntityWrapper<>();
         cmsWrapper.in("attr", attrList);
-        List<ConfMySotck> mySotckList = confMySotckService.selectList(cmsWrapper);
+        List<ConfMyStock> mySotckList = confMyStockService.selectList(cmsWrapper);
 
-        for (ConfMySotck stock : mySotckList) {
+        for (ConfMyStock stock : mySotckList) {
             String attr = stock.getAttr();
 
             for (String str : attrList) {
@@ -307,7 +307,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         }
         log.info("概念:[{}]查询已有概念的标的，并将其中的概念抹去：{}", cb.getBusName(), mySotckList);
         if (CollectionUtils.isNotEmpty(mySotckList)) {
-            confMySotckService.updateBatchById(mySotckList, mySotckList.size());
+            confMyStockService.updateBatchById(mySotckList, mySotckList.size());
         }
 
     }
@@ -316,13 +316,13 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         List<String> businessList = Lists.newArrayList(alias.split(","));
         businessList.add(busName);
         //注意这里没有删除关联板块属性
-        EntityWrapper<ConfMySotck> cmsWrapper = new EntityWrapper<>();
+        EntityWrapper<ConfMyStock> cmsWrapper = new EntityWrapper<>();
         for (String str : businessList) {
             cmsWrapper.like("MAIN_BUSINESS", str).or().like("NICHE_BUSINESS", str);
         }
-        List<ConfMySotck> mySotckList = confMySotckService.selectList(cmsWrapper);
+        List<ConfMyStock> mySotckList = confMyStockService.selectList(cmsWrapper);
 
-        for (ConfMySotck stock : mySotckList) {
+        for (ConfMyStock stock : mySotckList) {
             String mb = stock.getMainBusiness();
             String nb = stock.getNicheBusiness();
 
@@ -340,7 +340,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         }
         log.info("概念:[{}]查询已有概念的标的，并将其中的概念抹去：{}", cb.getBusName(), mySotckList);
         if (CollectionUtils.isNotEmpty(mySotckList)) {
-            confMySotckService.updateBatchById(mySotckList, mySotckList.size());
+            confMyStockService.updateBatchById(mySotckList, mySotckList.size());
         }
     }
 

@@ -4,9 +4,9 @@ import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.example.springBootDemo.entity.ConfMySotck;
+import com.example.springBootDemo.entity.ConfMyStock;
 import com.example.springBootDemo.entity.game.ShortNameDto;
-import com.example.springBootDemo.service.ConfMySotckService;
+import com.example.springBootDemo.service.ConfMyStockService;
 import com.example.springBootDemo.util.PingYinUtils;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.google.common.collect.Lists;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 public class GameController {
 
     @Resource
-    private ConfMySotckService confMySotckService;
+    private ConfMyStockService confMyStockService;
 
     @ApiOperationSupport(order = 1)
     @GetMapping("/shortNameStatistics")
@@ -51,7 +51,7 @@ public class GameController {
         String fileName = "ShortNameDto.xls";
         String sheetName = "缩写统计";
 
-        List<ConfMySotck> msList = confMySotckService.selectList(new EntityWrapper<>());
+        List<ConfMyStock> msList = confMyStockService.selectList(new EntityWrapper<>());
         List<ShortNameDto> dtoList = BeanUtil.copyToList(msList, ShortNameDto.class);
         for (ShortNameDto dto : dtoList) {
             String stockName = dto.getStockName();

@@ -30,7 +30,7 @@ public class ConfController {
     @Resource
     private ConfCxStockService confCxStockService;
     @Resource
-    private ConfMySotckService confMySotckService;
+    private ConfMyStockService confMyStockService;
     @Resource
     private BaseBondService baseBondService;
     @Resource
@@ -54,7 +54,7 @@ public class ConfController {
     @PostMapping("/reflshMyStock")
     public RespBean reflshMyStock() {
         try {
-            confMySotckService.reflshMyStock();
+            confMyStockService.reflshMyStock();
             return RespBean.success("刷新成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,7 +93,7 @@ public class ConfController {
     @PostMapping("/imporMyStock")
     public RespBean imporMyStock() {
         try {
-            confMySotckService.imporMyStock();
+            confMyStockService.imporMyStock();
             return RespBean.success("导入成功");
         } catch (Exception e) {
             e.printStackTrace();

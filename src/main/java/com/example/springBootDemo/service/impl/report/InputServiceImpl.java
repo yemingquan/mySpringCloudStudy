@@ -7,7 +7,7 @@ import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.entity.BaseSubject;
 import com.example.springBootDemo.entity.BaseSubjectLine;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
-import com.example.springBootDemo.entity.ConfMySotck;
+import com.example.springBootDemo.entity.ConfMyStock;
 import com.example.springBootDemo.entity.base.BaseStock;
 import com.example.springBootDemo.entity.dto.QueryStockDto;
 import com.example.springBootDemo.entity.input.*;
@@ -64,7 +64,7 @@ public class InputServiceImpl implements InputService {
     @Autowired
     BaseSubjectLineDetailService baseSubjectLineDetailService;
     @Autowired
-    ConfMySotckService confMySotckService;
+    ConfMyStockService confMyStockService;
 
 
     @Override
@@ -105,11 +105,11 @@ public class InputServiceImpl implements InputService {
 
     public void setMainBusinessList(List<String> mainBusinessList, BaseStock po) {
 //        log.info("股票名称[{}],代码[{}]", po.getStockName(), po.getStockCode());
-        EntityWrapper<ConfMySotck> wr = new EntityWrapper<>();
+        EntityWrapper<ConfMyStock> wr = new EntityWrapper<>();
         wr.eq("STOCK_CODE", po.getStockCode());
-        ConfMySotck conf = confMySotckService.selectOne(wr);
+        ConfMyStock conf = confMyStockService.selectOne(wr);
         if (conf == null) {
-            confMySotckService.insert(ConfMySotck.builder().stockCode(po.getStockCode()).stockName(po.getStockName()).build());
+            confMyStockService.insert(ConfMyStock.builder().stockCode(po.getStockCode()).stockName(po.getStockName()).build());
             return;
         }
         String nowMainBusiness = conf.getMainBusiness();
