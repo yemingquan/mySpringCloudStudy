@@ -1,7 +1,7 @@
 package com.example.springBootDemo.entity.dto;
 
 import com.baomidou.mybatisplus.annotations.TableField;
-import com.example.springBootDemo.entity.base.BaseStock;
+import com.example.springBootDemo.entity.base.BaseReportStock;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +22,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class QueryStockDto extends BaseStock {
+public class QueryStockDto extends BaseReportStock {
 
     @TableField(exist = false)
     private Date startDate;

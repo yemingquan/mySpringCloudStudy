@@ -10,7 +10,7 @@ import java.util.Date;
 
 
 /**
- * 曾炸板的股票(BaseStock)实体类
+ * 曾炸板的股票(BaseReportStock)实体类
  *
  * @author makejava
  * @since 2023-08-06 10:57:53
@@ -19,7 +19,7 @@ import java.util.Date;
 //@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BaseStock implements Serializable {
+public class BaseReportStock implements Serializable {
     private static final long serialVersionUID = -54210230650774023L;
 //    /**
 //     * 主键

@@ -8,7 +8,7 @@ import com.example.springBootDemo.entity.BaseSubject;
 import com.example.springBootDemo.entity.BaseSubjectLine;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.ConfMyStock;
-import com.example.springBootDemo.entity.base.BaseStock;
+import com.example.springBootDemo.entity.base.BaseReportStock;
 import com.example.springBootDemo.entity.dto.QueryStockDto;
 import com.example.springBootDemo.entity.input.*;
 import com.example.springBootDemo.entity.report.SubjectReport;
@@ -103,7 +103,7 @@ public class InputServiceImpl implements InputService {
                 .map(SubjectReport::getMainBusiness).distinct().collect(Collectors.toList());
     }
 
-    public void setMainBusinessList(List<String> mainBusinessList, BaseStock po) {
+    public void setMainBusinessList(List<String> mainBusinessList, BaseReportStock po) {
 //        log.info("股票名称[{}],代码[{}]", po.getStockName(), po.getStockCode());
         EntityWrapper<ConfMyStock> wr = new EntityWrapper<>();
         wr.eq("STOCK_CODE", po.getStockCode());
@@ -422,7 +422,7 @@ public class InputServiceImpl implements InputService {
     }
 
 
-    private void datePro(BaseStock po) {
+    private void datePro(BaseReportStock po) {
         StringBuffer instructions = new StringBuffer("");
 
         po.setCreateDate(new Date());
@@ -467,7 +467,7 @@ public class InputServiceImpl implements InputService {
      *
      * @param po
      */
-    private void bdInstructions(BaseStock po) {
+    private void bdInstructions(BaseReportStock po) {
         //实体大小
 //        BigDecimal a = new BigDecimal(po.getGains()).setScale(2, BigDecimal.ROUND_UP);
 //        BigDecimal b = new BigDecimal(po.getStartGains()).setScale(2, BigDecimal.ROUND_UP);
@@ -501,7 +501,7 @@ public class InputServiceImpl implements InputService {
      *
      * @param po
      */
-    private void ztInstructions(BaseStock po) throws ParseException {
+    private void ztInstructions(BaseReportStock po) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         //说明
         StringBuffer instructions = new StringBuffer(po.getInstructions());
@@ -554,7 +554,7 @@ public class InputServiceImpl implements InputService {
      *
      * @param po
      */
-    private void mbInstructions(BaseStock po) {
+    private void mbInstructions(BaseReportStock po) {
         //说明
         StringBuffer instructions = new StringBuffer(po.getInstructions());
         Double entitySize = po.getEntitySize();

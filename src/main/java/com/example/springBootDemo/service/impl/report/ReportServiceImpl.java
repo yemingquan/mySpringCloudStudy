@@ -5,7 +5,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.entity.BaseMarketDetail;
-import com.example.springBootDemo.entity.base.BaseStock;
+import com.example.springBootDemo.entity.base.BaseReportStock;
 import com.example.springBootDemo.entity.input.*;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
@@ -303,19 +303,19 @@ public class ReportServiceImpl implements ReportService {
 
 
         //将涨停、涨停回封、涨停炸板三块数据合并在一起
-        List<BaseStock> upList = BeanUtil.copyToList(list1, BaseStock.class);
+        List<BaseReportStock> upList = BeanUtil.copyToList(list1, BaseReportStock.class);
         List<MbReport> soource3List = list2.stream().filter(po -> {
             po.setHardenTime(po.getTouchTime());
             return "3".equals(po.getSource());
         }).collect(Collectors.toList());
-        List<BaseStock> zthflist = BeanUtil.copyToList(soource3List, BaseStock.class);
+        List<BaseReportStock> zthflist = BeanUtil.copyToList(soource3List, BaseReportStock.class);
         upList.addAll(zthflist);
 
         //过滤出资金进攻的时间块
-        Map<String, List<BaseStock>> upMap = upList.stream().sorted(Comparator.comparing(BaseStock::getHardenTime, Comparator.nullsFirst(Date::compareTo))).collect(Collectors.groupingBy(BaseStock::getMainBusiness));
+        Map<String, List<BaseReportStock>> upMap = upList.stream().sorted(Comparator.comparing(BaseReportStock::getHardenTime, Comparator.nullsFirst(Date::compareTo))).collect(Collectors.groupingBy(BaseReportStock::getMainBusiness));
         for (String str : upMap.keySet()) {
             //寻找相同的时间块
-            List<BaseStock> bkList = upMap.get(str);
+            List<BaseReportStock> bkList = upMap.get(str);
 
             //小于3一般是
             if (bkList.size() < 3) {
@@ -327,8 +327,8 @@ public class ReportServiceImpl implements ReportService {
             //模板
             log.info(bkList.get(0).getMainBusiness() + "size:{}", bkList.size());
             for (int i = 1; i < bkList.size(); i++) {
-                BaseStock po0 = bkList.get(i - 1);
-                BaseStock po1 = bkList.get(i);
+                BaseReportStock po0 = bkList.get(i - 1);
+                BaseReportStock po1 = bkList.get(i);
 
                 Date time1 = po0.getHardenTime();
                 Date time11 = po0.getFinalHardenTime();
@@ -353,7 +353,7 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
-    private void setCx(BaseStock bs) {
+    private void setCx(BaseReportStock bs) {
         String cx = bs.getCxFlag();
         String instructions = bs.getInstructions();
         if (StringUtils.isNotBlank(cx) && !instructions.contains("次新")) {
@@ -361,7 +361,7 @@ public class ReportServiceImpl implements ReportService {
         }
     }
 
-    private void setZz(BaseStock bs) {
+    private void setZz(BaseReportStock bs) {
         String bond = bs.getBond();
         String instructions = bs.getInstructions();
         if (StringUtils.isNotBlank(bond) && !instructions.contains("含zz")) {

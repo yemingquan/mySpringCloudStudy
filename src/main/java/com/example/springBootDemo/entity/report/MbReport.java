@@ -1,6 +1,6 @@
 package com.example.springBootDemo.entity.report;
 
-import com.example.springBootDemo.entity.base.BaseStock;
+import com.example.springBootDemo.entity.base.BaseReportStock;
 import com.example.springBootDemo.util.excel.Excel;
 import lombok.*;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -16,7 +16,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class MbReport extends BaseStock implements Serializable {
+public class MbReport extends BaseReportStock implements Serializable {
 
     private String id;
 

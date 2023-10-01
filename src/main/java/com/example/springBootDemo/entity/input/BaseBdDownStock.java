@@ -4,7 +4,7 @@ import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
 import com.baomidou.mybatisplus.enums.IdType;
-import com.example.springBootDemo.entity.base.BaseStock;
+import com.example.springBootDemo.entity.base.BaseReportStock;
 import io.swagger.annotations.ApiModel;
 import lombok.*;
 
@@ -25,7 +25,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper=false)
 @ApiModel(description = "")
 @TableName("base_bd_down_stock")
-public class BaseBdDownStock extends BaseStock implements Serializable {
+public class BaseBdDownStock extends BaseReportStock implements Serializable {
     private static final long serialVersionUID = -59099473269710250L;
     /**
      * 主键

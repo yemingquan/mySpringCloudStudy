@@ -8,7 +8,7 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.config.components.enums.NewsEnum;
-import com.example.springBootDemo.entity.base.BaseStock;
+import com.example.springBootDemo.entity.base.BaseReportStock;
 import com.example.springBootDemo.entity.input.ConfBusiness;
 import com.example.springBootDemo.entity.report.*;
 import com.example.springBootDemo.util.DateUtil;
@@ -639,7 +639,7 @@ public class ExcelUtil<T> implements Serializable {
      * @param po
      * @param map
      */
-    private void generalOpr(BaseStock po, Map map) {
+    private void generalOpr(BaseReportStock po, Map map) {
         //通用
         Double circulation = po.getCirculation();
         byte fontUnderLine = Font.U_NONE;
@@ -908,7 +908,7 @@ public class ExcelUtil<T> implements Serializable {
      * @param f
      * @param map
      */
-    private void generalSpecialOpr(BaseStock po, Field f, Map map) {
+    private void generalSpecialOpr(BaseReportStock po, Field f, Map map) {
 
         //具体
         switch (f.getName()) {

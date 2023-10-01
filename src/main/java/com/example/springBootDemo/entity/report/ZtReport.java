@@ -1,6 +1,6 @@
 package com.example.springBootDemo.entity.report;
 
-import com.example.springBootDemo.entity.base.BaseStock;
+import com.example.springBootDemo.entity.base.BaseReportStock;
 import com.example.springBootDemo.util.excel.Excel;
 import lombok.*;
 
@@ -15,7 +15,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ZtReport extends BaseStock implements Serializable {
+public class ZtReport extends BaseReportStock implements Serializable {
 
     private String id;
 
