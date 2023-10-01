@@ -81,8 +81,7 @@ public class ReportController {
         log.info("1-0 板块报表导出 date：{} startDate：{} clearFlag:{}", date, startDate, clearFlag);
 
         long start;
-        String fileName = "板块0000.xlsx";
-        String sheetName = "板块";
+        String fileName = "板块0000";
         date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
         try {
@@ -131,7 +130,7 @@ public class ReportController {
             Map<String, Map> annotationMapping = excelUtil.OprSubjectReport(list, date);
             log.info("样式配置耗时{} ", System.currentTimeMillis() - start);
 
-            excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
+            excelUtil.exportCustomExcel(annotationMapping, list, fileName, response);
 
 //            // 定义单元格纵向合并依赖的map条件
 //            Map<Integer, int[]> mergeMap = new HashMap<>();
@@ -158,8 +157,7 @@ public class ReportController {
                                @RequestParam(value = "refreshFlag", required = false) String refreshFlag,
                                HttpServletResponse response) {
         log.info("1-1 涨停报表导出 {}", date);
-        String fileName = "涨停1111.xlsx";
-        String sheetName = "涨停";
+        String fileName = "涨停1111";
         date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
         if (StringUtils.isNotBlank(refreshFlag)) {
@@ -174,7 +172,7 @@ public class ReportController {
         Map<String, Map> annotationMapping = null;
         try {
             annotationMapping = excelUtil.OprZtReport(list);
-            excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
+            excelUtil.exportCustomExcel(annotationMapping, list, fileName, response);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -186,8 +184,7 @@ public class ReportController {
     public void exportMbRePort(@RequestParam(value = "date", required = false) String date,
                                HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
         log.info("1-2 摸板报表导出 {}", date);
-        String fileName = "摸板222.xlsx";
-        String sheetName = "摸板";
+        String fileName = "摸板222";
         date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
         List<MbReport> list = reportService.getMbReportByDate(date);
@@ -195,7 +192,7 @@ public class ReportController {
         ExcelUtil<MbReport> excelUtil = new ExcelUtil<>(MbReport.class);
         excelUtil.BSD_STOCK_LIST = confBsdStockService.getBsdList();
         Map<String, Map> annotationMapping = excelUtil.OprMbReport(list);
-        excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
+        excelUtil.exportCustomExcel(annotationMapping, list, fileName, response);
     }
 
     @ApiOperationSupport(order = 13)
@@ -204,8 +201,7 @@ public class ReportController {
     public void exportBdRePort(@RequestParam(value = "date", required = false) String date,
                                HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
         log.info("1-3 波动报表导出 {}", date);
-        String fileName = "波动333.xlsx";
-        String sheetName = "波动";
+        String fileName = "波动333";
         date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
         List<BdReport> list = reportService.getBdReportByDate(date);
 
@@ -213,7 +209,7 @@ public class ReportController {
         ExcelUtil<BdReport> excelUtil = new ExcelUtil<>(BdReport.class);
         excelUtil.BSD_STOCK_LIST = confBsdStockService.getBsdList();
         Map<String, Map> annotationMapping = excelUtil.OprBdReport(list);
-        excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
+        excelUtil.exportCustomExcel(annotationMapping, list, fileName, response);
     }
 
 
@@ -224,8 +220,7 @@ public class ReportController {
                                  @RequestParam(value = "startDate", required = false) String startDate,
                                  HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
         log.info("2-1 消息报表导出 {}", date);
-        String fileName = "消息.xlsx";
-        String sheetName = "消息";
+        String fileName = "消息";
         date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
         if (StringUtils.isNotBlank(startDate)) {
             startDate = baseDateService.getBeforeTypeDate(startDate, DateConstant.DEAL_LIST);
@@ -234,7 +229,7 @@ public class ReportController {
 
         ExcelUtil<NewsReport> excelUtil = new ExcelUtil<>(NewsReport.class);
         Map<String, Map> annotationMapping = excelUtil.OprNewsReport(list);
-        excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
+        excelUtil.exportCustomExcel(annotationMapping, list, fileName, response);
     }
 
     @ApiOperationSupport(order = 22)
@@ -243,8 +238,7 @@ public class ReportController {
     public void exportFinalReport(@RequestParam(value = "date", required = false) String date,
                                   HttpServletResponse response) {
         log.info("2-2 日终报表导出 {}", date);
-        String fileName = "日终.xlsx";
-        String sheetName = "日终";
+        String fileName = "日终";
 
         try {
             log.info("次新更新");
@@ -264,7 +258,7 @@ public class ReportController {
 //
 //        ExcelUtil<NewsReport> excelUtil = new ExcelUtil<>(NewsReport.class);
 //        Map<String, Map> annotationMapping = excelUtil.OprNewsReport(list);
-//        excelUtil.exportCustomExcel(annotationMapping, list, fileName, sheetName, response);
+//        excelUtil.exportCustomExcel(annotationMapping, list, fileName, response);
     }
 
 

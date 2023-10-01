@@ -17,7 +17,9 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -74,7 +76,7 @@ public class ExcelUtil<T> implements Serializable {
      * @param <T>
      * @return
      */
-    public static <T> List<T> importExcel(int titleRows,int headRows ,MultipartFile file, Class<T> pojoClass) throws IOException {
+    public static <T> List<T> importExcel(int titleRows, int headRows, MultipartFile file, Class<T> pojoClass) throws IOException {
         return importExcel(file, titleRows, headRows, pojoClass);
     }
 
@@ -363,7 +365,8 @@ public class ExcelUtil<T> implements Serializable {
                 }
             }
 
-            exportMyExcel(fileName, response, workbook);
+            //导出到浏览器
+            exportExel(response, fileName, workbook);
             log.warn("导出成功");
 
 //            //String filename = encodingFilename(sheetName);
@@ -385,151 +388,159 @@ public class ExcelUtil<T> implements Serializable {
         }
     }
 
-    public void exportMyExcel(String fileName, HttpServletResponse response, XSSFWorkbook workbook) throws IOException {
-        fileName = new String(fileName.getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
-        response.setContentType("application/octet-stream");
-        response.setHeader("Content-disposition", "attachment;filename=" + fileName);
-        OutputStream outputStream = response.getOutputStream();
-        response.flushBuffer();
-        workbook.write(outputStream);
-        // 写完数据关闭流
-        outputStream.close();
-    }
-
     /**
      * 对list数据源将其里面的数据导入到excel表单
      *
      * @param annotationMapping
      * @param list              导出数据集合
-     * @param sheetName         工作表的名称
      * @return 结果
      */
-    public void exportCustomExcel(Map<String, Map> annotationMapping, List<?> list, String fileName, String sheetName, HttpServletResponse response) {
-        long start = System.currentTimeMillis();
+    public void exportCustomExcel(Map<String, Map> annotationMapping, List<?> list, String fileName, HttpServletResponse response) {
         XSSFWorkbook workbook = null;
         try {
+            //秒表 用来统计消耗时间
+            StopWatch stopWatch = new StopWatch();
             // 得到所有定义字段
             List<Field> fields = getClassFields();
-
             // 产生工作薄对象
             workbook = new XSSFWorkbook();
-            // excel2003中每个sheet中最多有65536行
-            int sheetSize = Integer.MAX_VALUE;
-            // 取出一共有多少个sheet.
-            double sheetNo = Math.ceil(list.size() / sheetSize);
-            for (int index = 0; index <= sheetNo; index++) {
-                // 产生工作表对象
-                XSSFSheet sheet = workbook.createSheet();
-                if (sheetNo == 0) {
-                    workbook.setSheetName(index, sheetName);
-                } else {
-                    // 设置工作表的名称.
-                    workbook.setSheetName(index, sheetName + index);
-                }
-                XSSFRow row;
-                XSSFCell cell; // 产生单元格
+            XSSFSheet sheet = workbook.createSheet();
+            XSSFRow row;
+            XSSFCell cell; // 单元格
+            row = sheet.createRow(0);
 
-                // 产生一行
-                row = sheet.createRow(0);
-                // 写入各个字段的列头名称
-                for (int i = 0; i < fields.size(); i++) {
-                    Field field = fields.get(i);
-                    Excel attr = field.getAnnotation(Excel.class);
-                    // 创建列
-                    cell = row.createCell(i);
-                    row.setHeight((short) (attr.height() * 20));
-                    // 设置列中写入内容为String类型
-                    cell.setCellType(CellType.STRING);
-                    // 设置列宽
-                    sheet.setColumnWidth(i, (int) ((attr.width() + 0.72) * 256));
-                    // 提示信息
-//                    if (StringUtils.isNotEmpty(attr.prompt())) {
-//                        // 这里默认设了2-101列提示.
-//                        setPrompt(sheet, "", attr.prompt(), 1, 100, i, i);
-//                    }
-//                    //只能选择不能输入
-//                    if (attr.combo().length > 0) {
-//                        // 这里默认设了2-101列只能选择不能输入.
-//                        setValidation(sheet, attr.combo(), 1, 100, i, i);
-//                    }
-                    //设置样式
-                    setRowStyle(workbook, cell, attr, true);
-                }
+            // 写入各个字段的列头名称
+            stopWatch.start();
+            for (int i = 0; i < fields.size(); i++) {
+                Field field = fields.get(i);
+                Excel attr = field.getAnnotation(Excel.class);
+                // 创建列
+                cell = row.createCell(i);
+                row.setHeight((short) (attr.height() * 20));
+                // 设置列宽
+//                sheet.setColumnWidth(i, (int) ((attr.width() + 0.72) * 256));
+                // 设置列中写入内容为String类型
+                cell.setCellType(CellType.STRING);
+                //默认宽度无限，后面使用自适应 2023-10-1
+                sheet.setColumnWidth(i, 64 * 256);
+                //设置样式
+                setRowStyle(workbook, cell, attr, true);
+            }
+            log.info("自定义excel导出-表头设置耗时:{}ms ", stopWatch.getTime());
+            stopWatch.reset();
 
-                long startD = System.currentTimeMillis();
-                // 写入各条记录
-                int startNo = index * sheetSize;
-                int endNo = Math.min(startNo + sheetSize, list.size());
-                //每条记录对应excel表中的一行
-                for (int i = startNo; i < endNo; i++) {
-                    row = sheet.createRow(i + 1 - startNo);
-                    // 得到导出对象.
-                    T vo = (T) list.get(i);
-                    Object key = "";
-                    Field codeField = vo.getClass().getDeclaredField("id");
+            // 写入各条记录
+            stopWatch.start();
+            //每条记录对应excel表中的一行
+            for (int i = 0; i < list.size(); i++) {
+                row = sheet.createRow(i + 1);
+                // 得到导出对象.
+                T vo = (T) list.get(i);
+                Object key = "";
+                Field codeField = vo.getClass().getDeclaredField("id");
+                // 设置实体类私有属性可访问
+                codeField.setAccessible(true);
+                key = codeField.get(vo);
+
+                for (int j = 0; j < fields.size(); j++) {
+                    Field f = fields.get(j);
+                    // 获得field.
+                    Field field = vo.getClass().getDeclaredField(f.getName());
+
                     // 设置实体类私有属性可访问
-                    codeField.setAccessible(true);
-                    key = codeField.get(vo);
+                    field.setAccessible(true);
+                    // 使用反射的方式修改注解的值
+                    Excel attr = field.getAnnotation(Excel.class);
+                    InvocationHandler handler = Proxy.getInvocationHandler(attr);
+                    Field annotationField = handler.getClass().getDeclaredField("memberValues");
+                    annotationField.setAccessible(true);
+                    Map map = (Map) annotationField.get(handler);
+                    Map map2 = annotationMapping.get(key + "-" + f.getName());
+                    map.putAll(map2);
+                    // 设置行高
+//                    row.setHeight((short) (attr.height() * 20));
+                    // 根据Excel中设置情况决定是否导出,有些情况需要保持为空,希望用户填写这一列.
+                    if (attr.isExport()) {
+                        // 创建cell
+                        cell = row.createCell(j);
+                        setRowStyle(workbook, cell, attr, false);
+                        if (vo == null) {
+                            // 如果数据存在就填入,不存在填入空格.
+                            cell.setCellValue("");
+                            continue;
+                        }
 
-                    for (int j = 0; j < fields.size(); j++) {
-                        Field f = fields.get(j);
-                        // 获得field.
-                        Field field = vo.getClass().getDeclaredField(f.getName());
-
-                        // 设置实体类私有属性可访问
-                        field.setAccessible(true);
-                        // 使用反射的方式修改注解的值
-                        Excel attr = field.getAnnotation(Excel.class);
-                        InvocationHandler handler = Proxy.getInvocationHandler(attr);
-                        Field annotationField = handler.getClass().getDeclaredField("memberValues");
-                        annotationField.setAccessible(true);
-                        Map map = (Map) annotationField.get(handler);
-                        Map map2 = annotationMapping.get(key + "-" + f.getName());
-                        map.putAll(map2);
-                        try {
-                            // 设置行高
-                            row.setHeight((short) (attr.height() * 20));
-                            // 根据Excel中设置情况决定是否导出,有些情况需要保持为空,希望用户填写这一列.
-                            if (attr.isExport()) {
-                                // 创建cell
-                                cell = row.createCell(j);
-                                setRowStyle(workbook, cell, attr, false);
-                                if (vo == null) {
-                                    // 如果数据存在就填入,不存在填入空格.
-                                    cell.setCellValue("");
-                                    continue;
-                                }
-
-                                String dateFormat = attr.dateFormat();
-                                Object o = field.get(vo);
-                                String readConverterExp = attr.readConverterExp();
-                                if (StringUtils.isNotEmpty(dateFormat) && o != null) {
+                        String dateFormat = attr.dateFormat();
+                        Object o = field.get(vo);
+                        String readConverterExp = attr.readConverterExp();
+                        if (StringUtils.isNotEmpty(dateFormat) && o != null) {
 //                                    cell.setCellValue(new SimpleDateFormat(dateFormat).format((Date) field.get(dto)));
-                                    cell.setCellValue((Date) o);
-                                } else if (StringUtils.isNotEmpty(readConverterExp) && o != null) {
-                                    cell.setCellValue(convertByExp(String.valueOf(field.get(vo)), readConverterExp));
-                                } else {
-                                    // 如果数据存在就填入,不存在填入空格.
-                                    String value = field.get(vo) == null ? attr.defaultValue() : field.get(vo) + attr.suffix();
-                                    cell.setCellValue(value);
-                                    cell.setCellType(CellType.STRING);
-                                }
-                            }
-                        } catch (Exception e) {
-                            log.error("导出Excel失败:", e);
+                            cell.setCellValue((Date) o);
+                        } else if (StringUtils.isNotEmpty(readConverterExp) && o != null) {
+                            cell.setCellValue(convertByExp(String.valueOf(field.get(vo)), readConverterExp));
+                        } else {
+                            // 如果数据存在就填入,不存在填入空格.
+                            String value = field.get(vo) == null ? attr.defaultValue() : field.get(vo) + attr.suffix();
+                            cell.setCellValue(value);
+                            cell.setCellType(CellType.STRING);
                         }
                     }
                 }
-                log.info("写入各条记录-导出耗时{} ", System.currentTimeMillis() - startD);
             }
-            log.info("明细完全耗时{} ", System.currentTimeMillis() - start);
-            exportMyExcel(fileName, response, workbook);
-            log.info("完全导出耗时{} ", System.currentTimeMillis() - start);
-//            //String filename = encodingFilename(sheetName);
-//            response.setContentType("application/octet-stream");
-//            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(sheetName, "UTF-8"));
-//            response.flushBuffer();
-//            workbook.write(response.getOutputStream());
+            log.info("自定义excel导出-数据写入耗时:{}ms ", stopWatch.getTime());
+            stopWatch.reset();
+
+            //自动调整行宽 表头不动
+            stopWatch.start();
+//            // 获取当前 sheet 下数据行数
+            int rowNums = sheet.getLastRowNum();
+            for (int i = 1; i < rowNums; i++) {
+                // 通过指定行数来获取对应的行数据
+                row = sheet.getRow(i);
+                //自动调整行高
+//                row.setHeightInPoints((short) -1);
+                row.setHeight((short) -1);
+            }
+            // 自适应列宽 表头不动
+            int cellNum = sheet.getLastRowNum();
+            for (int z = 0; z < cellNum; z++) {
+                CellRangeAddress region = new CellRangeAddress(0, rowNums, z, z); //起始行号，终止行号，起始列号，终止列号
+                int maxCharWidth = 0;
+                for (int i = region.getFirstColumn(); i <= region.getLastColumn(); i++) {
+                    //计算string类型的内容的最大长度 并设置
+                    for (int j = region.getFirstRow(); j <= region.getLastRow(); j++) {
+                        cell = sheet.getRow(j).getCell(i);
+                        if (cell == null) continue;
+                        String value;
+                        if (!CellType.STRING.equals(cell.getCellType())) {
+                            value = cell.toString();
+                        } else {
+                            value = cell.getStringCellValue();
+                        }
+
+                        int charWidth = value.length();
+                        for (int k = 0; k < value.length(); k++) {
+                            if (Character.toString(value.charAt(k)).getBytes().length > 1) {
+                                charWidth++;
+                            }
+                        }
+                        if (charWidth > maxCharWidth) {
+                            maxCharWidth = charWidth;
+                        }
+                    }
+                }
+                //设置最大宽度为70
+                int result = maxCharWidth;
+                if (maxCharWidth > 70) {
+                    result = 70;
+                }
+                sheet.setColumnWidth(z, (int) (result * 256 * 1.1));
+            }
+            log.info("自定义excel导出-自动调整行宽耗时:{}ms ", stopWatch.getTime());
+            stopWatch.stop();
+
+            //导出到浏览器
+            exportExel(response, fileName, workbook);
         } catch (Exception e) {
             log.error("导出Excel异常{}", e);
             throw new RuntimeException("导出Excel失败，请联系网站管理员！");
@@ -542,6 +553,7 @@ public class ExcelUtil<T> implements Serializable {
                 }
             }
         }
+        log.info("自定义excel导出成功");
     }
 
     private XSSFCellStyle setRowStyle(XSSFWorkbook workbook, XSSFCell cell, Excel attr, boolean isHead) {
@@ -1169,7 +1181,7 @@ public class ExcelUtil<T> implements Serializable {
 
     public static void exportExel(HttpServletResponse response, String fileName, Workbook workbook) throws IOException {
         if (!fileName.contains(".")) {
-            fileName = fileName + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())+ ".xlsx";
+            fileName = fileName + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".xlsx";
         }
         fileName = new String(fileName.getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
 
