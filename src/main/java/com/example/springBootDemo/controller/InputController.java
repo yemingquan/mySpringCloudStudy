@@ -5,7 +5,6 @@ import com.example.springBootDemo.config.components.system.SystemConfConstant;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.BaseDateNews;
 import com.example.springBootDemo.entity.BaseMarket;
-import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.FileUtil;
@@ -40,8 +39,6 @@ public class InputController {
 
     @Autowired
     InputService inputService;
-    @Autowired
-    StudentService studentService;
     @Autowired
     BaseSubjectLineDetailService baseSubjectLineDetailService;
     @Autowired
@@ -324,19 +321,5 @@ public class InputController {
         return RespBean.error("导入失败");
     }
 
-    @ApiOperationSupport(order = 9999)
-    @ApiOperation("Excel导入测试")
-    @PostMapping("/import")
-    public RespBean importExcel(@RequestPart MultipartFile multipartFile) {
-        try {
-            List<Student> list = ExcelUtil.excelToList(multipartFile,Student.class);
-            if (studentService.insertBatch(list)) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return RespBean.error("导入失败");
-    }
+
 }

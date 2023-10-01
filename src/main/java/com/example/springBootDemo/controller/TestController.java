@@ -1,6 +1,7 @@
 package com.example.springBootDemo.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.Student;
 import com.example.springBootDemo.service.StudentService;
 import com.example.springBootDemo.util.excel.ExcelUtil;
@@ -8,9 +9,8 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -87,5 +87,21 @@ public class TestController {
 
         ExcelUtil<Student> excelUtil = new ExcelUtil<>(Student.class);
         excelUtil.exportCustomExcel_bak(list, fileName, sheetName, response);
+    }
+
+    @ApiOperationSupport(order = 9999)
+    @ApiOperation("Excel导入测试")
+    @PostMapping("/import")
+    public RespBean importExcel(@RequestPart MultipartFile multipartFile) {
+        try {
+            List<Student> list = ExcelUtil.excelToList(multipartFile,Student.class);
+            if (studentService.insertBatch(list)) {
+                return RespBean.success("导入成功");
+            }
+            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
     }
 }
