@@ -1,7 +1,13 @@
 package com.example.springBootDemo.controller;
 
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.config.components.system.session.RespBean;
+import com.example.springBootDemo.entity.ConfDate;
 import com.example.springBootDemo.service.*;
+import com.example.springBootDemo.util.DateUtil;
+import com.example.springBootDemo.util.HolidayUtil;
+import com.example.springBootDemo.util.LunarSolarUtil;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
@@ -12,6 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 配置表控制层
@@ -25,6 +34,8 @@ import javax.servlet.http.HttpServletResponse;
 @Api(tags = "基础数据-配置")
 public class ConfController {
 
+    @Resource
+    private ConfDateService confDateService;
     @Resource
     private ConfBsdStockService confBsdStockService;
     @Resource
@@ -150,6 +161,58 @@ public class ConfController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @ApiOperationSupport(order = 31)
+    @ApiOperation("3-1 初始化一年份数据")
+    @PostMapping("/initDate")
+    public RespBean initDate(@RequestParam(value = "year", required = false) int year) {
+        try {
+            EntityWrapper<ConfDate> wrapper = new EntityWrapper<>();
+            wrapper.like("date", "" + year + "%");
+            confDateService.delete(wrapper);
+
+            List<ConfDate> list = Lists.newArrayList();
+            Calendar calendar = Calendar.getInstance();
+            //一年的开始
+            //设置日历时间，月份必须减一
+            calendar.set(year, 1 - 1, 1);
+
+            for (; calendar.get(Calendar.YEAR) < year + 1; ) {
+                Date date = calendar.getTime();
+                Date lunar = LunarSolarUtil.getLunarDate(date);
+                String week = DateUtil.getWeek(date);
+                List<String> weekend = DateConstant.WEEKEND;
+                String type = "0";
+                if (weekend.contains(week)) {
+                    type = "1";
+                }
+
+                ConfDate po = ConfDate.builder()
+                        .date(date)
+                        .lunar(lunar)
+                        .week(week)
+                        .type(type)
+                        .createDate(new Date())
+                        .createBy("system")
+                        .build();
+//                log.info(DateUtil.format(date));
+
+                list.add(po);
+                calendar.add(Calendar.DATE, 1);
+            }
+
+
+            confDateService.insertBatch(list, list.size());
+
+            //节假日数据
+            List<ConfDate> holidayList = HolidayUtil.getYearHoliday("" + year);
+            confDateService.updateBatchByDate(holidayList);
+        } catch (Exception e) {
+            RespBean.error("处理失败");
+            e.printStackTrace();
+        }
+        return RespBean.success("处理成功");
     }
 
 }
