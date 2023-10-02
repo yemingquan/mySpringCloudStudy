@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.config.components.system.SystemConfConstant;
 import com.example.springBootDemo.dao.mapper.ConfBsdStockDao;
-import com.example.springBootDemo.dao.mapper.ConfMyStockDao;
+import com.example.springBootDemo.dao.mapper.ConfStockDao;
 import com.example.springBootDemo.entity.ConfBsdStock;
-import com.example.springBootDemo.entity.ConfMyStock;
-import com.example.springBootDemo.service.ConfMyStockService;
+import com.example.springBootDemo.entity.ConfStock;
+import com.example.springBootDemo.service.ConfStockService;
 import com.example.springBootDemo.util.excel.ExcelChangeUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
 import com.google.common.collect.Lists;
@@ -24,15 +24,15 @@ import java.util.stream.Collectors;
 
 
 /**
- * 配置化自定义个股(ConfMyStock)表服务实现类
+ * 配置化自定义个股(ConfStock)表服务实现类
  *
  * @author makejava
  * @since 2023-08-28 20:05:16
  */
 @Service("confMyStockService")
-public class ConfMyStockServiceImpl extends ServiceImpl<ConfMyStockDao, ConfMyStock> implements ConfMyStockService {
+public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> implements ConfStockService {
     @Resource
-    private ConfMyStockDao confMyStockDao;
+    private ConfStockDao confStockDao;
     @Resource
     private ConfBsdStockDao confBsdStockDao;
 
@@ -44,10 +44,10 @@ public class ConfMyStockServiceImpl extends ServiceImpl<ConfMyStockDao, ConfMySt
         File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
 
         //导入前先删除当天的数据
-        EntityWrapper<ConfMyStock> wrapper = new EntityWrapper<>();
+        EntityWrapper<ConfStock> wrapper = new EntityWrapper<>();
         delete(wrapper);
 
-        List<ConfMyStock> list = ExcelUtil.excelToList(tempFile, ConfMyStock.class);
+        List<ConfStock> list = ExcelUtil.excelToList(tempFile, ConfStock.class);
 //            is.close();
 
 
@@ -74,7 +74,7 @@ public class ConfMyStockServiceImpl extends ServiceImpl<ConfMyStockDao, ConfMySt
             map.put(stockCode, mainBusiness);
         }
 
-        for (ConfMyStock myStock : list) {
+        for (ConfStock myStock : list) {
             String mainBusiness = map.get(myStock.getStockCode());
             if (StringUtils.isNotBlank(mainBusiness)) {
                 myStock.setMainBusiness(mainBusiness);
@@ -87,7 +87,7 @@ public class ConfMyStockServiceImpl extends ServiceImpl<ConfMyStockDao, ConfMySt
     @Override
     public void reflshMyStock() {
         //我的股票 全量搜索
-        List<ConfMyStock> list = selectList(new EntityWrapper<>());
+        List<ConfStock> list = selectList(new EntityWrapper<>());
         //将6个基础标的股票通过辨识度对象检索出来
 //        List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth(DateUtil.format(new Date()));
         List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth("2023-09-21");
@@ -114,8 +114,8 @@ public class ConfMyStockServiceImpl extends ServiceImpl<ConfMyStockDao, ConfMySt
         }
 
         //把主业增量修改到 我的股票中
-        List<ConfMyStock> updateList = Lists.newArrayList();
-        for (ConfMyStock myStock : list) {
+        List<ConfStock> updateList = Lists.newArrayList();
+        for (ConfStock myStock : list) {
             List<String> mbList = map.get(myStock.getStockCode());
             if (CollectionUtils.isNotEmpty(mbList)) {
                 String oldBusiness = myStock.getMainBusiness() != null ? myStock.getMainBusiness() : "";

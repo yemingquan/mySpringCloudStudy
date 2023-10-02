@@ -64,7 +64,7 @@ public class InputServiceImpl implements InputService {
     @Autowired
     BaseSubjectLineDetailService baseSubjectLineDetailService;
     @Autowired
-    ConfMyStockService confMyStockService;
+    ConfStockService confStockService;
 
 
     @Override
@@ -105,11 +105,11 @@ public class InputServiceImpl implements InputService {
 
     public void setMainBusinessList(List<String> mainBusinessList, BaseReportStock po) {
 //        log.info("股票名称[{}],代码[{}]", po.getStockName(), po.getStockCode());
-        EntityWrapper<ConfMyStock> wr = new EntityWrapper<>();
+        EntityWrapper<ConfStock> wr = new EntityWrapper<>();
         wr.eq("STOCK_CODE", po.getStockCode());
-        ConfMyStock conf = confMyStockService.selectOne(wr);
+        ConfStock conf = confStockService.selectOne(wr);
         if (conf == null) {
-            confMyStockService.insert(ConfMyStock.builder().stockCode(po.getStockCode()).stockName(po.getStockName()).build());
+            confStockService.insert(ConfStock.builder().stockCode(po.getStockCode()).stockName(po.getStockName()).build());
             return;
         }
         String nowMainBusiness = conf.getMainBusiness();
@@ -286,9 +286,9 @@ public class InputServiceImpl implements InputService {
         stopWatch.reset();
 
 
-        List<ConfMyStock> msList = confMyStockService.selectList(new EntityWrapper<>());
-        Map<String, ConfMyStock> confStockMap = msList.stream().collect(Collectors.toMap(ConfMyStock::getStockCode, Function.identity(), (item1, item2) -> item1));
-        List<ConfMyStock> fixConfStockList = Lists.newArrayList();
+        List<ConfStock> msList = confStockService.selectList(new EntityWrapper<>());
+        Map<String, ConfStock> confStockMap = msList.stream().collect(Collectors.toMap(ConfStock::getStockCode, Function.identity(), (item1, item2) -> item1));
+        List<ConfStock> fixConfStockList = Lists.newArrayList();
 
         stopWatch.start();
         insertBaseDate(list, confStockMap, fixConfStockList);
@@ -304,7 +304,7 @@ public class InputServiceImpl implements InputService {
         return true;
     }
 
-    public void insertBaseDate(List<BaseStock> list, Map<String, ConfMyStock> confStockMap, List<ConfMyStock> fixConfStockList) {
+    public void insertBaseDate(List<BaseStock> list, Map<String, ConfStock> confStockMap, List<ConfStock> fixConfStockList) {
         ///计算沪深成贡献值、交额、涨幅、
         BigDecimal shAmount = BigDecimal.ZERO;
         BigDecimal shContribution = BigDecimal.ZERO;
@@ -334,11 +334,11 @@ public class InputServiceImpl implements InputService {
             dto.setCreateBy("基础数据导入");
 
             //如果基础数据新增，但配置数据没有时，同步这块数据
-            ConfMyStock cms = confStockMap.get(stockCode);
+            ConfStock cms = confStockMap.get(stockCode);
             if (cms == null) {
                 log.info("配置表新增数据 stockCode : {} name:{}", stockCode, stockName);
-                cms = new ConfMyStock();
-                BeanUtils.copyProperties(dto, cms, ConfMyStock.class);
+                cms = new ConfStock();
+                BeanUtils.copyProperties(dto, cms, ConfStock.class);
                 fixConfStockList.add(cms);
             }
 
@@ -402,12 +402,12 @@ public class InputServiceImpl implements InputService {
     }
 
 
-    public void fixConfStockDateByBasedStock(Map<String, BaseStock> baseStockMap, List<ConfMyStock> msList, List<ConfMyStock> fixConfStockList) {
+    public void fixConfStockDateByBasedStock(Map<String, BaseStock> baseStockMap, List<ConfStock> msList, List<ConfStock> fixConfStockList) {
         List<String> nameCodeList = StockConstant.SpecilNameEnum.getCodeList();
         //配置数据的循环
         for (int i = 0; i < msList.size(); i++) {
             //数据补充(包括上市日期、名字、发行价格)
-            ConfMyStock dto = msList.get(i);
+            ConfStock dto = msList.get(i);
             String stockCode = dto.getStockCode();
             BaseStock bs = baseStockMap.get(stockCode);
             //基础数据为空时，跳过补充
@@ -452,7 +452,7 @@ public class InputServiceImpl implements InputService {
                 fixConfStockList.add(dto);
             }
         }
-        confMyStockService.insertOrUpdateBatch(fixConfStockList, fixConfStockList.size());
+        confStockService.insertOrUpdateBatch(fixConfStockList, fixConfStockList.size());
     }
 
     @Override

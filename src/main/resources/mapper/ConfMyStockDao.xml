@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.springBootDemo.dao.mapper.ConfMyStockDao">
+<mapper namespace="com.example.springBootDemo.dao.mapper.ConfStockDao">
 
-    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.ConfMyStock">
-        <!--@Table conf_my_stock-->
+    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.ConfStock">
+        <!--@Table conf_stock-->
         <result property="stockCode" column="stock_code" jdbcType="VARCHAR"/>
         <result property="stockName" column="stock_name" jdbcType="VARCHAR"/>
         <result property="issueDate" column="issue_date" jdbcType="TIMESTAMP"/>

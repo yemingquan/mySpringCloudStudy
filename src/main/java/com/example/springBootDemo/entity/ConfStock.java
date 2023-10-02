@@ -15,7 +15,7 @@ import java.util.Date;
 
 
 /**
- * 配置化自定义个股(ConfMyStock)实体类
+ * 配置化自定义个股(ConfStock)实体类
  *
  * @author makejava
  * @since 2023-08-28 20:05:15
@@ -25,8 +25,8 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel(description = "配置化自定义个股")
-@TableName("conf_my_stock")
-public class ConfMyStock implements Serializable {
+@TableName("conf_stock")
+public class ConfStock implements Serializable {
     private static final long serialVersionUID = 139155789162003218L;
     /**
      * 股票编码
