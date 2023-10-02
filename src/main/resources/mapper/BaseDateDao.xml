@@ -4,7 +4,6 @@
 
     <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseDate">
         <!--@Table base_date-->
-        <result property="id" column="id" jdbcType="INTEGER"/>
         <result property="date" column="date" jdbcType="TIMESTAMP"/>
         <result property="lunar" column="lunar" jdbcType="TIMESTAMP"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
@@ -20,71 +19,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, date, lunar, name, week, type, update_Flag, state, create_date, create_by, modifed_date, modifed_by, remark        
+        date, lunar, name, week, type, update_Flag, state, create_date, create_by, modifed_date, modifed_by, remark
     </sql>
-
-    <update id="updateBatchByDate" parameterType="java.util.List">
-        <foreach collection="list" item="item"  separator=";">
-            update base_date
-            <set>
-                <if test="item.lunar != null">
-                    lunar = #{item.lunar},
-                </if>
-                <if test="item.name != null and item.name != ''">
-                    name = #{item.name},
-                </if>
-                <if test="item.week != null and item.week != ''">
-                    week = #{item.week},
-                </if>
-                <if test="item.type != null and item.type != ''">
-                    type = #{item.type},
-                </if>
-                <if test="item.updateFlag != null and item.updateFlag != ''">
-                    update_Flag = #{item.updateFlag},
-                </if>
-                <if test="item.state != null and item.state != ''">
-                    state = #{item.state},
-                </if>
-                <if test="item.modifedDate != null">
-                    modifed_date = #{item.modifedDate},
-                </if>
-                <if test="item.modifedBy != null and item.modifedBy != ''">
-                    modifed_by = #{item.modifedBy},
-                </if>
-                <if test="item.remark != null and item.remark != ''">
-                    remark = #{item.remark},
-                </if>
-            </set>
-            where date = #{item.date}
-        </foreach>
-    </update>
-
-    <select id="getBeforeTypeDate" resultType="java.util.Date" parameterType="java.util.Date">
-        SELECT
-            MAX(DATE)
-        FROM base_Date
-        WHERE #{date} >=DATE
-            AND TYPE IN
-        <foreach collection="typeList" item="item" open="(" close=")" separator=",">
-            #{item}
-        </foreach>
-    </select>
-
-    <select id="getAfterTypeDate" resultType="java.util.Date" parameterType="java.util.Date">
-        SELECT
-        MIN(DATE)
-        FROM base_Date
-        WHERE DATE > #{date}
-        AND TYPE IN
-        <foreach collection="typeList" item="item" open="(" close=")" separator=",">
-            #{item}
-        </foreach>
-    </select>
-
-    <select id="queryBaseDateBydate" resultType="com.example.springBootDemo.entity.BaseDate" parameterType="java.util.Date">
-        SELECT *
-        FROM base_Date
-        where DATE = #{date}
-    </select>
 </mapper>
 

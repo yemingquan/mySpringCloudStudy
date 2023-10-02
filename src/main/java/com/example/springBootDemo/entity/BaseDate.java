@@ -26,15 +26,11 @@ import java.util.Date;
 @ApiModel(description = "日期")
 @TableName("base_date")
 public class BaseDate implements Serializable {
-    private static final long serialVersionUID = -21103366298052631L;
-    /**
-     * 主键
-     */
-    @TableId(type = IdType.AUTO)
-    private Integer id;
+    private static final long serialVersionUID = -70403995721587044L;
     /**
      * 日期
      */
+    @TableId(type = IdType.INPUT)
     private Date date;
     /**
      * 阴历日期
