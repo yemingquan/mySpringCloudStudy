@@ -7,6 +7,7 @@
         <result property="stockCode" column="stock_code" jdbcType="VARCHAR"/>
         <result property="stockName" column="stock_name" jdbcType="VARCHAR"/>
         <result property="issueDate" column="issue_date" jdbcType="TIMESTAMP"/>
+        <result property="price" column="price" jdbcType="NUMERIC"/>
         <result property="plate" column="plate" jdbcType="VARCHAR"/>
         <result property="mainBusiness" column="main_business" jdbcType="VARCHAR"/>
         <result property="nicheBusiness" column="niche_business" jdbcType="VARCHAR"/>
@@ -22,7 +23,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        stock_code, stock_name, issue_date, plate, main_business, niche_business, attr, instructions, tag, my_instructions, state, create_date, create_by, modifed_date, modifed_by
+        stock_code, stock_name, issue_date, price, plate, main_business, niche_business, attr, instructions, tag, my_instructions, state, create_date, create_by, modifed_date, modifed_by
     </sql>
 </mapper>
 

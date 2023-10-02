@@ -44,6 +44,10 @@ public class ConfMyStock implements Serializable {
      */
     private Date issueDate;
     /**
+     * 发行价格
+     */
+    private Double price;
+    /**
      * 所属板块
      */
     private String plate;
