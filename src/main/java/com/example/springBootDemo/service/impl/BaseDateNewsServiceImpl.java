@@ -9,7 +9,7 @@ import com.example.springBootDemo.entity.BaseDateNews;
 import com.example.springBootDemo.entity.input.ConfBusiness;
 import com.example.springBootDemo.entity.report.NewsReport;
 import com.example.springBootDemo.service.BaseDateNewsService;
-import com.example.springBootDemo.service.BaseDateService;
+import com.example.springBootDemo.service.ConfDateService;
 import com.example.springBootDemo.service.ConfBusinessService;
 import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
@@ -39,7 +39,7 @@ public class BaseDateNewsServiceImpl extends ServiceImpl<BaseDateNewsDao, BaseDa
     @Resource
     private BaseDateNewsService baseDateNewsService;
     @Autowired
-    BaseDateService baseDateService;
+    ConfDateService confDateService;
     @Resource
     private ConfBusinessService confBusinessService;
 
@@ -104,7 +104,7 @@ public class BaseDateNewsServiceImpl extends ServiceImpl<BaseDateNewsDao, BaseDa
     @Override
     public void oprNewsData(List<BaseDateNews> list) {
         log.info("处理新闻数据");
-        Date dealDate = baseDateService.getBeforeTypeDate(new Date(), DateConstant.DEAL_LIST);
+        Date dealDate = confDateService.getBeforeTypeDate(new Date(), DateConstant.DEAL_LIST);
 
         for (int i = 0; i < list.size(); i++) {
             BaseDateNews news = list.get(i);

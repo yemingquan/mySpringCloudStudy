@@ -1,7 +1,7 @@
 package com.example.springBootDemo.dao.mapper;
 
 import com.baomidou.mybatisplus.mapper.BaseMapper;
-import com.example.springBootDemo.entity.BaseDate;
+import com.example.springBootDemo.entity.ConfDate;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,20 +9,20 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 日期(BaseDate)表数据库访问层
+ * 日期(ConfDate)表数据库访问层
  *
  * @author makejava
  * @since 2023-09-03 00:27:43
  */
 @Mapper
-public interface BaseDateDao extends BaseMapper<BaseDate>{
+public interface ConfDateDao extends BaseMapper<ConfDate>{
 
-    void updateBatchByDate(@Param("list") List<BaseDate> list);
+    void updateBatchByDate(@Param("list") List<ConfDate> list);
 
     Date getBeforeTypeDate(@Param("date")Date date, @Param("typeList")List<String> typeList);
 
     Date getAfterTypeDate(@Param("date")Date date, @Param("typeList")List<String> typeList);
 
-    BaseDate queryBaseDateBydate(@Param("date")Date date);
+    ConfDate queryBaseDateBydate(@Param("date")Date date);
 }
 

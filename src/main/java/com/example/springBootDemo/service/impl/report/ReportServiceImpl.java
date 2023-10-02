@@ -59,7 +59,7 @@ public class ReportServiceImpl implements ReportService {
     @Autowired
     BaseSubjectLineDetailService baseSubjectLineDetailService;
     @Autowired
-    BaseDateService baseDateService;
+    ConfDateService confDateService;
     @Autowired
     BaseMarketDetailService baseMarketDetailService;
 
@@ -124,7 +124,7 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         //查询是否是昨天强势的方向
-        Date date = baseDateService.getBeforeTypeDate(list.get(0).getCreateDate(), DateConstant.DEAL_LIST);
+        Date date = confDateService.getBeforeTypeDate(list.get(0).getCreateDate(), DateConstant.DEAL_LIST);
         //取上一个交易日
         date = DateUtil.getNextDay(date, -1);
         List<String> activeList = baseSubjectLineDetailService.getActiveBusinessList(date);

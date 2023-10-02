@@ -11,7 +11,7 @@ package com.example.springBootDemo.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.example.springBootDemo.entity.BaseDate;
+import com.example.springBootDemo.entity.ConfDate;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,7 +42,7 @@ public class HolidayUtil {
      * @param year 日期参数 格式‘yyyy’，不传参则默认当前日期
      * @return
      */
-    public static List<BaseDate> getYearHoliday(String year) throws ParseException {
+    public static List<ConfDate> getYearHoliday(String year) throws ParseException {
         log.info("开始处理节假日数据");
 
         //获取免费api地址
@@ -50,7 +50,7 @@ public class HolidayUtil {
         String httpUrl = "https://www.baidu.com/";
         BufferedReader reader = null;
         StringBuffer sbf = new StringBuffer();
-        List<BaseDate> list = Lists.newArrayList();
+        List<ConfDate> list = Lists.newArrayList();
         List hoList = new ArrayList<>();
         List extraList = new ArrayList<>();
 
@@ -106,7 +106,7 @@ public class HolidayUtil {
                 } else {
                     type = "3";
                 }
-                BaseDate baseDate = BaseDate.builder()
+                ConfDate confDate = ConfDate.builder()
                         .date(date)
 //                        .lunar(lunar)
 //                        .week(week)
@@ -117,7 +117,7 @@ public class HolidayUtil {
                         .modifedBy("system")
                         .build();
 
-                list.add(baseDate);
+                list.add(confDate);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -127,7 +127,7 @@ public class HolidayUtil {
 
     public static void main(String[] args) throws ParseException {
         String year = "2023";
-        List<BaseDate> list = getYearHoliday(year);
+        List<ConfDate> list = getYearHoliday(year);
         System.out.println("holiday:"+holiday);
         System.out.println("extraWorkDay:"+extraWorkDay);
         System.out.println(list);

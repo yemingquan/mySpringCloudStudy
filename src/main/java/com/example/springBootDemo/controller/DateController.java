@@ -3,9 +3,9 @@ package com.example.springBootDemo.controller;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.config.components.system.session.RespBean;
-import com.example.springBootDemo.entity.BaseDate;
+import com.example.springBootDemo.entity.ConfDate;
 import com.example.springBootDemo.service.BaseDateNewsService;
-import com.example.springBootDemo.service.BaseDateService;
+import com.example.springBootDemo.service.ConfDateService;
 import com.example.springBootDemo.service.BaseDateSpecialService;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.HolidayUtil;
@@ -38,7 +38,7 @@ import java.util.List;
 public class DateController {
 
     @Resource
-    private BaseDateService baseDateService;
+    private ConfDateService confDateService;
     @Resource
     private BaseDateSpecialService baseDateSpecialService;
     @Resource
@@ -49,11 +49,11 @@ public class DateController {
     @PostMapping("/initDate")
     public RespBean initDate(@RequestParam(value = "year", required = false) int year) {
         try {
-            EntityWrapper<BaseDate> wrapper = new EntityWrapper<>();
+            EntityWrapper<ConfDate> wrapper = new EntityWrapper<>();
             wrapper.like("date", "" + year + "%");
-            baseDateService.delete(wrapper);
+            confDateService.delete(wrapper);
 
-            List<BaseDate> list = Lists.newArrayList();
+            List<ConfDate> list = Lists.newArrayList();
             Calendar calendar = Calendar.getInstance();
             //一年的开始
             //设置日历时间，月份必须减一
@@ -69,7 +69,7 @@ public class DateController {
                     type = "1";
                 }
 
-                BaseDate po = BaseDate.builder()
+                ConfDate po = ConfDate.builder()
                         .date(date)
                         .lunar(lunar)
                         .week(week)
@@ -84,11 +84,11 @@ public class DateController {
             }
 
 
-            baseDateService.insertBatch(list, list.size());
+            confDateService.insertBatch(list, list.size());
 
             //节假日数据
-            List<BaseDate> holidayList = HolidayUtil.getYearHoliday("" + year);
-            baseDateService.updateBatchByDate(holidayList);
+            List<ConfDate> holidayList = HolidayUtil.getYearHoliday("" + year);
+            confDateService.updateBatchByDate(holidayList);
         } catch (Exception e) {
             RespBean.error("处理失败");
             e.printStackTrace();

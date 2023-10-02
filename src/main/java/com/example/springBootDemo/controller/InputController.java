@@ -41,7 +41,7 @@ public class InputController {
     @Autowired
     BaseDateNewsService baseDateNewsService;
     @Autowired
-    BaseDateService baseDateService;
+    ConfDateService confDateService;
     @Autowired
     BaseMarketService baseMarketService;
 

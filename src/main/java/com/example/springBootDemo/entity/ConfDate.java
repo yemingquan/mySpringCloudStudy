@@ -14,7 +14,7 @@ import java.util.Date;
 
 
 /**
- * 日期(BaseDate)实体类
+ * 日期(ConfDate)实体类
  *
  * @author makejava
  * @since 2023-09-03 00:27:42
@@ -25,7 +25,7 @@ import java.util.Date;
 @AllArgsConstructor
 @ApiModel(description = "日期")
 @TableName("base_date")
-public class BaseDate implements Serializable {
+public class ConfDate implements Serializable {
     private static final long serialVersionUID = -70403995721587044L;
     /**
      * 日期

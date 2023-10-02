@@ -36,7 +36,7 @@
     <select id="getNews" parameterType="java.lang.String" resultType="com.example.springBootDemo.entity.report.NewsReport">
         SELECT  d.name,d.week,dn.*
         FROM base_date_news dn
-        INNER JOIN base_Date d ON dn.date = d.date AND d.state
+        INNER JOIN conf_date d ON dn.date = d.date AND d.state
         WHERE 1=1
         <if test="startDate == null ">
             AND  DATE_FORMAT(dn.DATE,'%Y-%m-%d')  BETWEEN DATE_FORMAT(#{date},'%Y-%m-%d') AND DATE_FORMAT(DATE_ADD(#{date},INTERVAL duration+31 DAY),'%Y-%m-%d')

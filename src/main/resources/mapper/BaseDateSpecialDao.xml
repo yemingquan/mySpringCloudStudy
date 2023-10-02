@@ -3,7 +3,6 @@
 <mapper namespace="com.example.springBootDemo.dao.mapper.BaseDateSpecialDao">
 
     <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseDateSpecial">
-        <!--@Table base_date_special-->
         <result property="id" column="id" jdbcType="INTEGER"/>
         <result property="year" column="year" jdbcType="VARCHAR"/>
         <result property="date" column="date" jdbcType="TIMESTAMP"/>

@@ -3,7 +3,7 @@ package com.example.springBootDemo.controller;
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import com.example.springBootDemo.config.components.constant.DateConstant;
-import com.example.springBootDemo.entity.BaseDate;
+import com.example.springBootDemo.entity.ConfDate;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.input.BaseSubjectDetail;
 import com.example.springBootDemo.entity.input.ConfBusiness;
@@ -57,7 +57,7 @@ public class ReportController {
     @Resource
     private ConfBsdStockService confBsdStockService;
     @Autowired
-    BaseDateService baseDateService;
+    ConfDateService confDateService;
     @Autowired
     BaseSubjectLineDetailService baseSubjectLineDetailService;
     @Autowired
@@ -82,7 +82,7 @@ public class ReportController {
 
         long start;
         String fileName = "板块0000";
-        date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+        date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
         try {
             //获取基础数据，用于后续的数据生成
@@ -158,7 +158,7 @@ public class ReportController {
                                HttpServletResponse response) {
         log.info("1-1 涨停报表导出 {}", date);
         String fileName = "涨停1111";
-        date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+        date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
         if (StringUtils.isNotBlank(refreshFlag)) {
             //检索10天以内的数据
@@ -185,7 +185,7 @@ public class ReportController {
                                HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
         log.info("1-2 摸板报表导出 {}", date);
         String fileName = "摸板222";
-        date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+        date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
         List<MbReport> list = reportService.getMbReportByDate(date);
 
@@ -202,7 +202,7 @@ public class ReportController {
                                HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
         log.info("1-3 波动报表导出 {}", date);
         String fileName = "波动333";
-        date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+        date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
         List<BdReport> list = reportService.getBdReportByDate(date);
 
 
@@ -221,9 +221,9 @@ public class ReportController {
                                  HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
         log.info("2-1 消息报表导出 {}", date);
         String fileName = "消息";
-        date = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+        date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
         if (StringUtils.isNotBlank(startDate)) {
-            startDate = baseDateService.getBeforeTypeDate(startDate, DateConstant.DEAL_LIST);
+            startDate = confDateService.getBeforeTypeDate(startDate, DateConstant.DEAL_LIST);
         }
         List<NewsReport> list = baseDateNewsService.getNews(startDate, date);
 
@@ -253,7 +253,7 @@ public class ReportController {
             e.printStackTrace();
         }
 
-//        date = baseDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
+//        date = confDateService.getBeforeTypeDate(date, DateTypeConstant.DEAL_LIST);
 //        List<NewsReport> list = baseDateNewsService.getNews(date);
 //
 //        ExcelUtil<NewsReport> excelUtil = new ExcelUtil<>(NewsReport.class);
@@ -267,7 +267,7 @@ public class ReportController {
     @ApiOperation("aaaaaaaaaaaaaaa")
     public void aaaaa(@RequestParam(value = "date", required = false) String date,
                       HttpServletResponse response) {
-        String dealDateStr = baseDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+        String dealDateStr = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
         Date dealDate = DateUtil.format(dealDateStr, DateConstant.DATE_FORMAT_10);
         Map<String, Object> data = new HashMap<String, Object>();
 
@@ -319,17 +319,17 @@ public class ReportController {
 
     public void getBasicData(Date dealDate, Map<String, Object> data) {
         Map<String, String> BASIC_MAP = Maps.newHashMap();
-        BaseDate baseDate = baseDateService.queryBaseDateBydate(dealDate);
-        data.put("BASIC_DATE", baseDate);
+        ConfDate confDate = confDateService.queryBaseDateBydate(dealDate);
+        data.put("BASIC_DATE", confDate);
         //距离最近的假期，长假倒计时（距离大于4天及以上的假期，还有几天，名称是什么）
-        Date nextRest = baseDateService.getAfterTypeDate(dealDate, DateConstant.REST_LIST);
+        Date nextRest = confDateService.getAfterTypeDate(dealDate, DateConstant.REST_LIST);
         int countDownShort = DateUtil.getIntervalOfDays(dealDate, nextRest);
         BASIC_MAP.put("BASIC_COUNT_DOWN_SHORT", "还有" + countDownShort + "天休息");
-        Date nextHoliday = baseDateService.getAfterTypeDate(dealDate, DateConstant.HOLIDAY_LIST);
-        String holidayDateDetail = baseDateService.queryDateDetail(nextHoliday);
+        Date nextHoliday = confDateService.getAfterTypeDate(dealDate, DateConstant.HOLIDAY_LIST);
+        String holidayDateDetail = confDateService.queryDateDetail(nextHoliday);
         BASIC_MAP.put("BASIC_COUNT_DOWN_LONG", holidayDateDetail);
-        Date nextDealDay = baseDateService.getAfterTypeDate(dealDate, DateConstant.DEAL_LIST);
-        String dealDateDetail  = baseDateService.queryDateDetail(nextDealDay);
+        Date nextDealDay = confDateService.getAfterTypeDate(dealDate, DateConstant.DEAL_LIST);
+        String dealDateDetail  = confDateService.queryDateDetail(nextDealDay);
         BASIC_MAP.put("BASIC_NEXT_DEAL_DATE", dealDateDetail);
         data.putAll(BASIC_MAP);
     }
