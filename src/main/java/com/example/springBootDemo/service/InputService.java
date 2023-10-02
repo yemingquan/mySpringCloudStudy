@@ -30,5 +30,19 @@ public interface InputService {
 
     void genSubjectDate(List<BaseSubjectDetail> imputList);
 
+    void importStock(String thsBasePath) throws Exception;
+
     boolean importStock(InputStream inputStream) throws Exception;
+
+    void importExcelBdDownStock(String thsBasePath) throws Exception;
+
+    void importExcelBdUpStock(String thsBasePath) throws Exception;
+
+    void importExcelDtStock(String thsBasePath) throws Exception;
+
+    void importExcelZbStock(String thsBasePath) throws Exception;
+
+    void importExcelZthfStock(String thsBasePath) throws Exception;
+
+    void importExcelZtStock(String thsBasePath) throws Exception;
 }

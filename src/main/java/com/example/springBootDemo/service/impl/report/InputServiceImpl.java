@@ -12,6 +12,7 @@ import com.example.springBootDemo.entity.input.*;
 import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
+import com.example.springBootDemo.util.excel.ExcelChangeUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -23,6 +24,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -271,6 +274,55 @@ public class InputServiceImpl implements InputService {
     }
 
     @Override
+    public void importStock(String thsBasePath) throws Exception {
+        File file = new File(thsBasePath + "stock.xls");
+        File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
+        importStock(new FileInputStream(tempFile));
+    }
+
+    @Override
+    public void importExcelBdDownStock(String thsBasePath) throws Exception {
+        File file = new File(thsBasePath + "6.xls");
+        File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
+        importStock(new FileInputStream(tempFile));
+    }
+
+    @Override
+    public void importExcelBdUpStock(String thsBasePath) throws Exception {
+        File file = new File(thsBasePath + "5.xls");
+        File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
+        importStock(new FileInputStream(tempFile));
+    }
+
+    @Override
+    public void importExcelDtStock(String thsBasePath) throws Exception {
+        File file = new File(thsBasePath + "4.xls");
+        File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
+        importStock(new FileInputStream(tempFile));
+    }
+
+    @Override
+    public void importExcelZbStock(String thsBasePath) throws Exception {
+        File file = new File(thsBasePath + "3.xls");
+        File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
+        importStock(new FileInputStream(tempFile));
+    }
+
+    @Override
+    public void importExcelZthfStock(String thsBasePath) throws Exception {
+        File file = new File(thsBasePath + "2.xls");
+        File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
+        importStock(new FileInputStream(tempFile));
+    }
+
+    @Override
+    public void importExcelZtStock(String thsBasePath) throws Exception {
+        File file = new File(thsBasePath + "1.xls");
+        File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
+        importStock(new FileInputStream(tempFile));
+    }
+
+    @Override
     public boolean importStock(InputStream is) throws Exception {
         StopWatch stopWatch = new StopWatch();
         //导入前先删除当天的数据
@@ -285,17 +337,18 @@ public class InputServiceImpl implements InputService {
         log.info("基础股票数据导入-excel转换成对象耗时:{}ms ", stopWatch.getTime());
         stopWatch.reset();
 
-
+        stopWatch.start();
         List<ConfStock> msList = confStockService.selectList(new EntityWrapper<>());
         Map<String, ConfStock> confStockMap = msList.stream().collect(Collectors.toMap(ConfStock::getStockCode, Function.identity(), (item1, item2) -> item1));
         List<ConfStock> fixConfStockList = Lists.newArrayList();
+        log.info("基础股票数据导入-查询配置数据耗时:{}ms ", stopWatch.getTime());
+        stopWatch.reset();
 
         stopWatch.start();
         insertBaseDate(list, confStockMap, fixConfStockList);
         log.info("基础股票数据导入-大盘统计与数据处理耗时:{}ms ", stopWatch.getTime());
         stopWatch.reset();
 
-        //补充配置文件信息
         stopWatch.start();
         fixConfStockDateByBasedStock(baseStockMap, msList, fixConfStockList);
         log.info("基础股票数据导入-补充配置数据耗时:{}ms ", stopWatch.getTime());
@@ -303,6 +356,7 @@ public class InputServiceImpl implements InputService {
 
         return true;
     }
+
 
     public void insertBaseDate(List<BaseStock> list, Map<String, ConfStock> confStockMap, List<ConfStock> fixConfStockList) {
         ///计算沪深成贡献值、交额、涨幅、
@@ -345,21 +399,26 @@ public class InputServiceImpl implements InputService {
             //基础数据修正
             //成交额 成交额为0时 为停牌数据
             Double amountD = dto.getAmount();
-            if(amountD == 0){
-                log.info("停牌 stockCode : {} name:{}", stockCode, stockName);
-                continue;
-            }else if (amountD == null ){
+            if (amountD == null) {
                 log.info("即将上市 stockCode : {} name:{}", stockCode, stockName);
                 continue;
+            } else if (amountD == 0) {
+                log.info("停牌 stockCode : {} name:{}", stockCode, stockName);
+                continue;
+            }
+
+            String tip = StockConstant.SpecilNameEnum.getTip(stockName);
+            if (StringUtils.isNotBlank(tip)) {
+                log.info("{}", tip);
             }
             BigDecimal amount = new BigDecimal(amountD).divide(new BigDecimal(100000000), 4, BigDecimal.ROUND_HALF_UP);
             dto.setAmount(amount.doubleValue());
             //贡献度
             BigDecimal contribution = dto.getContribution() == null ? BigDecimal.ZERO : new BigDecimal(dto.getContribution());
-            dto.setCirculation(contribution.doubleValue());
+            dto.setContribution(contribution.doubleValue());
             //流通盘
             BigDecimal circulation = new BigDecimal(dto.getCirculation()).divide(new BigDecimal(100000000), 4, BigDecimal.ROUND_HALF_UP);
-            dto.setAmount(circulation.doubleValue());
+            dto.setCirculation(circulation.doubleValue());
 
             dto.setAmplitude(dto.getAmplitude() * 100);
             dto.setChangingHands(dto.getChangingHands() * 100);
@@ -403,7 +462,6 @@ public class InputServiceImpl implements InputService {
 
 
     public void fixConfStockDateByBasedStock(Map<String, BaseStock> baseStockMap, List<ConfStock> msList, List<ConfStock> fixConfStockList) {
-        List<String> nameCodeList = StockConstant.SpecilNameEnum.getCodeList();
         //配置数据的循环
         for (int i = 0; i < msList.size(); i++) {
             //数据补充(包括上市日期、名字、发行价格)
@@ -424,12 +482,11 @@ public class InputServiceImpl implements InputService {
             //名字
             String stockName = dto.getStockName();
             String baseName = bs.getStockName();
-            if (!nameCodeList.contains(stockName)) {
-                if (!nameCodeList.contains(baseName)) {
+            if (!stockName.equals(baseName) && StringUtils.isNotBlank(StockConstant.SpecilNameEnum.getTip(stockName))) {
+                log.info("stockName conf:{},input:{}", stockName, baseName);
+                if (StringUtils.isNotBlank(StockConstant.SpecilNameEnum.getTip(baseName))) {
                     dto.setStockName(baseName);
                     flag = true;
-                } else {
-                    log.info("stockName conf:{},input:{}", stockName, baseName);
                 }
             }
 

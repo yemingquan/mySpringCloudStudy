@@ -34,6 +34,8 @@ import java.util.List;
 @RestController
 public class InputController {
 
+    private final String thsBasePath = SystemConfConstant.THS_BASE_PATH;
+
     @Autowired
     InputService inputService;
     @Autowired
@@ -50,7 +52,6 @@ public class InputController {
     @PostMapping("/initFP")
     public RespBean initFP(@RequestParam(value = "clearFlag", required = false) String clearFlag,
                            @RequestParam(value = "importDateFlag", required = false) String importDateFlag) {
-        String thsBasePath = SystemConfConstant.THS_BASE_PATH;
         try {
             //1.初始化复盘文件夹。输入clearFlag时，会清楚所有数据，一般情况下，不需要使用
             initDir(clearFlag, thsBasePath);
@@ -60,6 +61,8 @@ public class InputController {
             if (StringUtils.isEmpty(importDateFlag)) {
                 return RespBean.success("处理到文件导入前");
             }
+            //基础数据落库
+            inputService.importStock(thsBasePath);
 
             for (int i = 1; i <= 6; i++) {
                 File file = new File(thsBasePath + "Table" + i + ".xls");
@@ -104,97 +107,103 @@ public class InputController {
     @ApiOperationSupport(order = 11)
     @ApiOperation("1-1 导入涨停Excel数据")
     @PostMapping("/importExcelZtStock")
-    public RespBean importExcelZtStock(@RequestPart MultipartFile multipartFile) {
+    public RespBean importExcelZtStock(@RequestPart(required = false)MultipartFile multipartFile) {
         try {
-            boolean flag = inputService.importExcelZtStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
+            if (multipartFile == null) {
+                inputService.importExcelZtStock(thsBasePath);
+            } else {
+                inputService.importExcelZtStock(multipartFile.getInputStream());
             }
-            return RespBean.error("导入失败");
+            return RespBean.success("导入成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("导入失败:{}",e);
+            return RespBean.error("导入失败");
         }
-        return RespBean.error("导入失败");
     }
 
     @ApiOperationSupport(order = 12)
     @ApiOperation("1-2 导入涨停回封Excel数据")
     @PostMapping("/importExcelZthfStock")
-    public RespBean importExcelZthfStock(@RequestPart MultipartFile multipartFile) {
+    public RespBean importExcelZthfStock(@RequestPart(required = false)MultipartFile multipartFile) {
         try {
-            boolean flag = inputService.importExcelZthfStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
+            if (multipartFile == null) {
+                inputService.importExcelZthfStock(thsBasePath);
+            } else {
+                inputService.importExcelZthfStock(multipartFile.getInputStream());
             }
-            return RespBean.error("导入失败");
+            return RespBean.success("导入成功");
         } catch (Exception e) {
             e.printStackTrace();
+            return RespBean.error("导入失败");
         }
-        return RespBean.error("导入失败");
     }
 
     @ApiOperationSupport(order = 13)
     @ApiOperation("1-3 导入炸板Excel数据")
     @PostMapping("/importExcelZbStock")
-    public RespBean importExcelZbStock(@RequestPart MultipartFile multipartFile) {
+    public RespBean importExcelZbStock(@RequestPart(required = false)MultipartFile multipartFile) {
         try {
-            boolean flag = inputService.importExcelZbStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
+            if (multipartFile == null) {
+                inputService.importExcelZbStock(thsBasePath);
+            } else {
+                inputService.importExcelZbStock(multipartFile.getInputStream());
             }
-            return RespBean.error("导入失败");
+            return RespBean.success("导入成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("导入失败:{}",e);
+            return RespBean.error("导入失败");
         }
-        return RespBean.error("导入失败");
     }
 
     @ApiOperationSupport(order = 14)
     @ApiOperation("1-4 导入曾跌停Excel数据")
     @PostMapping("/importExcelDtStock")
-    public RespBean importExcelDtStock(@RequestPart MultipartFile multipartFile) {
+    public RespBean importExcelDtStock(@RequestPart(required = false)MultipartFile multipartFile) {
         try {
-            boolean flag = inputService.importExcelDtStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
+            if (multipartFile == null) {
+                inputService.importExcelDtStock(thsBasePath);
+            } else {
+                inputService.importExcelDtStock(multipartFile.getInputStream());
             }
-            return RespBean.error("导入失败");
+            return RespBean.success("导入成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("导入失败:{}",e);
+            return RespBean.error("导入失败");
         }
-        return RespBean.error("导入失败");
     }
 
     @ApiOperationSupport(order = 15)
     @ApiOperation("1-5 导入波动向上Excel数据")
     @PostMapping("/importExcelBdUpStock")
-    public RespBean importExcelBdUpStock(@RequestPart MultipartFile multipartFile) {
+    public RespBean importExcelBdUpStock(@RequestPart(required = false)MultipartFile multipartFile) {
         try {
-            boolean flag = inputService.importExcelBdUpStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
+            if (multipartFile == null) {
+                inputService.importExcelBdUpStock(thsBasePath);
+            } else {
+                inputService.importExcelBdUpStock(multipartFile.getInputStream());
             }
-            return RespBean.error("导入失败");
+            return RespBean.success("导入成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("导入失败:{}",e);
+            return RespBean.error("导入失败");
         }
-        return RespBean.error("导入失败");
     }
 
     @ApiOperationSupport(order = 16)
     @ApiOperation("1-6 导入波动向下Excel数据")
     @PostMapping("/importExcelBdDownStock")
-    public RespBean importExcelBdDownStock(@RequestPart MultipartFile multipartFile) {
+    public RespBean importExcelBdDownStock(@RequestPart(required = false)MultipartFile multipartFile) {
         try {
-            boolean flag = inputService.importExcelBdDownStock(multipartFile.getInputStream());
-            if (flag) {
-                return RespBean.success("导入成功");
+            if (multipartFile == null) {
+                inputService.importExcelBdDownStock(thsBasePath);
+            } else {
+                inputService.importExcelBdDownStock(multipartFile.getInputStream());
             }
-            return RespBean.error("导入失败");
+            return RespBean.success("导入成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("导入失败:{}",e);
+            return RespBean.error("导入失败");
         }
-        return RespBean.error("导入失败");
     }
 
     @ApiOperationSupport(order = 17)
@@ -202,25 +211,20 @@ public class InputController {
     @PostMapping("/importStock")
     public RespBean importStock(@RequestPart(required = false) MultipartFile multipartFile) {
         try {
-            boolean flag;
             if (multipartFile == null) {
                 log.info("没有文件传入，尝试去固定位置生成");
-                String thsBasePath = SystemConfConstant.THS_BASE_PATH;
-                File file = new File(thsBasePath + "stock.xls");
-                File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
-                flag = inputService.importStock(new FileInputStream(tempFile));
+                inputService.importStock(thsBasePath);
             } else {
-                flag = inputService.importStock(multipartFile.getInputStream());
+                inputService.importStock(multipartFile.getInputStream());
             }
-            if (flag) {
-                return RespBean.success("导入成功");
-            }
-            return RespBean.error("导入失败");
+            return RespBean.success("导入成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("导入失败:{}",e);
+            return RespBean.error("导入失败");
         }
-        return RespBean.error("导入失败");
     }
+
+
 
     @ApiOperationSupport(order = 21)
     @ApiOperation("2-1 题材明细导入(只导入指定日期的数据，其他日期的数据不完整时，建议删除)")
