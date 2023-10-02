@@ -56,29 +56,43 @@ public class ExcelChangeUtil {
                     lines.add(line.split("\\t"));
                 }
             }
+
+            List<String> cellStyleList = new ArrayList<>();
+            String[] head = lines.get(0);
+            for (int i = 0; i < head.length; i++) {
+                String headStr = head[i];
+                if (headStr.contains("日期") || headStr.contains("时间")) {
+                    cellStyleList.add("时间格式");
+                } else if (headStr.contains("金额") || headStr.contains("市值")) {
+                    cellStyleList.add("数字格式");
+                } else {
+                    cellStyleList.add("未定义");
+                }
+            }
             int rowIndex = 0;
             int cellIndex;
             for (String[] rowData : lines) {
                 row = sheet.createRow(rowIndex++);
                 cellIndex = 0;
                 for (String cellData : rowData) {
-                    cell = row.createCell(cellIndex++);
-                    setCell(cell, cellData, cellStyle);
+                    cell = row.createCell(cellIndex);
+                    setCell(cell, cellData, cellStyle, cellStyleList.get(cellIndex));
+                    cellIndex = cellIndex + 1;
                 }
             }
             try (FileOutputStream outputStream = new FileOutputStream(xlsxFile)) {
                 workbook.write(outputStream);
-                outputStream.close();
             }
             //记得删除临时文件，我自己的需求在后面做了处理，不需要在此删除临时文件
 //            csvFile.delete();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("excel转换异常{}", e);
+            throw new RuntimeException("导出Excel失败，请联系网站管理员！");
         }
         return xlsxFile;
     }
 
-    private static void setCell(XSSFCell cell, String cellData, XSSFCellStyle cellStyle) {
+    private static void setCell(XSSFCell cell, String cellData, XSSFCellStyle cellStyle, String cellType) {
         try {
             if (StringUtils.isEmpty(cellData) || "--".equals(cellData)) {
                 cell.setCellValue("");
@@ -89,14 +103,14 @@ public class ExcelChangeUtil {
                 } else {
                     cell.setCellValue(cellData);
                 }
-             //20年开头，并且8位数字，转数字
-            } else if (cellData.startsWith("20") && cellData.matches("[0-9]{8}")) {
+
+            } else if (cellData.matches("[0-9]{8}") && cellType.equals("时间格式")) {
                 cell.setCellStyle(cellStyle);
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
                 cell.setCellValue(sdf.parse(cellData));
             } else if (cellData.matches("\\+-?[0-9.]*")) {
                 cell.setCellValue(Double.valueOf(cellData));
-            } else if (cellData.contains(":") && cellData.matches("[\\:0-9]*")) {
+            } else if (cellData.contains(":") && cellData.matches("[\\:0-9]*")&& cellType.equals("时间格式")) {
                 cell.setCellStyle(cellStyle);
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
                 cell.setCellValue(sdf.parse(cellData));
@@ -104,8 +118,9 @@ public class ExcelChangeUtil {
             } else {
                 cell.setCellValue(cellData);
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            log.error("excel转换异常{}", e);
+            throw new RuntimeException("导出Excel失败，请联系网站管理员！");
         }
     }
 

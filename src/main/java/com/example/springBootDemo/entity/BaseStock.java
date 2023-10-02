@@ -57,6 +57,7 @@ public class BaseStock implements Serializable {
     /**
      * 成交额
      */
+    @Excel(name = "总金额")
     private Double amount;
     /**
      * 开盘涨幅

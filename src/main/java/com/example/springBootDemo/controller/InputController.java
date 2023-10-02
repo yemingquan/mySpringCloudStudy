@@ -20,10 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -203,9 +200,18 @@ public class InputController {
     @ApiOperationSupport(order = 17)
     @ApiOperation("1-7 导入基础股票数据")
     @PostMapping("/importStock")
-    public RespBean importStock(@RequestPart MultipartFile multipartFile) {
+    public RespBean importStock(@RequestPart(required = false) MultipartFile multipartFile) {
         try {
-            boolean flag = inputService.importStock(multipartFile.getInputStream());
+            boolean flag;
+            if (multipartFile == null) {
+                log.info("没有文件传入，尝试去固定位置生成");
+                String thsBasePath = SystemConfConstant.THS_BASE_PATH;
+                File file = new File(thsBasePath + "stock.xls");
+                File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
+                flag = inputService.importStock(new FileInputStream(tempFile));
+            } else {
+                flag = inputService.importStock(multipartFile.getInputStream());
+            }
             if (flag) {
                 return RespBean.success("导入成功");
             }
@@ -279,7 +285,7 @@ public class InputController {
         }
 
         try {
-            List<BaseDateNews> list = ExcelUtil.excelToList(multipartFile,BaseDateNews.class);
+            List<BaseDateNews> list = ExcelUtil.excelToList(multipartFile, BaseDateNews.class);
             baseDateNewsService.oprNewsData(list);
             log.info("准备插入数据");
             if (baseDateNewsService.insertBatch(list)) {
@@ -302,7 +308,7 @@ public class InputController {
         baseDateNewsService.deleteBaseDateNewsByDateList(date, startDate);
 
         try {
-            List<BaseDateNews> list = ExcelUtil.excelToList(multipartFile,BaseDateNews.class);
+            List<BaseDateNews> list = ExcelUtil.excelToList(multipartFile, BaseDateNews.class);
             baseDateNewsService.oprNewsData(list);
             log.info("准备插入数据");
             if (baseDateNewsService.insertBatch(list)) {
@@ -319,10 +325,10 @@ public class InputController {
     @PostMapping("/market")
     public RespBean market(@RequestPart MultipartFile multipartFile) {
         try {
-            List<BaseMarket> list = ExcelUtil.excelToList(multipartFile,BaseMarket.class);
-            for (BaseMarket bm :list){
+            List<BaseMarket> list = ExcelUtil.excelToList(multipartFile, BaseMarket.class);
+            for (BaseMarket bm : list) {
                 String marketTrends = bm.getMarketTrends();
-                if(StringUtils.isNotBlank(marketTrends)){
+                if (StringUtils.isNotBlank(marketTrends)) {
 //                    log.info("日期:{},market_trends长度:{}",DateUtil.format(bm.getDate(), DateConstant.DATE_FORMAT_10), marketTrends.length());
                 }
             }

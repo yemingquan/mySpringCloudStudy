@@ -4,7 +4,7 @@ import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
-import com.example.springBootDemo.config.components.constant.StockCode;
+import com.example.springBootDemo.config.components.constant.StockConstant;
 import com.example.springBootDemo.config.components.system.SystemConfConstant;
 import com.example.springBootDemo.dao.mapper.ConfBusinessDao;
 import com.example.springBootDemo.entity.ConfCxStock;
@@ -158,7 +158,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
             alias = "";
         }
 
-        if (StockCode.BusinessTypeEnum.ATTR.getName().equals(type)) {
+        if (StockConstant.BusinessTypeEnum.ATTR.getName().equals(type)) {
             //1 检索数据库中已有概念的标的，并将其中的概念抹去
             clearAttr(cb, busName, alias);
             clearBusiness(cb, busName, alias);
@@ -166,7 +166,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
             //3.修改库中相关概念
             queryAndUpdateAttr(cb, busName);
         }
-        if (StockCode.BusinessTypeEnum.FLAG.getName().equals(type)) {
+        if (StockConstant.BusinessTypeEnum.FLAG.getName().equals(type)) {
             log.info("标记数据:[{}]不做处理:", busName);
         } else {
             //1 检索数据库中已有概念的标的，并将其中的概念抹去

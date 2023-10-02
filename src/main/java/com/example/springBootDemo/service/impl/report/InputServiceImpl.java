@@ -4,6 +4,7 @@ package com.example.springBootDemo.service.impl.report;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.constant.DateConstant;
+import com.example.springBootDemo.config.components.constant.StockConstant;
 import com.example.springBootDemo.entity.*;
 import com.example.springBootDemo.entity.base.BaseReportStock;
 import com.example.springBootDemo.entity.dto.QueryStockDto;
@@ -16,6 +17,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -269,29 +271,34 @@ public class InputServiceImpl implements InputService {
 
     @Override
     public boolean importStock(InputStream is) throws Exception {
+        StopWatch stopWatch = new StopWatch();
         //导入前先删除当天的数据
         EntityWrapper<BaseStock> wrapper = new EntityWrapper<>();
         wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
         baseStockService.delete(wrapper);
 
+        stopWatch.start();
         List<BaseStock> list = ExcelUtil.excelToList(is, BaseStock.class);
         is.close();
-
+        log.info("基础股票数据导入-excel转换成对象耗时:{}ms ", stopWatch.getTime());
+        stopWatch.reset();
 
         List<ConfMyStock> msList = confMyStockService.selectList(new EntityWrapper<>());
 
+        stopWatch.start();
         ///计算沪深成贡献值、交额、涨幅、
-        BigDecimal hVol = BigDecimal.ZERO;
-        BigDecimal sVol = BigDecimal.ZERO;
-        BigDecimal hContribution = BigDecimal.ZERO;
-        BigDecimal sContribution = BigDecimal.ZERO;
-        BigDecimal hGains = BigDecimal.ZERO;
-        BigDecimal sGains = BigDecimal.ZERO;
+        BigDecimal shAmount = BigDecimal.ZERO;
+        BigDecimal shContribution = BigDecimal.ZERO;
+        BigDecimal shGains = BigDecimal.ZERO;
 
-        //计算主板、科创、创业板 的成交额、贡献值、涨幅
-        BigDecimal zbVol = BigDecimal.ZERO;
-        BigDecimal kcVol = BigDecimal.ZERO;
-        BigDecimal cyVol = BigDecimal.ZERO;
+        BigDecimal szAmount = BigDecimal.ZERO;
+        BigDecimal szContribution = BigDecimal.ZERO;
+        BigDecimal szGains = BigDecimal.ZERO;
+
+        //TODO 2023-10-2 有时间在弄 计算主板、科创、创业板 的成交额、贡献值、涨幅
+//        BigDecimal zbAmount = BigDecimal.ZERO;
+//        BigDecimal kcAmount = BigDecimal.ZERO;
+//        BigDecimal cyAmount = BigDecimal.ZERO;
 //        BigDecimal hContribution = BigDecimal.ZERO;
 //        BigDecimal sContribution = BigDecimal.ZERO;
 //        BigDecimal hGains = BigDecimal.ZERO;
@@ -301,26 +308,47 @@ public class InputServiceImpl implements InputService {
             BaseStock dto = list.get(i);
             String stockCode = dto.getStockCode();
             String plate = dto.getPlate();
-            //计算沪深成贡献值、交额、涨幅、
-            if(stockCode.startsWith("00")){
 
-            }else if(stockCode.startsWith("00")){
 
-            }
-            //计算主板、科创、创业板 的成交额、贡献值、涨幅
-
-            /**
-             * 股票前缀含义盘点
-             * 　　一、xr，xr的全拼是Exclud Right，该前缀的意思就是这只股票已经除权，购买这只股票不会再享受股票分红权利，不过这个前缀在第二个交易日就会自动消失恢复到原来的简称。
-             * 　　二、dr，dr的全拼是Dividend Right，该前缀的意思是这只股票已经除权除息，购买这只股票不会再享受送股派息的权利，和xr一样，这个前缀会在第二个交易日自动消失，恢复到原来的简称。
-             * 　　三、xd，xd的全拼是Without Dividend，意思上文中我们解释过了，此外这个前缀也是在第二个交易日自动消失，恢复到原来的简称。
-             * 　　四、st，加了st的意思就是这个公司在连续两个会计年度都出现亏损，这是对其的特殊处理，st就是亏损股。
-             * 　　五、*st，*st股表示的是连续三年亏损，股票具有退市风险，如果想要购买这只股票就要有更好的基本面分析能力。
-             * 　　六、n，新股上市第一天就会在股票简称前面加上一个n的字母，它的全拼就是new，就是新的意思，此外，增发、重组、股改之后复牌第一个交易日也是用字母n来进行区别，这个前缀也是在第二个交易日自动消失恢复到原来的简称。
-             */
             //数据补充(包括上市日期、名字、发行价格)
 
+
+            //计算统计数据
+            //成交额
+            Double amountD = dto.getAmount();
+            if (amountD == null) continue;
+            BigDecimal amount = new BigDecimal(amountD);
+            BigDecimal contribution = dto.getContribution() == null ? BigDecimal.ZERO : new BigDecimal(dto.getContribution());
+
+            //计算沪深成贡献值、交额、涨幅、
+            if (stockCode.startsWith(StockConstant.ExchangeEnum.SSE.getPrefix())) {
+                shAmount = shAmount.add(amount);
+                shContribution = shContribution.add(contribution);
+            } else if (stockCode.startsWith(StockConstant.ExchangeEnum.SZSE.getPrefix())) {
+                szAmount = szAmount.add(amount);
+                szContribution = szContribution.add(contribution);
+            }
+            //计算主板、科创、创业板 的成交额、贡献值、涨幅
+//            if (StockConstant.PlateEnum.CYB.getName().equals(plate)) {
+//                shAmount = shAmount.add(amount);
+//                shContribution = shContribution.add(contribution);
+//            } else if (StockConstant.PlateEnum.KCB.getName().equals(plate)) {
+//                szAmount = szAmount.add(amount);
+//                szContribution = szContribution.add(contribution);
+//            }
+
         }
+        shGains = shContribution.multiply(new BigDecimal("100")).divide(new BigDecimal("3117.75"), 2, BigDecimal.ROUND_HALF_UP);
+        szGains = szContribution.multiply(new BigDecimal("100")).divide(new BigDecimal("10131.66"), 2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal shAmountReust = shAmount.divide(new BigDecimal("100000000"), 2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal szAmountReust = szAmount.divide(new BigDecimal("100000000"), 2, BigDecimal.ROUND_HALF_UP);
+
+
+        log.info("统计-沪市-成交额:{},点数:{},涨幅:{}", shAmountReust, shContribution.setScale(2, BigDecimal.ROUND_HALF_UP), shGains.setScale(2, BigDecimal.ROUND_HALF_UP));
+        log.info("统计-深市-成交额:{},点数:{},涨幅:{}", szAmountReust, szContribution.setScale(2, BigDecimal.ROUND_HALF_UP), szGains.setScale(2, BigDecimal.ROUND_HALF_UP));
+        log.info("统计-两市成交额:{}", shAmountReust.add(szAmountReust));
+        log.info("基础股票数据导入-大盘统计与数据处理耗时:{}ms ", stopWatch.getTime());
+        stopWatch.reset();
 
 //        return baseStockService.insertBatch(list, list.size());
         return false;
@@ -331,7 +359,6 @@ public class InputServiceImpl implements InputService {
         EntityWrapper<BaseSubject> subjectWr;
         EntityWrapper<BaseSubjectLine> subjectLineWr;
         EntityWrapper<BaseSubjectLineDetail> detailWr;
-
 
         List<BaseSubjectDetail> imputList = ExcelUtil.excelToList(is, BaseSubjectDetail.class);
         is.close();

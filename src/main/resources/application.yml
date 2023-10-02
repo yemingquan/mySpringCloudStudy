@@ -4,12 +4,19 @@ server:
 spring:
   application:
     name: login-handle
+  servlet:
+    multipart:
+      #单个文件大小限制
+      maxFileSize: -1
+      maxRequestSize: -1
+  #数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     #    url: jdbc:mysql://192.168.1.109:3306/demo?characterEncoding=utf8&useUnicode=true
     url: jdbc:mysql://localhost:3306/stock?serverTimezone=Asia/Shanghai&useSSL=false&allowMultiQueries=true
     username: root
     password: 123456
+  #邮箱配置
   mail:
     host: smtp.qq.com
     username: ymq815129539@qq.com
@@ -39,6 +46,8 @@ springdoc:
     tags-sorter: alpha
     # 该参数是swagger默认的排序规则，如果设置为alpha，那么Knife4j提供的按照order排序的增强规则不生效
     operations-sorter: alpha
+
+
 
 #wo：
 #  name:WO
