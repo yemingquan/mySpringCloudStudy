@@ -4,10 +4,7 @@ package com.example.springBootDemo.service.impl.report;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.constant.DateConstant;
-import com.example.springBootDemo.entity.BaseSubject;
-import com.example.springBootDemo.entity.BaseSubjectLine;
-import com.example.springBootDemo.entity.BaseSubjectLineDetail;
-import com.example.springBootDemo.entity.ConfMyStock;
+import com.example.springBootDemo.entity.*;
 import com.example.springBootDemo.entity.base.BaseReportStock;
 import com.example.springBootDemo.entity.dto.QueryStockDto;
 import com.example.springBootDemo.entity.input.*;
@@ -44,7 +41,7 @@ import java.util.stream.Collectors;
 public class InputServiceImpl implements InputService {
 
     @Autowired
-    StudentService studentService;
+    BaseStockService baseStockService;
     @Autowired
     BaseZtStockService baseZtStockService;
     @Autowired
@@ -271,6 +268,65 @@ public class InputServiceImpl implements InputService {
     }
 
     @Override
+    public boolean importStock(InputStream is) throws Exception {
+        //导入前先删除当天的数据
+        EntityWrapper<BaseStock> wrapper = new EntityWrapper<>();
+        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
+        baseStockService.delete(wrapper);
+
+        List<BaseStock> list = ExcelUtil.excelToList(is, BaseStock.class);
+        is.close();
+
+
+        List<ConfMyStock> msList = confMyStockService.selectList(new EntityWrapper<>());
+
+        ///计算沪深成贡献值、交额、涨幅、
+        BigDecimal hVol = BigDecimal.ZERO;
+        BigDecimal sVol = BigDecimal.ZERO;
+        BigDecimal hContribution = BigDecimal.ZERO;
+        BigDecimal sContribution = BigDecimal.ZERO;
+        BigDecimal hGains = BigDecimal.ZERO;
+        BigDecimal sGains = BigDecimal.ZERO;
+
+        //计算主板、科创、创业板 的成交额、贡献值、涨幅
+        BigDecimal zbVol = BigDecimal.ZERO;
+        BigDecimal kcVol = BigDecimal.ZERO;
+        BigDecimal cyVol = BigDecimal.ZERO;
+//        BigDecimal hContribution = BigDecimal.ZERO;
+//        BigDecimal sContribution = BigDecimal.ZERO;
+//        BigDecimal hGains = BigDecimal.ZERO;
+//        BigDecimal sGains = BigDecimal.ZERO;
+
+        for (int i = 0; i < list.size(); i++) {
+            BaseStock dto = list.get(i);
+            String stockCode = dto.getStockCode();
+            String plate = dto.getPlate();
+            //计算沪深成贡献值、交额、涨幅、
+            if(stockCode.startsWith("00")){
+
+            }else if(stockCode.startsWith("00")){
+
+            }
+            //计算主板、科创、创业板 的成交额、贡献值、涨幅
+
+            /**
+             * 股票前缀含义盘点
+             * 　　一、xr，xr的全拼是Exclud Right，该前缀的意思就是这只股票已经除权，购买这只股票不会再享受股票分红权利，不过这个前缀在第二个交易日就会自动消失恢复到原来的简称。
+             * 　　二、dr，dr的全拼是Dividend Right，该前缀的意思是这只股票已经除权除息，购买这只股票不会再享受送股派息的权利，和xr一样，这个前缀会在第二个交易日自动消失，恢复到原来的简称。
+             * 　　三、xd，xd的全拼是Without Dividend，意思上文中我们解释过了，此外这个前缀也是在第二个交易日自动消失，恢复到原来的简称。
+             * 　　四、st，加了st的意思就是这个公司在连续两个会计年度都出现亏损，这是对其的特殊处理，st就是亏损股。
+             * 　　五、*st，*st股表示的是连续三年亏损，股票具有退市风险，如果想要购买这只股票就要有更好的基本面分析能力。
+             * 　　六、n，新股上市第一天就会在股票简称前面加上一个n的字母，它的全拼就是new，就是新的意思，此外，增发、重组、股改之后复牌第一个交易日也是用字母n来进行区别，这个前缀也是在第二个交易日自动消失恢复到原来的简称。
+             */
+            //数据补充(包括上市日期、名字、发行价格)
+
+        }
+
+//        return baseStockService.insertBatch(list, list.size());
+        return false;
+    }
+
+    @Override
     public boolean importSubjectDetail(InputStream is, String startDate, String date) throws Exception {
         EntityWrapper<BaseSubject> subjectWr;
         EntityWrapper<BaseSubjectLine> subjectLineWr;
@@ -482,7 +538,8 @@ public class InputServiceImpl implements InputService {
         if (Math.abs(entitySize) < 2) {
             if (Math.abs(amplitude) > 9) {
                 instructions.append("大分歧;");
-            }if (Math.abs(amplitude) == 0) {
+            }
+            if (Math.abs(amplitude) == 0) {
                 instructions.append("一字;");
             } else {
                 instructions.append("十字星;");
@@ -562,7 +619,8 @@ public class InputServiceImpl implements InputService {
         if (Math.abs(entitySize) < 2) {
             if (Math.abs(amplitude) > 9) {
                 instructions.append("大分歧;");
-            }if (Math.abs(amplitude) == 0) {
+            }
+            if (Math.abs(amplitude) == 0) {
                 instructions.append("一字;");
             } else {
                 instructions.append("十字星;");

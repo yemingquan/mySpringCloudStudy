@@ -29,4 +29,6 @@ public interface InputService {
     boolean importSubjectDetail(InputStream inputStream, String startDate, String date) throws Exception;
 
     void genSubjectDate(List<BaseSubjectDetail> imputList);
+
+    boolean importStock(InputStream inputStream) throws Exception;
 }

@@ -200,6 +200,21 @@ public class InputController {
         return RespBean.error("导入失败");
     }
 
+    @ApiOperationSupport(order = 17)
+    @ApiOperation("1-7 导入基础股票数据")
+    @PostMapping("/importStock")
+    public RespBean importStock(@RequestPart MultipartFile multipartFile) {
+        try {
+            boolean flag = inputService.importStock(multipartFile.getInputStream());
+            if (flag) {
+                return RespBean.success("导入成功");
+            }
+            return RespBean.error("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
 
     @ApiOperationSupport(order = 21)
     @ApiOperation("2-1 题材明细导入(只导入指定日期的数据，其他日期的数据不完整时，建议删除)")
