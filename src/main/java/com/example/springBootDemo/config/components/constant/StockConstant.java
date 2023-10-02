@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @所属模块<p>
@@ -98,11 +100,15 @@ public class StockConstant {
 
         @Setter
         @Getter
-        private String prefix;
+        private String code;
 
         @Setter
         @Getter
         private String name;
+
+        public static List<String> getCodeList() {
+            return Arrays.stream(values()).map(SpecilNameEnum::getCode).collect(Collectors.toList());
+        }
     }
 
 

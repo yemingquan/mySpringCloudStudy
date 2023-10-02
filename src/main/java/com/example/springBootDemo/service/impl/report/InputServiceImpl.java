@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -279,13 +280,31 @@ public class InputServiceImpl implements InputService {
 
         stopWatch.start();
         List<BaseStock> list = ExcelUtil.excelToList(is, BaseStock.class);
+        Map<String, BaseStock> baseStockMap = list.stream().collect(Collectors.toMap(BaseStock::getStockCode, Function.identity(), (item1, item2) -> item1));
         is.close();
         log.info("基础股票数据导入-excel转换成对象耗时:{}ms ", stopWatch.getTime());
         stopWatch.reset();
 
+
         List<ConfMyStock> msList = confMyStockService.selectList(new EntityWrapper<>());
+        Map<String, ConfMyStock> confStockMap = msList.stream().collect(Collectors.toMap(ConfMyStock::getStockCode, Function.identity(), (item1, item2) -> item1));
+        List<ConfMyStock> fixConfStockList = Lists.newArrayList();
 
         stopWatch.start();
+        insertBaseDate(list, confStockMap, fixConfStockList);
+        log.info("基础股票数据导入-大盘统计与数据处理耗时:{}ms ", stopWatch.getTime());
+        stopWatch.reset();
+
+        //补充配置文件信息
+        stopWatch.start();
+        fixConfStockDateByBasedStock(baseStockMap, msList, fixConfStockList);
+        log.info("基础股票数据导入-补充配置数据耗时:{}ms ", stopWatch.getTime());
+        stopWatch.reset();
+
+        return true;
+    }
+
+    public void insertBaseDate(List<BaseStock> list, Map<String, ConfMyStock> confStockMap, List<ConfMyStock> fixConfStockList) {
         ///计算沪深成贡献值、交额、涨幅、
         BigDecimal shAmount = BigDecimal.ZERO;
         BigDecimal shContribution = BigDecimal.ZERO;
@@ -304,22 +323,54 @@ public class InputServiceImpl implements InputService {
 //        BigDecimal hGains = BigDecimal.ZERO;
 //        BigDecimal sGains = BigDecimal.ZERO;
 
+        //基础数据的循环
         for (int i = 0; i < list.size(); i++) {
             BaseStock dto = list.get(i);
             String stockCode = dto.getStockCode();
+            String stockName = dto.getStockName();
             String plate = dto.getPlate();
 
+            dto.setCreateDate(new Date());
+            dto.setCreateBy("基础数据导入");
 
-            //数据补充(包括上市日期、名字、发行价格)
+            //如果基础数据新增，但配置数据没有时，同步这块数据
+            ConfMyStock cms = confStockMap.get(stockCode);
+            if (cms == null) {
+                log.info("配置表新增数据 stockCode : {} name:{}", stockCode, stockName);
+                cms = new ConfMyStock();
+                BeanUtils.copyProperties(dto, cms, ConfMyStock.class);
+                fixConfStockList.add(cms);
+            }
 
+            //基础数据修正
+            //成交额 成交额为0时 为停牌数据
+            Double amountD = dto.getAmount();
+            if(amountD == 0){
+                log.info("停牌 stockCode : {} name:{}", stockCode, stockName);
+                continue;
+            }else if (amountD == null ){
+                log.info("即将上市 stockCode : {} name:{}", stockCode, stockName);
+                continue;
+            }
+            BigDecimal amount = new BigDecimal(amountD).divide(new BigDecimal(100000000), 4, BigDecimal.ROUND_HALF_UP);
+            dto.setAmount(amount.doubleValue());
+            //贡献度
+            BigDecimal contribution = dto.getContribution() == null ? BigDecimal.ZERO : new BigDecimal(dto.getContribution());
+            dto.setCirculation(contribution.doubleValue());
+            //流通盘
+            BigDecimal circulation = new BigDecimal(dto.getCirculation()).divide(new BigDecimal(100000000), 4, BigDecimal.ROUND_HALF_UP);
+            dto.setAmount(circulation.doubleValue());
+
+            dto.setAmplitude(dto.getAmplitude() * 100);
+            dto.setChangingHands(dto.getChangingHands() * 100);
+            if (dto.getGains() != null) dto.setGains(dto.getGains() * 100);
+            if (dto.getStartGains() != null) dto.setStartGains(dto.getStartGains() * 100);
+            if (dto.getEntitySize() != null) {
+                double entitySize = dto.getEntitySize() * 100;
+                dto.setEntitySize(entitySize);
+            }
 
             //计算统计数据
-            //成交额
-            Double amountD = dto.getAmount();
-            if (amountD == null) continue;
-            BigDecimal amount = new BigDecimal(amountD);
-            BigDecimal contribution = dto.getContribution() == null ? BigDecimal.ZERO : new BigDecimal(dto.getContribution());
-
             //计算沪深成贡献值、交额、涨幅、
             if (stockCode.startsWith(StockConstant.ExchangeEnum.SSE.getPrefix())) {
                 shAmount = shAmount.add(amount);
@@ -340,18 +391,68 @@ public class InputServiceImpl implements InputService {
         }
         shGains = shContribution.multiply(new BigDecimal("100")).divide(new BigDecimal("3117.75"), 2, BigDecimal.ROUND_HALF_UP);
         szGains = szContribution.multiply(new BigDecimal("100")).divide(new BigDecimal("10131.66"), 2, BigDecimal.ROUND_HALF_UP);
-        BigDecimal shAmountReust = shAmount.divide(new BigDecimal("100000000"), 2, BigDecimal.ROUND_HALF_UP);
-        BigDecimal szAmountReust = szAmount.divide(new BigDecimal("100000000"), 2, BigDecimal.ROUND_HALF_UP);
+//        BigDecimal shAmountReust = shAmount.divide(new BigDecimal("100000000"), 2, BigDecimal.ROUND_HALF_UP);
+//        BigDecimal szAmountReust = szAmount.divide(new BigDecimal("100000000"), 2, BigDecimal.ROUND_HALF_UP);
 
 
-        log.info("统计-沪市-成交额:{},点数:{},涨幅:{}", shAmountReust, shContribution.setScale(2, BigDecimal.ROUND_HALF_UP), shGains.setScale(2, BigDecimal.ROUND_HALF_UP));
-        log.info("统计-深市-成交额:{},点数:{},涨幅:{}", szAmountReust, szContribution.setScale(2, BigDecimal.ROUND_HALF_UP), szGains.setScale(2, BigDecimal.ROUND_HALF_UP));
-        log.info("统计-两市成交额:{}", shAmountReust.add(szAmountReust));
-        log.info("基础股票数据导入-大盘统计与数据处理耗时:{}ms ", stopWatch.getTime());
-        stopWatch.reset();
+        log.info("统计-沪市-成交额:{},点数:{},涨幅:{}", shAmount, shContribution.setScale(2, BigDecimal.ROUND_HALF_UP), shGains.setScale(2, BigDecimal.ROUND_HALF_UP));
+        log.info("统计-深市-成交额:{},点数:{},涨幅:{}", szAmount, szContribution.setScale(2, BigDecimal.ROUND_HALF_UP), szGains.setScale(2, BigDecimal.ROUND_HALF_UP));
+        log.info("统计-两市成交额:{}", shAmount.add(szAmount));
+        baseStockService.insertBatch(list, list.size());
+    }
 
-//        return baseStockService.insertBatch(list, list.size());
-        return false;
+
+    public void fixConfStockDateByBasedStock(Map<String, BaseStock> baseStockMap, List<ConfMyStock> msList, List<ConfMyStock> fixConfStockList) {
+        List<String> nameCodeList = StockConstant.SpecilNameEnum.getCodeList();
+        //配置数据的循环
+        for (int i = 0; i < msList.size(); i++) {
+            //数据补充(包括上市日期、名字、发行价格)
+            ConfMyStock dto = msList.get(i);
+            String stockCode = dto.getStockCode();
+            BaseStock bs = baseStockMap.get(stockCode);
+            //基础数据为空时，跳过补充
+            if (bs == null) continue;
+            Boolean flag = false;
+
+            //上市日期
+            Date issueDate = dto.getIssueDate();
+            if (issueDate == null) {
+                dto.setIssueDate(bs.getIssueDate());
+                flag = true;
+            }
+
+            //名字
+            String stockName = dto.getStockName();
+            String baseName = bs.getStockName();
+            if (!nameCodeList.contains(stockName)) {
+                if (!nameCodeList.contains(baseName)) {
+                    dto.setStockName(baseName);
+                    flag = true;
+                } else {
+                    log.info("stockName conf:{},input:{}", stockName, baseName);
+                }
+            }
+
+            //发行价格
+            Double price = dto.getPrice();
+            if (price == null) {
+                dto.setPrice(bs.getPrice());
+                flag = true;
+            }
+
+            //板块
+            String plate = dto.getPlate();
+            if (plate == null) {
+                dto.setPlate(bs.getPlate());
+                flag = true;
+            }
+
+            //添加修正list中
+            if (flag) {
+                fixConfStockList.add(dto);
+            }
+        }
+        confMyStockService.insertOrUpdateBatch(fixConfStockList, fixConfStockList.size());
     }
 
     @Override

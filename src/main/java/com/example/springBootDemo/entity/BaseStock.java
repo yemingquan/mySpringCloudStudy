@@ -78,7 +78,7 @@ public class BaseStock implements Serializable {
      * 振幅
      */
     @Excel(name = "振幅")
-    private Double amplitude;
+        private Double amplitude;
     /**
      * 换手
      */
@@ -128,7 +128,7 @@ public class BaseStock implements Serializable {
     /**
      *  为其他表读取的数据
      */
-    @Excel(name = "上市日期")
+    @Excel(name = "新股上市日期")
     @TableField(exist = false)
     private Date issueDate;
 
@@ -138,6 +138,6 @@ public class BaseStock implements Serializable {
 
     @Excel(name = "新股发行价格")
     @TableField(exist = false)
-    private String price;
+    private Double price;
 }
 
