@@ -37,6 +37,12 @@ public class SubjectReport implements Serializable {
     @Excel(name = "结束日期")
     private String durationEnd;
 
+    @Excel(name = "竞价")
+    private String bidding;
+
+    @Excel(name = "关键词")
+    private String keyWords;
+
     @Excel(name = "行业")
     private String mainBusiness;
 
