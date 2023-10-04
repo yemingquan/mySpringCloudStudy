@@ -81,7 +81,7 @@ public class ReportController {
         log.info("1-0 板块报表导出 date：{} startDate：{} clearFlag:{}", date, startDate, clearFlag);
 
         long start;
-        String fileName = "板块0000";
+        String fileName = "BK0000";
         date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
         try {
@@ -157,7 +157,7 @@ public class ReportController {
                                @RequestParam(value = "refreshFlag", required = false) String refreshFlag,
                                HttpServletResponse response) {
         log.info("1-1 涨停报表导出 {}", date);
-        String fileName = "涨停1111";
+        String fileName = "ZT1111";
         date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
         if (StringUtils.isNotBlank(refreshFlag)) {
@@ -184,7 +184,7 @@ public class ReportController {
     public void exportMbRePort(@RequestParam(value = "date", required = false) String date,
                                HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
         log.info("1-2 摸板报表导出 {}", date);
-        String fileName = "摸板222";
+        String fileName = "MB2222";
         date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
         List<MbReport> list = reportService.getMbReportByDate(date);
@@ -201,7 +201,7 @@ public class ReportController {
     public void exportBdRePort(@RequestParam(value = "date", required = false) String date,
                                HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
         log.info("1-3 波动报表导出 {}", date);
-        String fileName = "波动333";
+        String fileName = "BD3333";
         date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
         List<BdReport> list = reportService.getBdReportByDate(date);
 
@@ -220,7 +220,7 @@ public class ReportController {
                                  @RequestParam(value = "startDate", required = false) String startDate,
                                  HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
         log.info("2-1 消息报表导出 {}", date);
-        String fileName = "消息";
+        String fileName = "NEWS";
         date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
         if (StringUtils.isNotBlank(startDate)) {
             startDate = confDateService.getBeforeTypeDate(startDate, DateConstant.DEAL_LIST);
