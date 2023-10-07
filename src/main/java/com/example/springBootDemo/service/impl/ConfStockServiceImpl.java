@@ -1,5 +1,6 @@
 package com.example.springBootDemo.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.config.components.constant.DateConstant;
@@ -7,9 +8,11 @@ import com.example.springBootDemo.config.components.constant.StockConstant;
 import com.example.springBootDemo.config.components.system.SystemConfConstant;
 import com.example.springBootDemo.dao.mapper.ConfBsdStockDao;
 import com.example.springBootDemo.dao.mapper.ConfStockDao;
+import com.example.springBootDemo.entity.BaseStock;
 import com.example.springBootDemo.entity.ConfBsdStock;
 import com.example.springBootDemo.entity.ConfStock;
 import com.example.springBootDemo.entity.input.ConfBusiness;
+import com.example.springBootDemo.service.BaseStockService;
 import com.example.springBootDemo.service.ConfBusinessService;
 import com.example.springBootDemo.service.ConfDateService;
 import com.example.springBootDemo.service.ConfStockService;
@@ -39,6 +42,8 @@ import java.util.stream.Collectors;
 public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> implements ConfStockService {
     @Resource
     private ConfStockDao confStockDao;
+    @Resource
+    private BaseStockService baseStockService;
     @Resource
     private ConfBsdStockDao confBsdStockDao;
     @Resource
@@ -144,12 +149,9 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
 
     @Override
     public void reflshCX() throws Exception {
-//      查询交易日  次新-新股(883984)5、近端次新(883907)120、远端次新(883974)365
-
-
-        //查询时间区间内的数据，统计到
+//      次新-新股(883984)5、近端次新(883907)120、远端次新(883974)365
         EntityWrapper ew = new EntityWrapper<ConfBusiness>();
-        List<String> cxList = StockConstant.CXEnum.getCodeList();
+        List<String> cxList = StockConstant.FinalPlanStockEnum.getCodeList();
         ew.in("sort", cxList);
         List<ConfBusiness> confBusinessList = confBusinessService.selectList(ew);
         List<ConfBusiness> updateList = Lists.newArrayList();
@@ -166,25 +168,26 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
             }
 
             List<ConfStock> list = Lists.newArrayList();
-            if (sort.equals(StockConstant.CXEnum.XG.getCode())) {
+            if (sort.equals(StockConstant.FinalPlanStockEnum.XG.getCode())) {
                 Date date5 = confDateService.queryTHSDayLimit(5, DateConstant.DEAL_LIST);
                 EntityWrapper confStockEW = new EntityWrapper<ConfStock>();
 
                 confStockEW.ge("issue_date", date5);
                 list = confStockDao.selectList(confStockEW);
-            } else if (sort.equals(StockConstant.CXEnum.JDCX.getCode())) {
+            } else if (sort.equals(StockConstant.FinalPlanStockEnum.JDCX.getCode())) {
                 Date date120 = confDateService.queryTHSDayLimit(120, DateConstant.DEAL_LIST);
                 Date date5 = confDateService.queryTHSDayLimit(5, DateConstant.DEAL_LIST);
                 EntityWrapper confStockEW = new EntityWrapper<ConfStock>();
 
-                confStockEW.between("issue_date", date120, date5).ne("issue_date",date5);
+                confStockEW.between("issue_date", date120, date5).ne("issue_date", date5);
                 list = confStockDao.selectList(confStockEW);
-            } else if (sort.equals(StockConstant.CXEnum.YDCX.getCode())) {
+            } else if (sort.equals(StockConstant.FinalPlanStockEnum.YDCX.getCode())) {
                 Date date120 = confDateService.queryTHSDayLimit(120, DateConstant.DEAL_LIST);
                 Date date365 = confDateService.queryTHSDayLimit(365, DateConstant.DEAL_LIST);
                 EntityWrapper confStockEW = new EntityWrapper<ConfStock>();
 
-                confStockEW.between("issue_date", date365, date120).ne("issue_date",date120);;
+                confStockEW.between("issue_date", date365, date120).ne("issue_date", date120);
+                ;
                 list = confStockDao.selectList(confStockEW);
             }
 
@@ -194,7 +197,7 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
                     .refushFlag("1")
                     .type("属性")
                     .sort(sort)
-                    .busName(StockConstant.CXEnum.getName(sort))
+                    .busName(StockConstant.FinalPlanStockEnum.getName(sort))
                     .relBus("次新")
                     .list(list.stream().map(ConfStock::getStockName).collect(Collectors.joining(",")))
                     .codeList(list.stream().map(ConfStock::getStockCode).collect(Collectors.joining(",")))
@@ -204,11 +207,44 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
             updateList.add(cb);
         }
         //插入数据
-        confBusinessService.insertOrUpdateBatch(updateList,updateList.size());
+        confBusinessService.insertOrUpdateBatch(updateList, updateList.size());
         //刷新数据
         for (int i = 0; i < updateList.size(); i++) {
             ConfBusiness cb = updateList.get(i);
             confBusinessService.refushRecordConfBusiness(cb);
         }
+    }
+
+    @Override
+    public void reflshSmallStock(String dateStr) {
+        EntityWrapper confStockEW = new EntityWrapper<ConfStock>();
+        dateStr = confDateService.getBeforeTypeDate(dateStr, DateConstant.DEAL_LIST);
+        Date date = DateUtil.parse(dateStr);
+        confStockEW.eq("create_date", date);
+        confStockEW.lt("circulation", StockConstant.PLAT_SMALL);
+        List<BaseStock> list = baseStockService.selectList(confStockEW);
+
+        EntityWrapper ew = new EntityWrapper<ConfBusiness>();
+        ew.eq("sort", StockConstant.FinalPlanStockEnum.PLAT_SMALL.getCode());
+        ConfBusiness cb = confBusinessService.selectOne(ew);
+        Integer id = null;
+        if (cb != null) {
+            id = cb.getId();
+        }
+
+        cb = ConfBusiness.builder()
+                .id(id)
+                .refushFlag("1")
+                .type("属性")
+                .sort(StockConstant.FinalPlanStockEnum.PLAT_SMALL.getCode())
+                .busName(StockConstant.FinalPlanStockEnum.PLAT_SMALL.getName())
+                .list(list.stream().map(BaseStock::getStockName).collect(Collectors.joining(",")))
+                .codeList(list.stream().map(BaseStock::getStockCode).collect(Collectors.joining(",")))
+                .createDate(new Date())
+                .createBy("日终刷新")
+                .build();
+//        confBusinessService.insertOrUpdate(cb);
+        //刷新数据
+        confBusinessService.refushRecordConfBusiness(cb);
     }
 }

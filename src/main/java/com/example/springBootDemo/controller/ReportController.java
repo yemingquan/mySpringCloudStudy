@@ -242,10 +242,11 @@ public class ReportController {
 
         try {
             log.info("次新刷新");
+            //TODO 老的方法要去掉
 //            confCxStockService.imporCX();
-            confStockService.reflshCX();
+//            confStockService.reflshCX();
             log.info("小盘刷新");
-//           TODO 逻辑和次新差不多的
+            confStockService.reflshSmallStock(date);
             log.info("可转债");
 //            baseBondService.imporKZZ();
             log.info("增量刷新股票的主业");

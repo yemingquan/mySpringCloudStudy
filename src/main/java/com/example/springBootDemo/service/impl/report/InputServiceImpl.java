@@ -68,7 +68,8 @@ public class InputServiceImpl implements InputService {
     BaseSubjectLineDetailService baseSubjectLineDetailService;
     @Autowired
     ConfStockService confStockService;
-
+    @Autowired
+    ConfDateService confDateService;
 
     @Override
     public boolean importExcelZthfStock(InputStream is) throws Exception {
@@ -327,7 +328,8 @@ public class InputServiceImpl implements InputService {
         StopWatch stopWatch = new StopWatch();
         //导入前先删除当天的数据
         EntityWrapper<BaseStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
+        Date date = confDateService.getBeforeTypeDate(new Date(), DateConstant.DEAL_LIST);
+        wrapper.eq("create_date", date);
         baseStockService.delete(wrapper);
 
         stopWatch.start();
@@ -345,7 +347,7 @@ public class InputServiceImpl implements InputService {
         stopWatch.reset();
 
         stopWatch.start();
-        insertBaseDate(list, confStockMap, fixConfStockList);
+        insertBaseDate(date,list, confStockMap, fixConfStockList);
         log.info("基础股票数据导入-大盘统计与数据处理耗时:{}ms ", stopWatch.getTime());
         stopWatch.reset();
 
@@ -358,7 +360,7 @@ public class InputServiceImpl implements InputService {
     }
 
 
-    public void insertBaseDate(List<BaseStock> list, Map<String, ConfStock> confStockMap, List<ConfStock> fixConfStockList) {
+    public void insertBaseDate(Date date, List<BaseStock> list, Map<String, ConfStock> confStockMap, List<ConfStock> fixConfStockList) {
         ///计算沪深成贡献值、交额、涨幅、
         BigDecimal shAmount = BigDecimal.ZERO;
         BigDecimal shContribution = BigDecimal.ZERO;
@@ -382,9 +384,9 @@ public class InputServiceImpl implements InputService {
             BaseStock dto = list.get(i);
             String stockCode = dto.getStockCode();
             String stockName = dto.getStockName();
-            String plate = dto.getPlate();
+//            String plate = dto.getPlate();
 
-            dto.setCreateDate(new Date());
+            dto.setCreateDate(date);
             dto.setCreateBy("基础数据导入");
 
             //如果基础数据新增，但配置数据没有时，同步这块数据

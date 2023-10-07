@@ -7,6 +7,7 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import com.example.springBootDemo.config.components.constant.DateConstant;
+import com.example.springBootDemo.config.components.constant.StockConstant;
 import com.example.springBootDemo.config.components.enums.NewsEnum;
 import com.example.springBootDemo.entity.base.BaseReportStock;
 import com.example.springBootDemo.entity.report.*;
@@ -915,9 +916,10 @@ public class ExcelUtil<T> implements Serializable {
             case "circulation":
                 //与通用不同的是，这里需要改变底色
                 Double value = po.getCirculation();
-                if (value < 30) {
+
+                if (value < StockConstant.PLAT_SMALL) {
                     map.put("backgroundColor", IndexedColors.TURQUOISE);
-                } else if (value > 400) {
+                } else if (value > StockConstant.PLAT_BIG) {
                     map.put("backgroundColor", IndexedColors.CORNFLOWER_BLUE);
                 }
                 break;

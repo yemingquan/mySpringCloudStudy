@@ -18,7 +18,10 @@ import java.util.stream.Collectors;
  * @公司名称
  */
 public class StockConstant {
+
     public static List<String> BSD_STOCK_LIST;
+    public static final Integer PLAT_SMALL = 30;
+    public static final Integer PLAT_BIG = 400;
 
     {
         BSD_STOCK_LIST = Lists.newArrayList(
@@ -75,8 +78,9 @@ public class StockConstant {
     }
 
     @AllArgsConstructor
-    public enum CXEnum {
+    public enum FinalPlanStockEnum {
         //        次新-新股(883984)5、近端次新(883907)120、远端次新(883974)365
+        PLAT_SMALL("SMALL", "小盘"),
         XG("883984", "新股"),
         JDCX("883907", "近端次新"),
         YDCX("883974", "远端次新");
@@ -89,11 +93,11 @@ public class StockConstant {
         private String name;
 
         public static List<String> getCodeList() {
-            return Arrays.stream(values()).map(CXEnum::getCode).collect(Collectors.toList());
+            return Arrays.stream(values()).map(FinalPlanStockEnum::getCode).collect(Collectors.toList());
         }
 
         public static String getName(String code) {
-            CXEnum en = Arrays.stream(values()).filter(e -> e.getCode().equals(code)).findFirst().orElse(null);
+            FinalPlanStockEnum en = Arrays.stream(values()).filter(e -> e.getCode().equals(code)).findFirst().orElse(null);
             return en == null ? code : en.getName();
         }
     }

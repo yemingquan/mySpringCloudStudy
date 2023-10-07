@@ -179,7 +179,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         //4.修改配置表信息
         log.info("概念:[{}]修改刷新标记", cb.getBusName());
         cb.setRefushFlag("0");
-        confBusinessService.updateById(cb);
+        if(cb.getId()!=null)confBusinessService.updateById(cb);
         log.info("处理成功");
     }
 
