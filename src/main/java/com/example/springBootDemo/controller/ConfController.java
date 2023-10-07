@@ -43,6 +43,10 @@ public class ConfController {
     @Resource
     private ConfStockService confStockService;
     @Resource
+    private ConfModelService confModelService;
+    @Resource
+    private ConfModelOtherService confModelOtherService;
+    @Resource
     private BaseBondService baseBondService;
     @Resource
     private ConfBusinessService confBusinessService;
@@ -215,5 +219,54 @@ public class ConfController {
         return RespBean.success("处理成功");
     }
 
+    @ApiOperationSupport(order = 41)
+    @ApiOperation("4-1 模式配置-文件查询")
+    @PostMapping("/queryModel")
+    public void queryModel(HttpServletResponse response) {
+        try {
+            confModelService.queryModel(response);
+            log.info("查询成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @ApiOperationSupport(order = 42)
+    @ApiOperation("4-2 模式配置-文件导入")
+    @PostMapping("/imporConfModel")
+    public RespBean imporConfModel(@RequestPart MultipartFile multipartFile) {
+        try {
+            confModelService.imporConfModel(multipartFile.getInputStream());
+            return RespBean.success("导入成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
+    @ApiOperationSupport(order = 43)
+    @ApiOperation("4-3 模式配置-其他模式查询")
+    @PostMapping("/queryModelOther")
+    public void queryModelOther(HttpServletResponse response) {
+        try {
+            confModelOtherService.queryModelOther(response);
+            log.info("查询成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @ApiOperationSupport(order = 44)
+    @ApiOperation("4-4 模式配置-其他模式导入")
+    @PostMapping("/imporConfModelOther")
+    public RespBean imporConfModelOther(@RequestPart MultipartFile multipartFile) {
+        try {
+            confModelOtherService.imporConfModelOther(multipartFile.getInputStream());
+            return RespBean.success("导入成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
 }
 

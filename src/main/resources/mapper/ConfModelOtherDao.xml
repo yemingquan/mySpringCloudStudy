@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springBootDemo.dao.mapper.ConfModelOtherDao">
+
+    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.ConfModelOther">
+        <!--@Table conf_model_other-->
+        <result property="conf" column="conf" jdbcType="VARCHAR"/>
+        <result property="topic" column="topic" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="confModelName" column="conf_model_name" jdbcType="VARCHAR"/>
+        <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        conf, topic, type, name, conf_model_name, instructions, state, remark
+    </sql>
+</mapper>
+

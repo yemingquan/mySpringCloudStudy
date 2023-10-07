@@ -9,7 +9,6 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.config.components.enums.NewsEnum;
 import com.example.springBootDemo.entity.base.BaseReportStock;
-import com.example.springBootDemo.entity.input.ConfBusiness;
 import com.example.springBootDemo.entity.report.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.google.common.collect.Lists;
@@ -1199,7 +1198,7 @@ public class ExcelUtil<T> implements Serializable {
         }
     }
 
-    public static ExportParams getSimpleExportParams(List<ConfBusiness> list, Class tClass) {
+    public static<E> ExportParams getSimpleExportParams(List<E> list, Class tClass) {
         Map<String, Object> excelParam = new HashMap<>();
         ExportParams params = new ExportParams();
         params.setType(ExcelType.XSSF);
@@ -1209,7 +1208,7 @@ public class ExcelUtil<T> implements Serializable {
         return params;
     }
 
-    public static ExportParams getExportParams(String title, String sheetName, List<ConfBusiness> list, Class tClass) {
+    public static<E> ExportParams getExportParams(String title, String sheetName, List<E> list, Class tClass) {
         Map<String, Object> excelParam = new HashMap<>();
         ExportParams params = new ExportParams();
         if (StringUtils.isNotBlank(title)) {

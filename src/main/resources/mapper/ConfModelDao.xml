@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springBootDemo.dao.mapper.ConfModelDao">
+
+    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.ConfModel">
+        <!--@Table conf_model-->
+        <result property="modelType" column="model_type" jdbcType="VARCHAR"/>
+        <result property="modelName" column="model_name" jdbcType="VARCHAR"/>
+        <result property="abbr" column="abbr" jdbcType="VARCHAR"/>
+        <result property="behaviour" column="behaviour" jdbcType="VARCHAR"/>
+        <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
+        <result property="chance" column="chance" jdbcType="VARCHAR"/>
+        <result property="risk" column="risk" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+        <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
+        <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        model_type, model_name, abbr, behaviour, instructions, chance, risk, state, create_date, create_by
+    </sql>
+
+    <select id="queryModel" resultType="com.example.springBootDemo.entity.input.Model" >
+        SELECT m.model_type, m.model_name, m.abbr, m.behaviour, m.instructions, m.chance, m.risk,
+            md.model_detail_type,md.name model_detail_name, md.abbr detail_abbr, md.behaviour detail_behaviour, md.instructions detail_instructions, md.state detail_state
+         FROM conf_model m
+        left join conf_model_detail md on md.model_type = m.model_type
+        order by m.`model_type`,md.`model_detail_type`
+    </select>
+</mapper>
+
