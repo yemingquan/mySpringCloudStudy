@@ -1,4 +1,4 @@
-package com.example.springBootDemo.entity;
+package com.example.springBootDemo.entity.test;
 
 import com.baomidou.mybatisplus.annotations.TableName;
 import com.example.springBootDemo.util.excel.Excel;

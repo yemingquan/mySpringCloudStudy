@@ -1,7 +1,7 @@
 package com.example.springBootDemo.service;
 
 import com.baomidou.mybatisplus.service.IService;
-import com.example.springBootDemo.entity.Student;
+import com.example.springBootDemo.entity.test.Student;
 import org.springframework.stereotype.Service;
 
 /**

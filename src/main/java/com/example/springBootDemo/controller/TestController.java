@@ -2,7 +2,7 @@ package com.example.springBootDemo.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.system.session.RespBean;
-import com.example.springBootDemo.entity.Student;
+import com.example.springBootDemo.entity.test.Student;
 import com.example.springBootDemo.service.StudentService;
 import com.example.springBootDemo.util.excel.ExcelUtil;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;

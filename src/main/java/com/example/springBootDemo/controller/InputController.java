@@ -19,8 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,6 +50,8 @@ public class InputController {
     ConfDateService confDateService;
     @Autowired
     BaseMarketService baseMarketService;
+    @Resource
+    private RelationConfService relationConfService;
 
     @ApiOperationSupport(order = 1)
     @ApiOperation("0-复盘初始化")
@@ -107,7 +113,7 @@ public class InputController {
     @ApiOperationSupport(order = 11)
     @ApiOperation("1-1 导入涨停Excel数据")
     @PostMapping("/importExcelZtStock")
-    public RespBean importExcelZtStock(@RequestPart(required = false)MultipartFile multipartFile) {
+    public RespBean importExcelZtStock(@RequestPart(required = false) MultipartFile multipartFile) {
         try {
             if (multipartFile == null) {
                 inputService.importExcelZtStock(thsBasePath);
@@ -116,7 +122,7 @@ public class InputController {
             }
             return RespBean.success("导入成功");
         } catch (Exception e) {
-            log.error("导入失败:{}",e);
+            log.error("导入失败:{}", e);
             return RespBean.error("导入失败");
         }
     }
@@ -124,7 +130,7 @@ public class InputController {
     @ApiOperationSupport(order = 12)
     @ApiOperation("1-2 导入涨停回封Excel数据")
     @PostMapping("/importExcelZthfStock")
-    public RespBean importExcelZthfStock(@RequestPart(required = false)MultipartFile multipartFile) {
+    public RespBean importExcelZthfStock(@RequestPart(required = false) MultipartFile multipartFile) {
         try {
             if (multipartFile == null) {
                 inputService.importExcelZthfStock(thsBasePath);
@@ -141,7 +147,7 @@ public class InputController {
     @ApiOperationSupport(order = 13)
     @ApiOperation("1-3 导入炸板Excel数据")
     @PostMapping("/importExcelZbStock")
-    public RespBean importExcelZbStock(@RequestPart(required = false)MultipartFile multipartFile) {
+    public RespBean importExcelZbStock(@RequestPart(required = false) MultipartFile multipartFile) {
         try {
             if (multipartFile == null) {
                 inputService.importExcelZbStock(thsBasePath);
@@ -150,7 +156,7 @@ public class InputController {
             }
             return RespBean.success("导入成功");
         } catch (Exception e) {
-            log.error("导入失败:{}",e);
+            log.error("导入失败:{}", e);
             return RespBean.error("导入失败");
         }
     }
@@ -158,7 +164,7 @@ public class InputController {
     @ApiOperationSupport(order = 14)
     @ApiOperation("1-4 导入曾跌停Excel数据")
     @PostMapping("/importExcelDtStock")
-    public RespBean importExcelDtStock(@RequestPart(required = false)MultipartFile multipartFile) {
+    public RespBean importExcelDtStock(@RequestPart(required = false) MultipartFile multipartFile) {
         try {
             if (multipartFile == null) {
                 inputService.importExcelDtStock(thsBasePath);
@@ -167,7 +173,7 @@ public class InputController {
             }
             return RespBean.success("导入成功");
         } catch (Exception e) {
-            log.error("导入失败:{}",e);
+            log.error("导入失败:{}", e);
             return RespBean.error("导入失败");
         }
     }
@@ -175,7 +181,7 @@ public class InputController {
     @ApiOperationSupport(order = 15)
     @ApiOperation("1-5 导入波动向上Excel数据")
     @PostMapping("/importExcelBdUpStock")
-    public RespBean importExcelBdUpStock(@RequestPart(required = false)MultipartFile multipartFile) {
+    public RespBean importExcelBdUpStock(@RequestPart(required = false) MultipartFile multipartFile) {
         try {
             if (multipartFile == null) {
                 inputService.importExcelBdUpStock(thsBasePath);
@@ -184,7 +190,7 @@ public class InputController {
             }
             return RespBean.success("导入成功");
         } catch (Exception e) {
-            log.error("导入失败:{}",e);
+            log.error("导入失败:{}", e);
             return RespBean.error("导入失败");
         }
     }
@@ -192,7 +198,7 @@ public class InputController {
     @ApiOperationSupport(order = 16)
     @ApiOperation("1-6 导入波动向下Excel数据")
     @PostMapping("/importExcelBdDownStock")
-    public RespBean importExcelBdDownStock(@RequestPart(required = false)MultipartFile multipartFile) {
+    public RespBean importExcelBdDownStock(@RequestPart(required = false) MultipartFile multipartFile) {
         try {
             if (multipartFile == null) {
                 inputService.importExcelBdDownStock(thsBasePath);
@@ -201,7 +207,7 @@ public class InputController {
             }
             return RespBean.success("导入成功");
         } catch (Exception e) {
-            log.error("导入失败:{}",e);
+            log.error("导入失败:{}", e);
             return RespBean.error("导入失败");
         }
     }
@@ -219,11 +225,10 @@ public class InputController {
             }
             return RespBean.success("导入成功");
         } catch (Exception e) {
-            log.error("导入失败:{}",e);
+            log.error("导入失败:{}", e);
             return RespBean.error("导入失败");
         }
     }
-
 
 
     @ApiOperationSupport(order = 21)
@@ -347,4 +352,28 @@ public class InputController {
     }
 
 
+    @ApiOperationSupport(order = 61)
+    @ApiOperation("6-1 模式关联-查询")
+    @PostMapping("/queryRelationConf")
+    public void queryRelationConf(HttpServletResponse response) {
+        try {
+            relationConfService.queryRelationConf(response);
+            log.info("查询成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @ApiOperationSupport(order = 62)
+    @ApiOperation("6-2 模式关联-导入")
+    @PostMapping("/imporRelationConf")
+    public RespBean imporRelationConf(@RequestPart MultipartFile multipartFile) {
+        try {
+            relationConfService.imporRelationConf(multipartFile.getInputStream());
+            return RespBean.success("导入成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
 }
