@@ -22,6 +22,8 @@ public interface ConfBusinessService extends IService<ConfBusiness>{
 
     void refushConfBusiness();
 
+    void refushRecordConfBusiness(ConfBusiness cb);
+
     void exportConfBusinessWithTHS(HttpServletResponse response) throws Exception;
 
     List<ConfBusiness> queryPlateCore();

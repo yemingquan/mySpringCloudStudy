@@ -149,6 +149,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
      *
      * @param cb
      */
+    @Override
     public void refushRecordConfBusiness(ConfBusiness cb) {
         String busName = cb.getBusName();
         log.info("开始处理概念:[{}]", busName);
@@ -165,8 +166,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
             //2 搜索配置中的标的，并将对应的概念加上，然后落库
             //3.修改库中相关概念
             queryAndUpdateAttr(cb, busName);
-        }
-        if (StockConstant.BusinessTypeEnum.FLAG.getName().equals(type)) {
+        }else if (StockConstant.BusinessTypeEnum.FLAG.getName().equals(type)) {
             log.info("标记数据:[{}]不做处理:", busName);
         } else {
             //1 检索数据库中已有概念的标的，并将其中的概念抹去
@@ -188,6 +188,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         List<String> codeList = Lists.newArrayList();
         String coreCode = cb.getCodeCoreList();
         String code = cb.getCodeList();
+//        String relBus = cb.getRelBus();
         List<String> ccList = Lists.newArrayList();
         List<String> cList = Lists.newArrayList();
 
@@ -213,6 +214,7 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         for (ConfStock stock : mySotckList2) {
             String attr = stock.getAttr();
             attr = addEleBusiness(busName, attr);
+//            attr = addEleBusiness(relBus, attr);
             stock.setAttr(attr);
 
             stock.setModifedBy("增量概念刷新-修改概念");
@@ -318,23 +320,27 @@ public class ConfBusinessServiceImpl extends ServiceImpl<ConfBusinessDao, ConfBu
         //注意这里没有删除关联板块属性
         EntityWrapper<ConfStock> cmsWrapper = new EntityWrapper<>();
         for (String str : businessList) {
-            cmsWrapper.like("MAIN_BUSINESS", str).or().like("NICHE_BUSINESS", str);
+            cmsWrapper.like("MAIN_BUSINESS", str).or().like("NICHE_BUSINESS", str).or().like("attr", str);
         }
         List<ConfStock> mySotckList = confStockService.selectList(cmsWrapper);
 
         for (ConfStock stock : mySotckList) {
             String mb = stock.getMainBusiness();
             String nb = stock.getNicheBusiness();
+            String attr = stock.getAttr();
 
             String mbResult = mb;
             String nbResult = nb;
+            String attrResult = attr;
             for (String str : businessList) {
                 mbResult = removeEleBusiness(str, mbResult);
                 nbResult = removeEleBusiness(str, nbResult);
+                attrResult = removeEleBusiness(str, attrResult);
             }
 
             stock.setMainBusiness(mbResult);
             stock.setNicheBusiness(nbResult);
+            stock.setAttr(nbResult);
             stock.setModifedBy("增量概念刷新-抹掉概念");
             stock.setModifedDate(new Date());
         }

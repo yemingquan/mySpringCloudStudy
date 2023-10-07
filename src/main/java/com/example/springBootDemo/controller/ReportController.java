@@ -241,9 +241,11 @@ public class ReportController {
         String fileName = "日终";
 
         try {
-            log.info("次新更新");
+            log.info("次新刷新");
 //            confCxStockService.imporCX();
             confStockService.reflshCX();
+            log.info("小盘刷新");
+//           TODO 逻辑和次新差不多的
             log.info("可转债");
 //            baseBondService.imporKZZ();
             log.info("增量刷新股票的主业");

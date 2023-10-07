@@ -75,6 +75,30 @@ public class StockConstant {
     }
 
     @AllArgsConstructor
+    public enum CXEnum {
+        //        次新-新股(883984)5、近端次新(883907)120、远端次新(883974)365
+        XG("883984", "新股"),
+        JDCX("883907", "近端次新"),
+        YDCX("883974", "远端次新");
+        @Setter
+        @Getter
+        private String code;
+
+        @Setter
+        @Getter
+        private String name;
+
+        public static List<String> getCodeList() {
+            return Arrays.stream(values()).map(CXEnum::getCode).collect(Collectors.toList());
+        }
+
+        public static String getName(String code) {
+            CXEnum en = Arrays.stream(values()).filter(e -> e.getCode().equals(code)).findFirst().orElse(null);
+            return en == null ? code : en.getName();
+        }
+    }
+
+    @AllArgsConstructor
     public enum SpecilNameEnum {
         /**
          * 股票前缀含义盘点
@@ -84,11 +108,11 @@ public class StockConstant {
          * 　　四、st，加了st的意思就是这个公司在连续两个会计年度都出现亏损，这是对其的特殊处理，st就是亏损股。
          * 　　五、*st，*st股表示的是连续三年亏损，股票具有退市风险，如果想要购买这只股票就要有更好的基本面分析能力。
          * 　　六、n，新股上市第一天就会在股票简称前面加上一个n的字母，它的全拼就是new，就是新的意思，此外，增发、重组、股改之后复牌第一个交易日也是用字母n来进行区别，这个前缀也是在第二个交易日自动消失恢复到原来的简称。
-         *
+         * <p>
          * 加c表示该股是上市后次日至第五日之间，对于科创板或者注册制的个股来说，在此期间不设涨跌幅限制，这是用来区分与其它有涨跌幅限制的个股。
          * 股票名称后加U ：股票名称后加特殊标识U，则代表该股票发行人尚未盈利，如上市后首次实现盈利的，则特别标识U取消。
          * 股票名称后加W：股票名称后加特殊标识W，则代表该股票发行人具有表决权差异安排；如上市后不再具有表决权差异安排的，则特别标识W取消。
-         *
+         * <p>
          * 加R代表这个股票是融资融券标的意思。
          * ST，这是对连续两个会计年度都出现亏损的公司施行的特别处理。ST即为亏损施王股。
          * *ST，是连续三年亏损，有退市风险的意思，购买这样的股票要有比较好的基本面分析能力。
@@ -121,9 +145,6 @@ public class StockConstant {
         @Getter
         private String tip;
 
-        public static List<String> getCodeList() {
-            return Arrays.stream(values()).map(SpecilNameEnum::getCode).collect(Collectors.toList());
-        }
 
         public static String getTip(String name) {
             SpecilNameEnum en = Arrays.stream(values()).filter(po -> {
