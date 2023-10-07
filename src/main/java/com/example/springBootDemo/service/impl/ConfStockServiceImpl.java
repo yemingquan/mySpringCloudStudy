@@ -2,11 +2,13 @@ package com.example.springBootDemo.service.impl;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.config.components.system.SystemConfConstant;
 import com.example.springBootDemo.dao.mapper.ConfBsdStockDao;
 import com.example.springBootDemo.dao.mapper.ConfStockDao;
 import com.example.springBootDemo.entity.ConfBsdStock;
 import com.example.springBootDemo.entity.ConfStock;
+import com.example.springBootDemo.service.ConfDateService;
 import com.example.springBootDemo.service.ConfStockService;
 import com.example.springBootDemo.util.excel.ExcelChangeUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
@@ -35,7 +37,8 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
     private ConfStockDao confStockDao;
     @Resource
     private ConfBsdStockDao confBsdStockDao;
-
+    @Resource
+    private ConfDateService confDateService;
 
     @Override
     public void imporMyStock() throws Exception {
@@ -131,5 +134,17 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
             }
         }
         updateBatchById(updateList, updateList.size());
+    }
+
+    @Override
+    public void reflshCX() throws Exception {
+//      查询交易日  次新-新股5、近端次新120、远端次新365
+        int count = 5;
+
+        Date date5 = confDateService.queryTHSDayLimit(5, DateConstant.DEAL_LIST);
+        Date date120 = confDateService.queryTHSDayLimit(120, DateConstant.DEAL_LIST);
+        Date date365 = confDateService.queryTHSDayLimit(365, DateConstant.DEAL_LIST);
+
+
     }
 }

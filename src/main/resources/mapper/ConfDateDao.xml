@@ -86,5 +86,25 @@
         FROM conf_date
         where DATE = #{date}
     </select>
+
+
+    <select id="queryDayLimit" resultType="com.example.springBootDemo.entity.ConfDate">
+        select * from (
+        SELECT *
+        FROM conf_Date WHERE 1=1
+        and #{baseDate} >= date
+        order by date desc
+        ) a limit #{count} ,1
+    </select>
+
+    <select id="queryDayLimit2" resultType="com.example.springBootDemo.entity.ConfDate">
+        select * from (
+        SELECT *
+        FROM conf_Date WHERE 1=1
+        and date >= #{baseDate}
+        order by date
+        ) a limit #{count} ,1
+    </select>
+
 </mapper>
 

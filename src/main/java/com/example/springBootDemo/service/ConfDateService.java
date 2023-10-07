@@ -30,4 +30,13 @@ public interface ConfDateService extends IService<ConfDate>{
     String queryDateDetail(Date dealDate);
 
     ConfDate queryBaseDateBydate(Date date);
+
+    /**
+     * 查询同花顺规则的交易日距离
+     * @param count 距离下个交易日的天数
+     * @param dealList 交易类型
+     * @return
+     * @throws Exception
+     */
+    Date queryTHSDayLimit(int count, List<String> dealList) throws Exception;
 }

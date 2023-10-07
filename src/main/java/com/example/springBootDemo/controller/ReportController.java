@@ -242,11 +242,12 @@ public class ReportController {
 
         try {
             log.info("次新更新");
-            confCxStockService.imporCX();
+//            confCxStockService.imporCX();
+            confStockService.reflshCX();
             log.info("可转债");
-            baseBondService.imporKZZ();
+//            baseBondService.imporKZZ();
             log.info("增量刷新股票的主业");
-            confStockService.reflshMyStock();
+//            confStockService.reflshMyStock();
             log.info("日期功能刷新");
 
         } catch (Exception e) {

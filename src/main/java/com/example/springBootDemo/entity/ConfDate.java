@@ -24,7 +24,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel(description = "日期")
-@TableName("base_date")
+@TableName("conf_date")
 public class ConfDate implements Serializable {
     private static final long serialVersionUID = -70403995721587044L;
     /**

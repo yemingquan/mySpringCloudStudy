@@ -15,14 +15,18 @@ import java.util.List;
  * @since 2023-09-03 00:27:43
  */
 @Mapper
-public interface ConfDateDao extends BaseMapper<ConfDate>{
+public interface ConfDateDao extends BaseMapper<ConfDate> {
 
     void updateBatchByDate(@Param("list") List<ConfDate> list);
 
-    Date getBeforeTypeDate(@Param("date")Date date, @Param("typeList")List<String> typeList);
+    Date getBeforeTypeDate(@Param("date") Date date, @Param("typeList") List<String> typeList);
 
-    Date getAfterTypeDate(@Param("date")Date date, @Param("typeList")List<String> typeList);
+    Date getAfterTypeDate(@Param("date") Date date, @Param("typeList") List<String> typeList);
 
-    ConfDate queryBaseDateBydate(@Param("date")Date date);
+    ConfDate queryBaseDateBydate(@Param("date") Date date);
+
+    ConfDate queryDayLimit(@Param("baseDate") Date baseDate, @Param("count") int count);
+
+    ConfDate queryDayLimit2(@Param("baseDate") Date baseDate, @Param("count") int count);
 }
 

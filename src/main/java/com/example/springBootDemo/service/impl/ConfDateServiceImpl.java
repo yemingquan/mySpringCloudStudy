@@ -113,4 +113,28 @@ public class ConfDateServiceImpl extends ServiceImpl<ConfDateDao, ConfDate> impl
     public ConfDate queryBaseDateBydate(Date date) {
         return confDateDao.queryBaseDateBydate(date);
     }
+
+    @Override
+    public Date queryTHSDayLimit(int count, List<String> dealList) throws Exception {
+        Date baseDate = getBeforeTypeDate(new Date(), dealList);
+        ConfDate confDate;
+        if (count == 0) {
+            return baseDate;
+        }
+        if (count >= 1) {
+            confDate = confDateDao.queryDayLimit(baseDate, count - 1);
+        } else {
+            confDate = confDateDao.queryDayLimit2(baseDate, Math.abs(count) - 1);
+            if (confDate == null) {
+                throw new Exception("日期数据暂未更新到指定范围");
+            }
+        }
+        Date date = confDate.getDate();
+        if (!DateConstant.DEAL_LIST.contains(confDate.getType())) {
+            log.info("距离{}是非工作日，特殊处理", count);
+            date = getAfterTypeDate(date, dealList);
+        }
+        log.info("距离交易日{}-{}天的某个日期是{}", baseDate, count, DateUtil.format(date, DateConstant.DATE_FORMAT_10));
+        return date;
+    }
 }
