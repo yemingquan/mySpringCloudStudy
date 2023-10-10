@@ -3,8 +3,9 @@ package com.example.springBootDemo.controller;
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import com.example.springBootDemo.config.components.constant.DateConstant;
-import com.example.springBootDemo.entity.ConfDate;
+import com.example.springBootDemo.entity.BaseCombo;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
+import com.example.springBootDemo.entity.ConfDate;
 import com.example.springBootDemo.entity.input.BaseSubjectDetail;
 import com.example.springBootDemo.entity.input.ConfBusiness;
 import com.example.springBootDemo.entity.report.*;
@@ -50,6 +51,12 @@ public class ReportController {
 
     @Autowired
     InputService inputService;
+    @Autowired
+    BaseZtStockService baseZtStockService;
+    @Autowired
+    BaseZthfStockService baseZthfStockService;
+    @Autowired
+    BaseComboService baseComboService;
     @Autowired
     ReportService reportService;
     @Autowired
@@ -246,9 +253,20 @@ public class ReportController {
 //            confCxStockService.imporCX();
 //            confStockService.reflshCX();
             log.info("小盘刷新");
-            confStockService.reflshSmallStock(date);
+//            confStockService.reflshSmallStock(date);
             log.info("可转债");
 //            baseBondService.imporKZZ();
+            log.info("连板梯队");
+
+//            for (1==1){
+                Map<String,Object> map = Maps.newHashMap();
+                getEchelonComboData(date,map);
+//                BaseCombo bc = new BaseCombo();
+//            BeanUtil.beanToMap(bc);
+//                bc = BeanUtil.toBean(map, BaseCombo.class);
+//            }
+
+
             log.info("增量刷新股票的主业");
 //            confStockService.reflshMyStock();
             log.info("日期功能刷新");
@@ -415,13 +433,23 @@ public class ReportController {
         data.putAll(NEWS_MAP);
     }
 
-    public void getEchelonComboData(String dealDateStr, Map<String, Object> data) {
+    public BaseCombo getEchelonComboData(String dealDateStr, Map<String, Object> data) {
         Map<String, String> ECHELON_COMBO_MAP = Maps.newHashMap();
         //获取基础数据，用于后续的数据生成
-        List<ZtReport> list1 = reportService.getZtReportByDate(dealDateStr);
+        List<ZtReport> list1 = baseZtStockService.getZtReportByDate(dealDateStr);
+        List<ZtReport> list2 = baseZthfStockService.getZtReportByDate(dealDateStr);
+        List<ZtReport> list = Lists.newArrayList();
+        list.addAll(list1);
+        list.addAll(list2);
+        if(CollectionUtils.isEmpty(list)){
+            log.info("没有检索到对应的信息");
+            return null;
+        }
         //将连板梯队按照各自的梯队排好 注意5板以及以上放一块，板块内部根据主业分类，这里还要找到最高板
-        Map<Integer, List<ZtReport>> comboMap = list1.stream().collect(Collectors.groupingBy(ZtReport::getCombo));
-        ECHELON_COMBO_MAP.put("COMBO_SIZE", "(" + list1.size() + ")");
+        Map<Integer, List<ZtReport>> comboMap = list.stream().collect(Collectors.groupingBy(ZtReport::getCombo));
+        ECHELON_COMBO_MAP.put("COMBO_SIZE", "(" + list.size() + ")");
+        ECHELON_COMBO_MAP.put("COMBO_ZT_SIZE", "(" + list1.size() + ")");
+        ECHELON_COMBO_MAP.put("COMBO_ZTHF_SIZE", "(" + list2.size() + ")");
 
         //根据梯队分类，内部根据主业二次分类，value值展示为[股票(支业-说明),股票2(支业-说明)]。
         // 最终结果为：主业1：[股票(支业-说明),股票2(支业-说明)]|主业2：[股票(支业-说明),股票2(支业-说明)]
@@ -452,13 +480,53 @@ public class ReportController {
                 ECHELON_COMBO_MAP.put("COMBO_" + combo, sb.toString());
             }
         }
+
         ECHELON_COMBO_MAP.put("COMBO_MAX", "(" + maxCombo + ")");
+        int finalMaxCombo = maxCombo;
+        String maxInfo = list.stream().filter(po -> po.getCombo() == finalMaxCombo).map(ZtReport::getStockName).collect(Collectors.joining(","));
+        ECHELON_COMBO_MAP.put("COMBO_MAX_INFO", "(" + maxInfo + ")");
+
         //5b及以上连板数
-        List<ZtReport> combo5List = list1.stream().filter(po -> po.getCombo() >= 5).collect(Collectors.toList());
+        List<ZtReport> combo5List = list.stream().filter(po -> po.getCombo() >= 5).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(combo5List)) {
             ECHELON_COMBO_MAP.put("COMBO_SIZE_5", "-高度(" + combo5List.size() + ")");
         }
         data.putAll(ECHELON_COMBO_MAP);
+
+        BaseCombo bc = new BaseCombo();
+        bc.setDate(DateUtil.parseDate(dealDateStr));
+        bc.setCombo1(ECHELON_COMBO_MAP.get("COMBO_1"));
+        bc.setCombo2(ECHELON_COMBO_MAP.get("COMBO_2"));
+        bc.setCombo3(ECHELON_COMBO_MAP.get("COMBO_3"));
+        bc.setCombo4(ECHELON_COMBO_MAP.get("COMBO_4"));
+        bc.setCombo5(ECHELON_COMBO_MAP.get("COMBO_5"));
+        String comboSize1 = ECHELON_COMBO_MAP.get("COMBO_SIZE_1");
+        String comboSize2 = ECHELON_COMBO_MAP.get("COMBO_SIZE_2");
+        String comboSize3 = ECHELON_COMBO_MAP.get("COMBO_SIZE_3");
+        String comboSize4 = ECHELON_COMBO_MAP.get("COMBO_SIZE_4");
+        String comboSize5 = ECHELON_COMBO_MAP.get("COMBO_SIZE_5");
+        if(StringUtils.isNotBlank(comboSize1)){
+            bc.setCombo1Count(Integer.parseInt(comboSize1.replace("(","").replace(")","")));
+        }
+        if(StringUtils.isNotBlank(comboSize2)){
+            bc.setCombo2Count(Integer.parseInt(comboSize2.replace("(","").replace(")","")));
+        }
+        if(StringUtils.isNotBlank(comboSize3)){
+            bc.setCombo3Count(Integer.parseInt(comboSize3.replace("(","").replace(")","")));
+        }
+        if(StringUtils.isNotBlank(comboSize4)){
+            bc.setCombo4Count(Integer.parseInt(comboSize4.replace("(","").replace(")","")));
+        }
+        if(StringUtils.isNotBlank(comboSize5)){
+            bc.setCombo5Count(Integer.parseInt(comboSize5.replace("-高度(","").replace(")","")));
+        }
+        bc.setSumCount(list.size());
+        bc.setZtCount(list1.size());
+        bc.setZthfCount(list2.size());
+        bc.setMaxCombo(maxCombo);
+        bc.setMaxInfo(maxInfo);
+        baseComboService.insertOrUpdate(bc);
+        return bc;
     }
 
     public <K extends Comparable, V extends Comparable> Map<K, V> sortMapByValues(Map<K, V> aMap) {

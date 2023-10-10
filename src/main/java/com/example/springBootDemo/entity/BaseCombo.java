@@ -17,7 +17,7 @@ import java.util.Date;
  * 连板梯队(BaseCombo)实体类
  *
  * @author makejava
- * @since 2023-09-22 17:52:09
+ * @since 2023-10-08 13:46:13
  */
 @Data
 @Builder
@@ -26,15 +26,11 @@ import java.util.Date;
 @ApiModel(description = "连板梯队")
 @TableName("base_combo")
 public class BaseCombo implements Serializable {
-    private static final long serialVersionUID = 102529603730397222L;
-    /**
-     * 主键
-     */
-    @TableId(type = IdType.AUTO)
-    private Integer id;
+    private static final long serialVersionUID = 328629638904458298L;
     /**
      * 日期
      */
+    @TableId(type = IdType.INPUT)
     private Date date;
     /**
      * 涨停数
@@ -89,25 +85,13 @@ public class BaseCombo implements Serializable {
      */
     private String combo5;
     /**
-     * 状态，有效1，无效0
+     * 最高板
      */
-    private String state;
+    private Integer maxCombo;
     /**
-     * 创建时间
+     * 最高板信息
      */
-    private Date createDate;
-    /**
-     * 创建者
-     */
-    private String createBy;
-    /**
-     * 修改时间
-     */
-    private Date modifedDate;
-    /**
-     * 修改者
-     */
-    private String modifedBy;
+    private String maxInfo;
     /**
      * 备注
      */

@@ -4,6 +4,7 @@ import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.ConfStock;
 import com.example.springBootDemo.entity.game.ShortNameDto;
 import com.example.springBootDemo.service.ConfStockService;
@@ -44,7 +45,7 @@ public class GameController {
     @Resource
     private ConfStockService confStockService;
 
-    @ApiOperationSupport(order = 1)
+    @ApiOperationSupport(order = 11)
     @GetMapping("/shortNameStatistics")
     @ApiOperation("1-1 缩写统计")
     public void shortNameStatistics(HttpServletResponse response) throws Exception {
@@ -81,6 +82,13 @@ public class GameController {
         outputStream.close();
     }
 
+
+    @ApiOperationSupport(order = 21)
+    @GetMapping("/ssss")
+    @ApiOperation("2-1 自定义问题")
+    public RespBean ssss(HttpServletResponse response) throws Exception {
+        return RespBean.success("还没开发");
+    }
 
 
 }

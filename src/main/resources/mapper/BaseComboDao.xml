@@ -4,7 +4,6 @@
 
     <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseCombo">
         <!--@Table base_combo-->
-        <result property="id" column="id" jdbcType="INTEGER"/>
         <result property="date" column="date" jdbcType="TIMESTAMP"/>
         <result property="sumCount" column="sum_count" jdbcType="INTEGER"/>
         <result property="ztCount" column="zt_count" jdbcType="INTEGER"/>
@@ -19,16 +18,13 @@
         <result property="combo3" column="combo3" jdbcType="VARCHAR"/>
         <result property="combo4" column="combo4" jdbcType="VARCHAR"/>
         <result property="combo5" column="combo5" jdbcType="VARCHAR"/>
-        <result property="state" column="state" jdbcType="VARCHAR"/>
-        <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
-        <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
-        <result property="modifedDate" column="modifed_date" jdbcType="TIMESTAMP"/>
-        <result property="modifedBy" column="modifed_by" jdbcType="VARCHAR"/>
+        <result property="maxCombo" column="max_combo" jdbcType="INTEGER"/>
+        <result property="maxInfo" column="max_info" jdbcType="VARCHAR"/>
         <result property="remark" column="remark" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, date, sum_count, zt_count, zthf_count, combo1_count, combo2_count, combo3_count, combo4_count, combo5_count, combo1, combo2, combo3, combo4, combo5, state, create_date, create_by, modifed_date, modifed_by, remark        
+        date, sum_count, zt_count, zthf_count, combo1_count, combo2_count, combo3_count, combo4_count, combo5_count, combo1, combo2, combo3, combo4, combo5, max_combo, max_info, remark
     </sql>
 </mapper>
 

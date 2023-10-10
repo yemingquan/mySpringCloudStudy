@@ -57,6 +57,7 @@ public class InputController {
     @ApiOperation("0-复盘初始化")
     @PostMapping("/initFP")
     public RespBean initFP(@RequestParam(value = "clearFlag", required = false) String clearFlag,
+                           @RequestParam(value = "importStockFlag", required = false) String importStockFlag,
                            @RequestParam(value = "importDateFlag", required = false) String importDateFlag) {
         try {
             //1.初始化复盘文件夹。输入clearFlag时，会清楚所有数据，一般情况下，不需要使用
@@ -67,8 +68,12 @@ public class InputController {
             if (StringUtils.isEmpty(importDateFlag)) {
                 return RespBean.success("处理到文件导入前");
             }
+
             //基础数据落库
-            inputService.importStock(thsBasePath);
+            if(StringUtils.isNotBlank(importStockFlag)){
+                inputService.importStock(thsBasePath);
+            }
+
 
             for (int i = 1; i <= 6; i++) {
                 File file = new File(thsBasePath + "Table" + i + ".xls");
