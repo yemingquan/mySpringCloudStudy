@@ -1184,7 +1184,7 @@ public class ExcelUtil<T> implements Serializable {
 
     public static void exportExel(HttpServletResponse response, String fileName, Workbook workbook) throws IOException {
         if (!fileName.contains(".")) {
-            fileName = fileName + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".xlsx";
+            fileName = fileName + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date()) + ".xlsx";
         }
         fileName = new String(fileName.getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
 
