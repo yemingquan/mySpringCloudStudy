@@ -21,5 +21,7 @@ public interface BaseSubjectLineDetailDao extends BaseMapper<BaseSubjectLineDeta
     List<SubjectReport> getSubjectReport(@Param("date") String date, @Param("startDate")String startDate);
 
     List<String> getActiveBusinessList(@Param("date") Date date);
+
+    void clearRepetitionDate();
 }
 

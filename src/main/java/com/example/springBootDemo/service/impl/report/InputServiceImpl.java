@@ -558,6 +558,12 @@ public class InputServiceImpl implements InputService {
         genSub(imputList);
         //清除无用关联
         clearSubDate();
+        //清除重复数据
+        clearRepetitionDate();
+    }
+
+    private void clearRepetitionDate() {
+        baseSubjectLineDetailService.clearRepetitionDate();
     }
 
     private void clearSubDate() {

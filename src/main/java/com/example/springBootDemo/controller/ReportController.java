@@ -80,7 +80,7 @@ public class ReportController {
 
     @ApiOperationSupport(order = 1)
     @GetMapping("/exportBKReport")
-    @ApiOperation("1-0 板块报表导出")
+    @ApiOperation("1-0 板块报表导出(这个接口只会删除当天数据)")
     public void exportBKReport(@RequestParam(value = "date", required = false) String date,
                                @RequestParam(value = "startDate", required = false) String startDate,
                                @RequestParam(value = "clearFlag", required = false) String clearFlag,
@@ -104,7 +104,7 @@ public class ReportController {
 
             //导入前先删除当天的数据
             if (StringUtils.isNotBlank(clearFlag)) {
-                baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(date, startDate);
+                baseSubjectLineDetailService.deleteBaseSubjectLineDetailByDateList(date, null);
             }
 
             //查询所有明细数据，更新line对象数据

@@ -61,4 +61,9 @@ public class BaseSubjectLineDetailServiceImpl extends ServiceImpl<BaseSubjectLin
     public List<String> getActiveBusinessList(Date date){
         return baseSubjectLineDetailDao.getActiveBusinessList(date);
     }
+
+    @Override
+    public void clearRepetitionDate() {
+        baseSubjectLineDetailDao.clearRepetitionDate();
+    }
 }

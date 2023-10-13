@@ -44,5 +44,16 @@
         from base_subject_line_detail
          where create_Date =  #{date}
     </select>
+
+    <delete id="clearRepetitionDate">
+        DELETE
+        t1
+        FROM
+        base_subject_line_detail AS t1
+        JOIN base_subject_line_detail AS t2
+        WHERE  t2.id >t1.id
+        AND t1.`instructions` = t2.`instructions` AND t1.`sub_line_name` = t2.`sub_line_name` and t1.`create_date` = t2.`create_date`
+    </delete>
+
 </mapper>
 

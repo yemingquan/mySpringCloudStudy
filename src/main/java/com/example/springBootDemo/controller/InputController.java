@@ -237,7 +237,7 @@ public class InputController {
 
 
     @ApiOperationSupport(order = 21)
-    @ApiOperation("2-1 题材明细导入(只导入指定日期的数据，其他日期的数据不完整时，建议删除)")
+    @ApiOperation("2-1 题材明细导入(注意！会删除指定日期的数据)")
     @PostMapping("/importSubjectDetail")
     public RespBean importSubjectDetail(@RequestParam(value = "date", required = false) String date,
                                         @RequestParam(value = "startDate", required = false) String startDate,
