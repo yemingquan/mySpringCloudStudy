@@ -119,10 +119,10 @@ public class TaskService {
             sendFlag = true;
         }
 
-        bf.append("<p align=\"right\">来自于-复盘系统-" + taskName + "-自动发送</p><br>");
 
         //邮件发送
         if (sendFlag) {
+            bf.append("<p align=\"right\">来自于-复盘系统-" + taskName + "-自动发送</p><br>");
             //如果没有落库则会生成邮件
             SendVo sendVo = SendVo.builder()
                     .title("监控任务-基础数据落库异常")
