@@ -18,10 +18,10 @@
 
     <!--项目自己-->
     <groupId>com.example</groupId>
-    <artifactId>login-service</artifactId>
+    <artifactId>recovery-service</artifactId>
     <version>0.1</version>
-    <name>login-start.service</name>
-    <description>登录服务</description>
+    <name>recovery</name>
+    <description>复盘</description>
     <packaging>jar</packaging>
 
     <!--java版本-->

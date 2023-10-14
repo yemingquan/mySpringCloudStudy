@@ -3,7 +3,7 @@ server:
 #  context-path: aaa
 spring:
   application:
-    name: login-handle
+    name: Recovery
   servlet:
     multipart:
       #单个文件大小限制

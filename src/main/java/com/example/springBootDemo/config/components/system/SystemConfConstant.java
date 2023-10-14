@@ -15,4 +15,13 @@ public class SystemConfConstant {
      */
     public final static String THS_BASE_PATH = "C:\\Users\\xiaoYe\\Desktop\\同花顺output\\";
 
+    /**
+     * 系统管理员
+     */
+    public final static String receiver = "815129539@QQ.com";
+
+//    /**
+//     * 系统管理员
+//     */
+//    public final static String system = "815129539@QQ.com";
 }

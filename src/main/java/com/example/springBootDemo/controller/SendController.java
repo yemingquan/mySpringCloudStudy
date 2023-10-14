@@ -50,4 +50,5 @@ public class SendController {
         SendMsgHandle sendMsgHandle = new SendMsgHandle(sendVo);
         return RespBean.success(sendMsgHandle.sendMsg());
     }
+
 }
