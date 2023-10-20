@@ -77,6 +77,8 @@ public class ReportController {
     private BaseBondService baseBondService;
     @Resource
     private ConfBusinessService confBusinessService;
+    @Autowired
+    BaseStockService baseStockService;
 
     @ApiOperationSupport(order = 1)
     @GetMapping("/exportBKReport")
@@ -259,8 +261,8 @@ public class ReportController {
             log.info("连板梯队");
 
 //            for (1==1){
-                Map<String,Object> map = Maps.newHashMap();
-                getEchelonComboData(date,map);
+            Map<String, Object> map = Maps.newHashMap();
+            getEchelonComboData(date, map);
 //                BaseCombo bc = new BaseCombo();
 //            BeanUtil.beanToMap(bc);
 //                bc = BeanUtil.toBean(map, BaseCombo.class);
@@ -268,7 +270,7 @@ public class ReportController {
 
 
             log.info("增量刷新股票的主业");
-//            confStockService.reflshMyStock();
+            confStockService.reflshMyStock();
             log.info("日期功能刷新");
 
         } catch (Exception e) {
@@ -283,6 +285,110 @@ public class ReportController {
 //        excelUtil.exportCustomExcel(annotationMapping, list, fileName, response);
     }
 
+
+    @ApiOperationSupport(order = 31)
+    @GetMapping("/exportComboRePort")
+    @ApiOperation("3-1 连板梯队报表导出")
+    public void exportComboRePort(@RequestParam(value = "date", required = false) String date,
+                                  @RequestParam(value = "stockName", required = false) String stockName,
+                                  HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
+        log.info("1-3 连板梯队报表导出 {}", date);
+        String fileName = "Combo-";
+        Map<String, Object> data = new HashMap<String, Object>();
+
+        try {
+            String dealDateStr = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+            Date dealDate = DateUtil.format(dealDateStr, DateConstant.DATE_FORMAT_10);            //基础数据
+            getBasicData(dealDate, data);
+
+            //当天以及历史连板梯队
+            for (int i = 0; i < 3; i++) {
+                Date tempDate = confDateService.getBeforeTypeDate(DateUtil.getDayDiff(dealDateStr, -i), DateConstant.DEAL_LIST);
+                BaseCombo baseCombo = baseComboService.selectById(tempDate);
+                data.put("COMBO_" + i, baseCombo);
+            }
+
+//            //炸板数据表现
+            List<ZtReport> beforZtStock = reportService.getZtReportByDate(DateUtil.format(DateUtil.getDayDiff(dealDateStr, -1), DateConstant.DATE_FORMAT_10));
+            List<String> beforList = beforZtStock.stream().map(ZtReport::getStockCode).collect(Collectors.toList());
+            List<ZtReport> todayZtStock = reportService.getZtReportByDate(dealDateStr);
+            List<String> todayList = todayZtStock.stream().map(ZtReport::getStockCode).collect(Collectors.toList());
+            beforList.removeAll(todayList);
+
+//            EntityWrapper ew = new EntityWrapper<BaseStock>();
+//            ew.eq("create_Date", date);
+//            ew.in("stock_code", beforList);
+//            ew.orderBy("entity_Size",false);
+//            List<BaseStock> list = baseStockService.selectList(ew);
+//            data.put("ZB_STOCK", list);
+//
+//            //对于今天涨停的,统计各种结构类型的数据。按照涨停次数分隔.比如1b:xxxx、xxxx,2b:
+
+            //将大于5的连板数据强制改为5b，方便后续统计
+            todayZtStock.stream().filter(po->po.getCombo()>=5).forEach(po->po.setCombo(5));
+
+            for (int i = 1; i <= 5; i++) {
+                int finalI = i;
+                //小盘
+                List<String> smallList = todayZtStock.stream()
+                        .filter(po->po.getCombo()== finalI)
+                        .filter(po->po.getInstructions().contains("小盘"))
+                        .map(ZtReport::getStockName)
+                        .collect(Collectors.toList());
+                data.put("SMALL_"+i, smallList);
+                //次新
+                List<String> cxList = todayZtStock.stream()
+                        .filter(po->po.getCombo()== finalI)
+                        .filter(po->po.getInstructions().contains("次新"))
+                        .map(ZtReport::getStockName)
+                        .collect(Collectors.toList());
+                data.put("CX_"+i, cxList);
+//                //低价
+//                List<String>  cheapList = todayZtStock.stream()
+//                        .filter(po->po.getCombo()== finalI)
+//                        .filter(po->po.getInstructions().contains("低价"))
+//                         .map(ZtReport::getStockName)
+//                        .collect(Collectors.toList());
+//                data.put("CHEAP_"+i, cheapList);
+                //名字
+                if(StringUtils.isNotBlank(stockName)){
+                    List<String>  stockNameList = todayZtStock.stream()
+                            .filter(po->po.getCombo()== finalI)
+                            .filter(po->po.getStockName().contains(stockName))
+                            .map(ZtReport::getStockName)
+                            .collect(Collectors.toList());
+                    data.put("STOCK_NAME", stockName);
+                    data.put("NAME_"+i, stockNameList);
+                }else{
+                    data.put("STOCK_NAME", "");
+                    data.put("NAME_"+i, "");
+                }
+
+                //低价
+//                data.put("Cheap_"+i, cheapList);
+                //极端走势
+            }
+
+            //TODO 活跃板块
+            //TODO 异动预警
+            //TODO 小黑屋数据
+            //TODO 百日新高
+            //TODO 新股
+            //TODO 新债
+            //TODO 活跃板块
+
+
+            URL a5 = ClassLoader.getSystemResource("templates/ComboTemplate.xlsx");
+            TemplateExportParams params = new TemplateExportParams(a5.getPath(), true);
+
+            // 简单模板导出方法
+            Workbook book = ExcelExportUtil.exportExcel(params, data);
+            ExcelUtil.exportExel(response, fileName, book);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        log.info("导出成功");
+    }
 
     @ApiOperationSupport(order = 1)
     @GetMapping("/aaaaa")
@@ -332,7 +438,7 @@ public class ReportController {
         try {
             // 简单模板导出方法
             Workbook book = ExcelExportUtil.exportExcel(params, data);
-            ExcelUtil.exportExel(response,"abcd",book);
+            ExcelUtil.exportExel(response, "abcd", book);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -351,7 +457,7 @@ public class ReportController {
         String holidayDateDetail = confDateService.queryDateDetail(nextHoliday);
         BASIC_MAP.put("BASIC_COUNT_DOWN_LONG", holidayDateDetail);
         Date nextDealDay = confDateService.getAfterTypeDate(dealDate, DateConstant.DEAL_LIST);
-        String dealDateDetail  = confDateService.queryDateDetail(nextDealDay);
+        String dealDateDetail = confDateService.queryDateDetail(nextDealDay);
         BASIC_MAP.put("BASIC_NEXT_DEAL_DATE", dealDateDetail);
         data.putAll(BASIC_MAP);
     }
@@ -441,7 +547,7 @@ public class ReportController {
         List<ZtReport> list = Lists.newArrayList();
         list.addAll(list1);
         list.addAll(list2);
-        if(CollectionUtils.isEmpty(list)){
+        if (CollectionUtils.isEmpty(list)) {
             log.info("没有检索到对应的信息");
             return null;
         }
@@ -505,20 +611,20 @@ public class ReportController {
         String comboSize3 = ECHELON_COMBO_MAP.get("COMBO_SIZE_3");
         String comboSize4 = ECHELON_COMBO_MAP.get("COMBO_SIZE_4");
         String comboSize5 = ECHELON_COMBO_MAP.get("COMBO_SIZE_5");
-        if(StringUtils.isNotBlank(comboSize1)){
-            bc.setCombo1Count(Integer.parseInt(comboSize1.replace("(","").replace(")","")));
+        if (StringUtils.isNotBlank(comboSize1)) {
+            bc.setCombo1Count(Integer.parseInt(comboSize1.replace("(", "").replace(")", "")));
         }
-        if(StringUtils.isNotBlank(comboSize2)){
-            bc.setCombo2Count(Integer.parseInt(comboSize2.replace("(","").replace(")","")));
+        if (StringUtils.isNotBlank(comboSize2)) {
+            bc.setCombo2Count(Integer.parseInt(comboSize2.replace("(", "").replace(")", "")));
         }
-        if(StringUtils.isNotBlank(comboSize3)){
-            bc.setCombo3Count(Integer.parseInt(comboSize3.replace("(","").replace(")","")));
+        if (StringUtils.isNotBlank(comboSize3)) {
+            bc.setCombo3Count(Integer.parseInt(comboSize3.replace("(", "").replace(")", "")));
         }
-        if(StringUtils.isNotBlank(comboSize4)){
-            bc.setCombo4Count(Integer.parseInt(comboSize4.replace("(","").replace(")","")));
+        if (StringUtils.isNotBlank(comboSize4)) {
+            bc.setCombo4Count(Integer.parseInt(comboSize4.replace("(", "").replace(")", "")));
         }
-        if(StringUtils.isNotBlank(comboSize5)){
-            bc.setCombo5Count(Integer.parseInt(comboSize5.replace("-高度(","").replace(")","")));
+        if (StringUtils.isNotBlank(comboSize5)) {
+            bc.setCombo5Count(Integer.parseInt(comboSize5.replace("-高度(", "").replace(")", "")));
         }
         bc.setSumCount(list.size());
         bc.setZtCount(list1.size());

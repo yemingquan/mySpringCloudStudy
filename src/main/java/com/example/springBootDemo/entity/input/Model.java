@@ -55,7 +55,7 @@ public class Model implements Serializable {
 //    private String modelType;
 
     @Excel(name = "明细特点")
-    private String detailAbbr;
+    private String detailAttr;
 
     @Excel(name = "明细行为")
     private String detailBehaviour;

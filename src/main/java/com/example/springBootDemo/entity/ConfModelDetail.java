@@ -25,7 +25,11 @@ import java.io.Serializable;
 @ApiModel(description = "模式打法")
 @TableName("conf_model_detail")
 public class ConfModelDetail implements Serializable {
-    private static final long serialVersionUID = -56419598931844943L;
+    private static final long serialVersionUID = -18787795218164731L;
+    /**
+     * 适用类型，比如a1 、a2
+     */
+    private String modelType;
     /**
      * 明细类型，主键
      */
@@ -36,13 +40,9 @@ public class ConfModelDetail implements Serializable {
      */
     private String name;
     /**
-     * 适用类型，比如a1 、a2
+     * 特征
      */
-    private String modelType;
-    /**
-     * 特点
-     */
-    private String abbr;
+    private String attr;
     /**
      * 行为
      */

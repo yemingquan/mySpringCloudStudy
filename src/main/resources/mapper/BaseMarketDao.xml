@@ -5,10 +5,14 @@
     <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseMarket">
         <!--@Table base_market-->
         <result property="date" column="date" jdbcType="TIMESTAMP"/>
+        <result property="bidding" column="bidding" jdbcType="VARCHAR"/>
+        <result property="sseBidding" column="sse_bidding" jdbcType="NUMERIC"/>
         <result property="keyWords" column="key_words" jdbcType="VARCHAR"/>
         <result property="marketTrends" column="market_trends" jdbcType="VARCHAR"/>
         <result property="subject" column="subject" jdbcType="VARCHAR"/>
+        <result property="sse" column="sse" jdbcType="NUMERIC"/>
         <result property="vol" column="vol" jdbcType="VARCHAR"/>
+        <result property="relativelyVol" column="relatively_vol" jdbcType="VARCHAR"/>
         <result property="teacherThinking" column="teacher_thinking" jdbcType="VARCHAR"/>
         <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
         <result property="state" column="state" jdbcType="VARCHAR"/>
@@ -20,7 +24,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        date, key_words, market_trends, subject, vol, teacher_thinking, instructions, state, create_date, create_by, modifed_date, modifed_by, remark
+        date, bidding, sse_bidding, key_words, market_trends, subject, sse, vol, relatively_vol, teacher_thinking, instructions, state, create_date, create_by, modifed_date, modifed_by, remark
     </sql>
 </mapper>
 

@@ -38,6 +38,11 @@ public class BaseMarket implements Serializable {
     @TableField(exist = false)
     private String week;
 
+    @Excel(name = "竞价状态")
+    private String bidding;
+    @Excel(name = "竞价上证指数")
+    private Double sseBidding;
+
     @Excel(name = "关键词")
     private String keyWords;
 
@@ -49,10 +54,20 @@ public class BaseMarket implements Serializable {
     @Excel(name = "市场主题")
     private String subject;
     /**
+     * 上证指数
+     */
+    @Excel(name = "上证指数")
+    private Double sse;
+    /**
      * 量能
      */
     @Excel(name = "量能")
     private String vol;
+    /**
+     * 相对量能
+     */
+    @Excel(name = "相对量能")
+    private String relativelyVol;
     /**
      * 老师的思路
      */

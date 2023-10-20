@@ -42,7 +42,7 @@ public class TaskController {
 
     @ApiOperation(value = "调试-监控任务")
     @PostMapping(value = "monitorTask", name = "调试-监控任务")
-    public RespBean monitorTask(@RequestParam(value = "date", required = false) String date) {
+    public RespBean monitorTask(@RequestParam(value = "date", required = false) String date) throws Exception {
         log.info("调试-监控任务");
         taskService.monitorTaskMethod(date);
         return RespBean.success("触发成功");

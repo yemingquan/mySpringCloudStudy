@@ -85,20 +85,20 @@ public class BaseStock implements Serializable {
     @Excel(name = "换手")
     private Double changingHands;
     /**
-     * 10日均价
+     * 现价
      */
-    @Excel(name = "10日均价")
-    private Double averagePrice10;
+    @Excel(name = "现价")
+    private Double currentPrice;
     /**
      * 5日均价
      */
     @Excel(name = "5日均价")
     private Double averagePrice5;
     /**
-     * 现价
+     * 10日均价
      */
-    @Excel(name = "现价")
-    private Double currentPrice;
+    @Excel(name = "10日均价")
+    private Double averagePrice10;
     /**
      * 说明
      */

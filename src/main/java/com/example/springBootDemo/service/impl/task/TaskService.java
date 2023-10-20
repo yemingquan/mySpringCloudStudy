@@ -11,12 +11,14 @@ import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.msg.SendMsgHandle;
 import com.example.springBootDemo.service.*;
+import com.example.springBootDemo.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -52,7 +54,11 @@ public class TaskService {
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void monitorTask() {
-        monitorTaskMethod(null);
+        try {
+            monitorTaskMethod(null);
+        } catch (Exception e) {
+            log.error("监控任务执行失败{}", e.getMessage());
+        }
     }
 
     /**
@@ -68,13 +74,18 @@ public class TaskService {
      * @param date
      * @return
      */
-    public void monitorTaskMethod(String date) {
+    public void monitorTaskMethod(String date) throws Exception {
         String taskName = "监控任务";
         log.info("{}启动", taskName);
         StringBuffer bf = new StringBuffer("<p>监控任务警告：</p>");
         Boolean sendFlag = false;
-//        String startDateStr = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
         //检索数据是否成功落库
+        //取得交易日日期
+        date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+        //交易日日期-1 这里如果减了一天是非交易日，那么还要调用一下日期配置
+        Date dateStr = DateUtil.getDayDiff(date, -1);
+        date = DateUtil.format(dateStr, DateConstant.DATE_FORMAT_10);
+        //前一个交易日的交易日期
         date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
         //获取基础数据，用于后续的数据生成

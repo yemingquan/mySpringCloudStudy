@@ -4,10 +4,10 @@
 
     <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.ConfModelDetail">
         <!--@Table conf_model_detail-->
+        <result property="modelType" column="model_type" jdbcType="VARCHAR"/>
         <result property="modelDetailType" column="model_detail_type" jdbcType="VARCHAR"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
-        <result property="modelType" column="model_type" jdbcType="VARCHAR"/>
-        <result property="abbr" column="abbr" jdbcType="VARCHAR"/>
+        <result property="attr" column="attr" jdbcType="VARCHAR"/>
         <result property="behaviour" column="behaviour" jdbcType="VARCHAR"/>
         <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
         <result property="state" column="state" jdbcType="VARCHAR"/>
@@ -15,7 +15,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        model_detail_type, name, model_type, abbr, behaviour, instructions, state, remark
+        model_type, model_detail_type, name, attr, behaviour, instructions, state, remark
     </sql>
 </mapper>
 

@@ -54,20 +54,29 @@ public class ConfModelOther implements Serializable {
     @Excel(name = "模式名称",width = 30)
     private String name;
     /**
+     * 特征
+     */
+    @Excel(name = "特征",width = 55)
+    private String attr;
+    /**
+     * 预期
+     */
+    private String behaviour;
+    /**
      * 说明
      */
-    @Excel(name = "预期",width = 70)
+    @Excel(name = "预期",width = 55)
     private String instructions;
+    /**
+     * 备注
+     */
+    @Excel(name = "备注",width = 55)
+    private String remark;
     /**
      * 状态，有效1，无效0
      */
     @Excel(name = "状态")
     private String state;
-    /**
-     * 备注
-     */
-    private String remark;
-
 
 }
 

@@ -34,7 +34,7 @@ public class NewsReport implements Serializable {
     @TableField(exist = false)
     private Integer range;
 
-    @Excel(name = "名称")
+//    @Excel(name = "名称")
     private String name;
     /**
      * 日期
@@ -60,7 +60,7 @@ public class NewsReport implements Serializable {
     //    @Excel(name = "相对盘中")
     private String happen;
 
-    @Excel(name = "类型")
+//    @Excel(name = "类型")
     private String type;
 
     @Excel(name = "行业")

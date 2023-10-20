@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -340,6 +341,7 @@ public class InputController {
     public RespBean market(@RequestPart MultipartFile multipartFile) {
         try {
             List<BaseMarket> list = ExcelUtil.excelToList(multipartFile, BaseMarket.class);
+            list= list.stream().filter(po->po.getDate()!=null).collect(Collectors.toList());
             for (BaseMarket bm : list) {
                 String marketTrends = bm.getMarketTrends();
                 if (StringUtils.isNotBlank(marketTrends)) {

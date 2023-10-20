@@ -6,16 +6,18 @@
         <!--@Table conf_model_other-->
         <result property="conf" column="conf" jdbcType="VARCHAR"/>
         <result property="topic" column="topic" jdbcType="VARCHAR"/>
+        <result property="confModelName" column="conf_model_name" jdbcType="VARCHAR"/>
         <result property="type" column="type" jdbcType="VARCHAR"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
-        <result property="confModelName" column="conf_model_name" jdbcType="VARCHAR"/>
+        <result property="attr" column="attr" jdbcType="VARCHAR"/>
+        <result property="behaviour" column="behaviour" jdbcType="VARCHAR"/>
         <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
         <result property="state" column="state" jdbcType="VARCHAR"/>
         <result property="remark" column="remark" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        conf, topic, type, name, conf_model_name, instructions, state, remark
+        conf, topic, conf_model_name, type, name, attr, behaviour, instructions, state, remark
     </sql>
 </mapper>
 

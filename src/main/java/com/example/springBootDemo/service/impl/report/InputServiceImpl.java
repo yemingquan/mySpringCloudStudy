@@ -99,7 +99,7 @@ public class InputServiceImpl implements InputService {
     public List<String> getMainBusinessList() {
 //        return Lists.newArrayList();
         String date = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
-        String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -20), DateConstant.DATE_FORMAT_10);
+        String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -10), DateConstant.DATE_FORMAT_10);
         List<SubjectReport> subList = baseSubjectLineDetailService.getSubjectReport(date, startDate);
         return subList.stream()
                 .sorted(Comparator.comparing(SubjectReport::getCountZt, Comparator.reverseOrder()))
@@ -511,7 +511,10 @@ public class InputServiceImpl implements InputService {
                 fixConfStockList.add(dto);
             }
         }
-        confStockService.insertOrUpdateBatch(fixConfStockList, fixConfStockList.size());
+
+        if(CollectionUtils.isNotEmpty(fixConfStockList)){
+            confStockService.insertOrUpdateBatch(fixConfStockList, fixConfStockList.size());
+        }
     }
 
     @Override
@@ -771,8 +774,10 @@ public class InputServiceImpl implements InputService {
                 instructions.append("连续加速;");
             } else if (yesterdayChangingHands != null && changingHands <= yesterdayChangingHands) {
                 instructions.append("加速;");
-            } else {
+            } else if(yesterdayChangingHands!=null){
                 instructions.append("一字分歧;");
+            }else {
+                instructions.append("涨停;");
             }
         }
         if (amplitude > 19 && "主板".equals(po.getPlate())) {

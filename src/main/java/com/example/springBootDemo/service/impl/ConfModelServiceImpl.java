@@ -70,7 +70,7 @@ public class ConfModelServiceImpl extends ServiceImpl<ConfModelDao, ConfModel> i
                     .modelType(m.getModelType())
                     .modelDetailType(m.getModelDetailType())
                     .name(m.getModelDetailName())
-                    .abbr(m.getDetailAbbr())
+                    .attr(m.getDetailAttr())
                     .behaviour(m.getDetailBehaviour())
                     .instructions(m.getDetailInstructions())
                     .build();

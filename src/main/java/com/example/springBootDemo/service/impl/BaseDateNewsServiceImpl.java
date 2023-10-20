@@ -137,6 +137,13 @@ public class BaseDateNewsServiceImpl extends ServiceImpl<BaseDateNewsDao, BaseDa
 //                news.setScope(NewsEnum.getCode(NewsConstant.SCOPE, news.getScope()));
             //开盘
 //                news.setHappen(NewsEnum.getCode(NewsConstant.HAPPEN, news.getHappen()));
+
+            //全角逗号转半角
+            String mainBusiness = news.getMainBusiness();
+            if (StringUtils.isNotBlank(mainBusiness)) {
+                mainBusiness = mainBusiness.replaceAll("，", ",");
+                news.setMainBusiness(mainBusiness);
+            }
             //创建时间
             news.setCreateDate(new Date());
         }
