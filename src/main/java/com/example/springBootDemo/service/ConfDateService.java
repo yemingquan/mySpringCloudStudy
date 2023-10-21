@@ -31,6 +31,8 @@ public interface ConfDateService extends IService<ConfDate>{
 
     ConfDate queryBaseDateBydate(Date date);
 
+    Integer queryTypeDayLimit(Date startDate, Date endDate, List<String> typeList);
+
     /**
      * 查询同花顺规则的交易日距离
      * @param count 距离下个交易日的天数

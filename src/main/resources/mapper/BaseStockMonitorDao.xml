@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springBootDemo.dao.mapper.BaseStockMonitorDao">
+
+    <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.BaseStockMonitor">
+        <!--@Table base_stock_monitor-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="stockCode" column="stock_code" jdbcType="VARCHAR"/>
+        <result property="stockName" column="stock_name" jdbcType="VARCHAR"/>
+        <result property="business" column="business" jdbcType="VARCHAR"/>
+        <result property="reason" column="reason" jdbcType="NUMERIC"/>
+        <result property="monitorStart" column="monitor_start" jdbcType="TIMESTAMP"/>
+        <result property="monitorEnd" column="monitor_end" jdbcType="TIMESTAMP"/>
+        <result property="cycle" column="cycle" jdbcType="NUMERIC"/>
+        <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, stock_code, stock_name, business, reason, monitor_start, monitor_end, cycle, instructions        
+    </sql>
+</mapper>
+

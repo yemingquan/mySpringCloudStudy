@@ -156,16 +156,33 @@ public class StockConstant {
             }).findFirst().orElse(null);
             return en == null ? "" : name + " " + en.getTip();
         }
-
-        public static void main(String[] args) {
-//            System.out.println(getTip("九号公司-WD"));
-//            System.out.println(getTip("TCL科技"));
-//            System.out.println(getTip("*ST中捷"));
-//            System.out.println(getTip("ST中捷"));
-//            System.out.println(getTip("盛科通信-U"));
-//            System.out.println(getTip("C恒兴"));
-        }
     }
+
+    @AllArgsConstructor
+    public enum MonitorReasnEnum {
+        MAIN_1("", "十日内涨幅超过100%"),
+        ;
+
+        @Setter
+        @Getter
+        private String code;
+
+        @Setter
+        @Getter
+        private String name;
+    }
+
+
+    public static void main(String[] args) {
+            System.out.println(SpecilNameEnum.getTip("九号公司-WD"));
+            System.out.println(SpecilNameEnum.getTip("TCL科技"));
+            System.out.println(SpecilNameEnum.getTip("*ST中捷"));
+            System.out.println(SpecilNameEnum.getTip("ST中捷"));
+            System.out.println(SpecilNameEnum.getTip("盛科通信-U"));
+            System.out.println(SpecilNameEnum.getTip("C恒兴"));
+    }
+
+
 
 
 }

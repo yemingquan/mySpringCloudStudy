@@ -721,9 +721,9 @@ public class InputServiceImpl implements InputService {
      */
     private void bdInstructions(BaseReportStock po) {
         //实体大小
-//        BigDecimal a = new BigDecimal(po.getGains()).setScale(2, BigDecimal.ROUND_UP);
+//        BigDecimal MAIN_1 = new BigDecimal(po.getGains()).setScale(2, BigDecimal.ROUND_UP);
 //        BigDecimal b = new BigDecimal(po.getStartGains()).setScale(2, BigDecimal.ROUND_UP);
-//        BigDecimal result = a.subtract(b);
+//        BigDecimal result = MAIN_1.subtract(b);
 //        double entitySize = result.doubleValue();
 
 

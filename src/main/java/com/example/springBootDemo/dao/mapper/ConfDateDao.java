@@ -28,5 +28,7 @@ public interface ConfDateDao extends BaseMapper<ConfDate> {
     ConfDate queryDayLimit(@Param("baseDate") Date baseDate, @Param("count") int count);
 
     ConfDate queryDayLimit2(@Param("baseDate") Date baseDate, @Param("count") int count);
+
+    Integer queryTypeDayLimit(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("typeList") List<String> typeList);
 }
 

@@ -78,7 +78,7 @@ public class BaseStock implements Serializable {
      * 振幅
      */
     @Excel(name = "振幅")
-        private Double amplitude;
+    private Double amplitude;
     /**
      * 换手
      */

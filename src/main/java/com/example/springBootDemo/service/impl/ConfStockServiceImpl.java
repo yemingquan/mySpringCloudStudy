@@ -50,6 +50,9 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
     private ConfDateService confDateService;
     @Resource
     private ConfBusinessService confBusinessService;
+    @Resource
+    private ConfStockService confStockService;
+
 
     @Override
     public void imporMyStock() throws Exception {
@@ -246,5 +249,12 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
 //        confBusinessService.insertOrUpdate(cb);
         //刷新数据
         confBusinessService.refushRecordConfBusiness(cb);
+    }
+
+    @Override
+    public ConfStock getStockCodeByStockName(String stockName) {
+        EntityWrapper<ConfStock> ew = new EntityWrapper<>();
+        ew.eq("stock_name", stockName);
+        return confStockService.selectOne(ew);
     }
 }

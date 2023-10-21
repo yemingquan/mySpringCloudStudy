@@ -20,4 +20,6 @@ public interface ConfStockService extends IService<ConfStock>{
     void reflshCX() throws Exception;
 
     void reflshSmallStock(String date);
+
+    ConfStock getStockCodeByStockName(String stockName);
 }

@@ -106,5 +106,15 @@
         ) a limit #{count} ,1
     </select>
 
+    <select id="queryTypeDayLimit" resultType="java.lang.Integer">
+        SELECT
+        count(1)-1
+        FROM conf_date
+        WHERE date BETWEEN #{startDate} and #{endDate}
+        AND TYPE IN
+        <foreach collection="typeList" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
 </mapper>
 

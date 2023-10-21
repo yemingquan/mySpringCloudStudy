@@ -22,7 +22,7 @@ import java.util.List;
  * @since 2023-09-03 00:27:46
  */
 @Slf4j
-@Service("baseDateService")
+@Service("confDateService")
 public class ConfDateServiceImpl extends ServiceImpl<ConfDateDao, ConfDate> implements ConfDateService {
     @Resource
     private ConfDateDao confDateDao;
@@ -112,6 +112,11 @@ public class ConfDateServiceImpl extends ServiceImpl<ConfDateDao, ConfDate> impl
     @Override
     public ConfDate queryBaseDateBydate(Date date) {
         return confDateDao.queryBaseDateBydate(date);
+    }
+
+    @Override
+    public Integer queryTypeDayLimit(Date startDate, Date endDate, List<String> typeList) {
+        return confDateDao.queryTypeDayLimit(startDate, endDate,typeList);
     }
 
     @Override

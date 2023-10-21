@@ -53,6 +53,8 @@ public class InputController {
     BaseMarketService baseMarketService;
     @Resource
     private RelationConfService relationConfService;
+    @Resource
+    private BaseStockMonitorService baseStockMonitorService;
 
     @ApiOperationSupport(order = 1)
     @ApiOperation("0-复盘初始化")
@@ -377,6 +379,31 @@ public class InputController {
     public RespBean imporRelationConf(@RequestPart MultipartFile multipartFile) {
         try {
             relationConfService.imporRelationConf(multipartFile.getInputStream());
+            return RespBean.success("导入成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
+    }
+
+    @ApiOperationSupport(order = 71)
+    @ApiOperation("7-1 监管池-查询")
+    @PostMapping("/queryBaseStockMonitor")
+    public void queryBaseStockMonitor(HttpServletResponse response) {
+        try {
+            baseStockMonitorService.queryBaseStockMonitor(response);
+            log.info("查询成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @ApiOperationSupport(order = 72)
+    @ApiOperation("7-2 监管池-导入")
+    @PostMapping("/imporBaseStockMonitor")
+    public RespBean imporBaseStockMonitor(@RequestPart MultipartFile multipartFile) {
+        try {
+            baseStockMonitorService.imporBaseStockMonitor(multipartFile.getInputStream());
             return RespBean.success("导入成功");
         } catch (Exception e) {
             e.printStackTrace();
