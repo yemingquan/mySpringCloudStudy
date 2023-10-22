@@ -81,4 +81,9 @@ public class BaseStockMonitorServiceImpl extends ServiceImpl<BaseStockMonitorDao
         baseStockMonitorService.insertOrUpdateBatch(list, list.size());
     }
 
+    @Override
+    public List<BaseStockMonitor> getStockMonitorListByDate(String date) {
+        return baseStockMonitorDao.getStockMonitorListByDate(date);
+    }
+
 }

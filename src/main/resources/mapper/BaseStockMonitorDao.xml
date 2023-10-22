@@ -18,5 +18,10 @@
     <sql id="Base_Column_List">
         id, stock_code, stock_name, business, reason, monitor_start, monitor_end, cycle, instructions        
     </sql>
+
+    <select id="getStockMonitorListByDate" resultType="com.example.springBootDemo.entity.BaseStockMonitor">
+        SELECT * FROM base_stock_monitor
+        WHERE #{date} BETWEEN monitor_start AND monitor_end
+    </select>
 </mapper>
 

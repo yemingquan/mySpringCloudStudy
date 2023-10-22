@@ -4,6 +4,7 @@ import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.entity.BaseCombo;
+import com.example.springBootDemo.entity.BaseStockMonitor;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.ConfDate;
 import com.example.springBootDemo.entity.input.BaseSubjectDetail;
@@ -79,6 +80,8 @@ public class ReportController {
     private ConfBusinessService confBusinessService;
     @Autowired
     BaseStockService baseStockService;
+    @Autowired
+    BaseStockMonitorService baseStockMonitorService;
 
     @ApiOperationSupport(order = 1)
     @GetMapping("/exportBKReport")
@@ -325,43 +328,43 @@ public class ReportController {
 //            //对于今天涨停的,统计各种结构类型的数据。按照涨停次数分隔.比如1b:xxxx、xxxx,2b:
 
             //将大于5的连板数据强制改为5b，方便后续统计
-            todayZtStock.stream().filter(po->po.getCombo()>=5).forEach(po->po.setCombo(5));
+            todayZtStock.stream().filter(po -> po.getCombo() >= 5).forEach(po -> po.setCombo(5));
 
             for (int i = 1; i <= 5; i++) {
                 int finalI = i;
                 //小盘
                 List<String> smallList = todayZtStock.stream()
-                        .filter(po->po.getCombo()== finalI)
-                        .filter(po->po.getInstructions().contains("小盘"))
+                        .filter(po -> po.getCombo() == finalI)
+                        .filter(po -> po.getInstructions().contains("小盘"))
                         .map(ZtReport::getStockName)
                         .collect(Collectors.toList());
-                data.put("SMALL_"+i, smallList);
+                data.put("SMALL_" + i, smallList);
                 //次新
                 List<String> cxList = todayZtStock.stream()
-                        .filter(po->po.getCombo()== finalI)
-                        .filter(po->po.getInstructions().contains("次新"))
+                        .filter(po -> po.getCombo() == finalI)
+                        .filter(po -> po.getInstructions().contains("次新"))
                         .map(ZtReport::getStockName)
                         .collect(Collectors.toList());
-                data.put("CX_"+i, cxList);
+                data.put("CX_" + i, cxList);
 //                //低价
 //                List<String>  cheapList = todayZtStock.stream()
 //                        .filter(po->po.getCombo()== finalI)
 //                        .filter(po->po.getInstructions().contains("低价"))
-//                         .map(ZtReport::getStockName)
+//                         .baseStockMonitorMap(ZtReport::getStockName)
 //                        .collect(Collectors.toList());
 //                data.put("CHEAP_"+i, cheapList);
                 //名字
-                if(StringUtils.isNotBlank(stockName)){
-                    List<String>  stockNameList = todayZtStock.stream()
-                            .filter(po->po.getCombo()== finalI)
-                            .filter(po->po.getStockName().contains(stockName))
+                if (StringUtils.isNotBlank(stockName)) {
+                    List<String> stockNameList = todayZtStock.stream()
+                            .filter(po -> po.getCombo() == finalI)
+                            .filter(po -> po.getStockName().contains(stockName))
                             .map(ZtReport::getStockName)
                             .collect(Collectors.toList());
                     data.put("STOCK_NAME", stockName);
-                    data.put("NAME_"+i, stockNameList);
-                }else{
+                    data.put("NAME_" + i, stockNameList);
+                } else {
                     data.put("STOCK_NAME", "");
-                    data.put("NAME_"+i, "");
+                    data.put("NAME_" + i, "");
                 }
 
                 //低价
@@ -369,9 +372,30 @@ public class ReportController {
                 //极端走势
             }
 
+            //小黑屋数据
+            //查询所有当前日期之后的数据
+            List<BaseStockMonitor> baseStockMonitorList = baseStockMonitorService.getStockMonitorListByDate(dealDateStr);
+            Map<Date, List<BaseStockMonitor>> baseStockMonitorMap = baseStockMonitorList.stream().collect(Collectors.groupingBy(BaseStockMonitor::getMonitorEnd));
+            Map<Integer, String> finalBaseStockMonitorMap = Maps.newHashMap();
+
+            //分组排序成对应的日期格式 2-xxx()
+            for (Date end : baseStockMonitorMap.keySet()) {
+                int count = confDateService.queryTypeDayLimit(dealDate, end, DateConstant.DEAL_LIST);
+
+                List<BaseStockMonitor> list = baseStockMonitorMap.get(end);
+                StringBuffer sb = new StringBuffer();
+                for (BaseStockMonitor bsm : list) {
+                    sb.append(bsm.getStockName() + "(" + bsm.getBusiness() + ")");
+                }
+                finalBaseStockMonitorMap.put(count, sb.toString());
+            }
+            LinkedHashMap<Integer, String> sortReverseOrderMap =  finalBaseStockMonitorMap.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey()) .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                            (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+            data.put("MONITOR", sortReverseOrderMap.toString());
+
             //TODO 活跃板块
             //TODO 异动预警
-            //TODO 小黑屋数据
             //TODO 百日新高
             //TODO 新股
             //TODO 新债

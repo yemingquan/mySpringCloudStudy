@@ -6,6 +6,7 @@ import com.example.springBootDemo.entity.BaseStockMonitor;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 
 /**
@@ -19,4 +20,6 @@ public interface BaseStockMonitorService extends IService<BaseStockMonitor>{
     void queryBaseStockMonitor(HttpServletResponse response) throws IOException;
 
     void imporBaseStockMonitor(InputStream inputStream) throws Exception;
+
+    List<BaseStockMonitor> getStockMonitorListByDate(String dealDateStr);
 }
