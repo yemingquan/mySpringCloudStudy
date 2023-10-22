@@ -73,7 +73,7 @@ public class InputController {
             }
 
             //基础数据落库
-            if(StringUtils.isNotBlank(importStockFlag)){
+            if (StringUtils.isNotBlank(importStockFlag)) {
                 inputService.importStock(thsBasePath);
             }
 
@@ -293,9 +293,9 @@ public class InputController {
 
 
     @ApiOperationSupport(order = 31)
-    @ApiOperation("3-1 Excel导入消息-根据创建时间维护（原始数据）")
+    @ApiOperation("3-1 Excel导入消息-根据创建时间维护")
     @PostMapping("/importNews/UseCreateDate")
-    public RespBean importNewsUseCreateDate(@RequestParam(value = "clearFlag", required = false) String clearFlag,
+    public RespBean importNewsUseCreateDate(@RequestParam( value = "clearFlag", required = false) String clearFlag,
                                             @RequestPart MultipartFile multipartFile) {
         if (StringUtils.isNotBlank(clearFlag)) {
             baseDateNewsService.deleteByCreateDate(DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
@@ -315,7 +315,7 @@ public class InputController {
     }
 
     @ApiOperationSupport(order = 32)
-    @ApiOperation("3-2 Excel导入消息-根据消息时间维护（增量数据）")
+    @ApiOperation("3-2 Excel导入消息-根据消息时间维护")
     @PostMapping("/importNews/UseDate")
     public RespBean importNewsUseDate(@RequestParam(value = "date", required = true) String date,
                                       @RequestParam(value = "startDate", required = false) String startDate,
@@ -343,7 +343,7 @@ public class InputController {
     public RespBean market(@RequestPart MultipartFile multipartFile) {
         try {
             List<BaseMarket> list = ExcelUtil.excelToList(multipartFile, BaseMarket.class);
-            list= list.stream().filter(po->po.getDate()!=null).collect(Collectors.toList());
+            list = list.stream().filter(po -> po.getDate() != null).collect(Collectors.toList());
             for (BaseMarket bm : list) {
                 String marketTrends = bm.getMarketTrends();
                 if (StringUtils.isNotBlank(marketTrends)) {

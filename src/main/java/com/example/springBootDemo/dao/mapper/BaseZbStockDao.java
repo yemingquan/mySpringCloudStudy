@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
 import com.example.springBootDemo.entity.input.BaseZbStock;
 import com.example.springBootDemo.entity.report.MbReport;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -17,6 +18,6 @@ import java.util.List;
 @Mapper
 public interface BaseZbStockDao extends BaseMapper<BaseZbStock> {
 
-    List<MbReport> getMbReportByDate(String date);
+    List<MbReport> getMbReportByDate(@Param("date") String date);
 }
 

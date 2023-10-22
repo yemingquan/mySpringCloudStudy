@@ -1233,6 +1233,60 @@ public class ExcelUtil<T> implements Serializable {
         image.setRowspan(20);  //向下合并4行
         return image;
     }
+
+    public Map<String, Map> OprModelReport(List<ModelReport> list, String date) throws NoSuchFieldException, IllegalAccessException {
+        //注解和对象的映射关系 key:代码-属性 value:注解配置
+        Map<String, Map> annotationMapping = Maps.newConcurrentMap();
+        //注解只有一个，所以不符合条件的话，要给默认值
+        Map<String, Object> defaultAnnotationMap = Maps.newConcurrentMap();
+        Boolean firstFlag = true;
+        List<Field> fields = getClassFields();
+
+        //底色处理
+        Map<String, List<ModelReport>> modelMap = list.stream().collect(Collectors.groupingBy(ModelReport::getName));
+        Map<String, Object> colorMap = Maps.newHashMap();
+        IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME, IndexedColors.LIGHT_GREEN};
+        int num = 0;
+        for (String temp : modelMap.keySet()) {
+            colorMap.put(temp, colorArr[num++ % colorArr.length]);
+        }
+
+        //集合循环
+        for (int i = 0; i < list.size(); i++) {
+            ModelReport po = list.get(i);
+            po.setId(UUID.randomUUID().toString());
+            String modelName = po.getName();
+            Date modelDate = po.getDate();
+            //注解循环
+            for (int j = 0; j < fields.size(); j++) {
+                Field f = fields.get(j);
+                // 获取注解映射的map对象
+                Map map = getAnnotationMap((T) po, f);
+                String key = po.getId() + "-" + f.getName();
+
+                if (firstFlag) {
+                    defaultAnnotationMap = initDefaultAnnotationMap((HashMap<String, Object>) map);
+                    firstFlag = false;
+                } else {
+                    map.putAll(defaultAnnotationMap);
+                }
+                //根据主业给与背景随机颜色
+
+                map.put("backgroundColor", colorMap.get(modelName));
+                //当天日期改为红色
+                if (modelDate.equals(DateUtil.format(date,DateConstant.DATE_FORMAT_10))) {
+                    map.put("color", IndexedColors.RED);
+                } else {
+                    map.put("color", IndexedColors.BLACK);
+                }
+
+                //深拷贝后，把映射关系放到map中
+                Map<String, Object> afterMap = SerializationUtils.clone((HashMap<String, Object>) map);
+                annotationMapping.put(key, afterMap);
+            }
+        }
+        return annotationMapping;
+    }
 }
 
 

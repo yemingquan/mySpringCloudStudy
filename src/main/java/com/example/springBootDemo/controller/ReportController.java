@@ -60,8 +60,6 @@ public class ReportController {
     BaseComboService baseComboService;
     @Autowired
     ReportService reportService;
-    @Autowired
-    StudentService studentService;
     @Resource
     private ConfBsdStockService confBsdStockService;
     @Autowired
@@ -82,6 +80,9 @@ public class ReportController {
     BaseStockService baseStockService;
     @Autowired
     BaseStockMonitorService baseStockMonitorService;
+    @Autowired
+    RelationConfService relationConfService;
+
 
     @ApiOperationSupport(order = 1)
     @GetMapping("/exportBKReport")
@@ -260,7 +261,7 @@ public class ReportController {
             log.info("小盘刷新");
 //            confStockService.reflshSmallStock(date);
             log.info("可转债");
-//            baseBondService.imporKZZ();
+            baseBondService.imporKZZ();
             log.info("连板梯队");
 
 //            for (1==1){
@@ -412,6 +413,22 @@ public class ReportController {
             e.printStackTrace();
         }
         log.info("导出成功");
+    }
+
+    @ApiOperationSupport(order = 32)
+    @GetMapping("/exportModelReport")
+    @ApiOperation("3-2 模式报表导出")
+    public void exportModelReport(@RequestParam(value = "date", required = false) String date,
+                                 HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
+        log.info("3-2 模式报表导出 {}", date);
+        String fileName = "MODEL-";
+        date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+
+        List<ModelReport> list = relationConfService.exportModelReport(date);
+
+        ExcelUtil<ModelReport> excelUtil = new ExcelUtil<>(ModelReport.class);
+        Map<String, Map> annotationMapping = excelUtil.OprModelReport(list,date);
+        excelUtil.exportCustomExcel(annotationMapping, list, fileName, response);
     }
 
     @ApiOperationSupport(order = 1)

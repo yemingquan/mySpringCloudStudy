@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.dao.mapper.RelationConfDao;
 import com.example.springBootDemo.entity.RelationConf;
+import com.example.springBootDemo.entity.report.ModelReport;
 import com.example.springBootDemo.service.RelationConfService;
 import com.example.springBootDemo.util.excel.ExcelUtil;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -49,5 +50,10 @@ public class RelationConfServiceImpl extends ServiceImpl<RelationConfDao, Relati
         is.close();
         relationConfService.insertOrUpdateBatch(list, list.size());
     }
-    
+
+    @Override
+    public List<ModelReport> exportModelReport(String date) {
+        return relationConfDao.exportModelReport(date);
+    }
+
 }

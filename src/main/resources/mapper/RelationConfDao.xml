@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.springBootDemo.dao.RelationConfDao">
+<mapper namespace="com.example.springBootDemo.dao.mapper.RelationConfDao">
 
     <resultMap id="BaseResultMap" type="com.example.springBootDemo.entity.RelationConf">
         <!--@Table relation_conf-->
@@ -16,5 +16,34 @@
     <sql id="Base_Column_List">
         id, date, model, model_other, stock_name, type, instructions
     </sql>
+
+
+    <select id="exportModelReport" resultType="com.example.springBootDemo.entity.report.ModelReport"
+            parameterType="java.lang.String">
+        SELECT  * from (
+        SELECT rc.type,mo.attr,mo.behaviour ,mo.name,cd.date,cd.week,
+         m.bidding,m.sse_bidding,m.key_words,m.market_trends,
+         rc.stock_name, CONCAT('昨日:',IFNULL(b2.instructions,''),'---今日:',IFNULL(b.instructions,''))  instructions
+        FROM relation_conf rc
+        inner JOIN conf_date cd ON cd.date = rc.date
+        left JOIN  base_market m ON m.date = rc.date
+        left JOIN conf_model_other mo ON mo.conf = rc.model_other
+        left JOIN  base_stock b2 ON  b2.stock_name =rc.stock_name AND b2.create_date = (SELECT  MAX(DATE) FROM conf_Date WHERE rc.date >DATE AND TYPE IN (0))
+        inner join  base_stock b on  b.stock_name =rc.stock_name and b.create_date = cd.date
+
+        union all
+
+        SELECT  rc.type,md.attr,md.behaviour ,md.name,cd.date,cd.week,
+         m.bidding,m.sse_bidding,m.key_words,m.market_trends,
+         rc.stock_name,rc.instructions
+        FROM relation_conf rc
+        inner JOIN conf_date cd ON cd.date = rc.date
+        left JOIN  base_market m ON m.date = rc.date
+        inner JOIN conf_model_detail md ON md.model_detail_type = rc.model
+        ) a
+        where date>= #{date}
+        order by DATE,name desc
+    </select>
+
 </mapper>
 
