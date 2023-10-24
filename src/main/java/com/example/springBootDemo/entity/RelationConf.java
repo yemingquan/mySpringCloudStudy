@@ -1,6 +1,7 @@
 package com.example.springBootDemo.entity;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
 import com.baomidou.mybatisplus.enums.IdType;
@@ -32,7 +33,8 @@ public class RelationConf implements Serializable {
     /**
      * 主键
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.NONE)
+    @Excel(name = "主键")
     private Integer id;
     /**
      * 时间
@@ -41,14 +43,14 @@ public class RelationConf implements Serializable {
     @Excel(name = "日期", format = DateConstant.DATE_FORMAT_10, width = 14)
     private Date date;
     /**
-     * 模式
+     * 模式 --会根据其他表而转码
      */
-    @Excel(name = "模式")
+    @Excel(name = "模式", width = 18)
     private String model;
     /**
      * 股票名称
      */
-    @Excel(name = "股票名称", width = 10)
+    @Excel(name = "股票名称", width = 22)
     private String stockName;
     /**
      * 类型
@@ -56,7 +58,7 @@ public class RelationConf implements Serializable {
     @Excel(name = "类型", width = 10)
     private String type;
     /**
-     * 模式其他
+     * 模式其他 --会根据其他表而转码
      */
     @Excel(name = "模式其他", width = 50)
     private String modelOther;
@@ -67,5 +69,12 @@ public class RelationConf implements Serializable {
     private String instructions;
 
 
+    /**
+     * 如果这个字段填写了，会当做股票数据处理（区分于趋势数据）
+     * 那么就会取出上一个上面字段，到对应的基础股票信息表去赋值，这个字段会被当做昨日说明来处理
+     */
+    @Excel(name = "今日说明", width = 110)
+    @TableField(exist = false)
+    private String todayInstructions;
 }
 

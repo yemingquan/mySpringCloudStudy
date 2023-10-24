@@ -1,4 +1,4 @@
-package com.example.springBootDemo.entity.input;
+package com.example.springBootDemo.entity;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import io.swagger.annotations.ApiModel;
@@ -30,10 +30,10 @@ public class Model implements Serializable {
     @Excel(name = "名字")
     private String modelName;
 
-    @Excel(name = "特征")
+    @Excel(name = "特征",width = 30)
     private String abbr;
 
-    @Excel(name = "行为")
+    @Excel(name = "行为",width = 65)
     private String behaviour;
 
     @Excel(name = "模式说明")
@@ -50,17 +50,17 @@ public class Model implements Serializable {
     @Excel(name = "明细类型")
     private String modelDetailType;
 
-    @Excel(name = "明细名字")
+    @Excel(name = "明细名字",width = 22)
     private String modelDetailName;
 //    private String modelType;
 
-    @Excel(name = "明细特点")
+    @Excel(name = "明细特点",width = 22)
     private String detailAttr;
 
-    @Excel(name = "明细行为")
+    @Excel(name = "明细行为",width = 22)
     private String detailBehaviour;
 
-    @Excel(name = "明细说明")
+    @Excel(name = "明细说明",width = 30)
     private String detailInstructions;
 
     /**

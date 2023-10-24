@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.dao.mapper.ConfModelDao;
 import com.example.springBootDemo.entity.ConfModel;
 import com.example.springBootDemo.entity.ConfModelDetail;
-import com.example.springBootDemo.entity.input.Model;
+import com.example.springBootDemo.entity.Model;
 import com.example.springBootDemo.service.ConfModelDetailService;
 import com.example.springBootDemo.service.ConfModelService;
 import com.example.springBootDemo.util.excel.ExcelUtil;

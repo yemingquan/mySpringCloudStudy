@@ -1,6 +1,5 @@
 package com.example.springBootDemo.service.impl;
 
-import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.config.components.system.SystemConfConstant;
@@ -58,10 +57,12 @@ public class BaseBondServiceImpl extends ServiceImpl<BaseBondDao, BaseBond> impl
                 if (cbOverRate > 30) {
                     instructions.append("溢价率:" + new BigDecimal(cbOverRate).setScale(2, BigDecimal.ROUND_UP) + "%;");
                 }
-                if (new Date().after(convStartDate) && remainSize < 3) {
-                    instructions.append("规模:" + new BigDecimal(remainSize).setScale(2, BigDecimal.ROUND_UP) + "亿;");
-                } else if (new Date().before(convStartDate)) {
-                    instructions.append("次新债;");
+                if(convStartDate!=null){
+                    if (new Date().after(convStartDate) && remainSize < 3) {
+                        instructions.append("规模:" + new BigDecimal(remainSize).setScale(2, BigDecimal.ROUND_UP) + "亿;");
+                    } else if (new Date().before(convStartDate)) {
+                        instructions.append("次新债;");
+                    }
                 }
                 po.setInstructions(instructions.toString());
             }

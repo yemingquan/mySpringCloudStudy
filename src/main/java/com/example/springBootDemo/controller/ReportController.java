@@ -73,8 +73,6 @@ public class ReportController {
     @Resource
     private ConfStockService confStockService;
     @Resource
-    private BaseBondService baseBondService;
-    @Resource
     private ConfBusinessService confBusinessService;
     @Autowired
     BaseStockService baseStockService;
@@ -254,28 +252,7 @@ public class ReportController {
         String fileName = "日终";
 
         try {
-            log.info("次新刷新");
-            //TODO 老的方法要去掉
-//            confCxStockService.imporCX();
-//            confStockService.reflshCX();
-            log.info("小盘刷新");
-//            confStockService.reflshSmallStock(date);
-            log.info("可转债");
-            baseBondService.imporKZZ();
-            log.info("连板梯队");
 
-//            for (1==1){
-            Map<String, Object> map = Maps.newHashMap();
-            getEchelonComboData(date, map);
-//                BaseCombo bc = new BaseCombo();
-//            BeanUtil.beanToMap(bc);
-//                bc = BeanUtil.toBean(map, BaseCombo.class);
-//            }
-
-
-            log.info("增量刷新股票的主业");
-            confStockService.reflshMyStock();
-            log.info("日期功能刷新");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -301,6 +278,10 @@ public class ReportController {
         Map<String, Object> data = new HashMap<String, Object>();
 
         try {
+            //刷新当天的连板数据
+            Map<String, Object> map = Maps.newHashMap();
+            getEchelonComboData(date, map);
+
             String dealDateStr = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
             Date dealDate = DateUtil.format(dealDateStr, DateConstant.DATE_FORMAT_10);            //基础数据
             getBasicData(dealDate, data);

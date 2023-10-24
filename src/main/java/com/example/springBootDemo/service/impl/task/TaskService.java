@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +52,11 @@ public class TaskService {
     ConfDateService confDateService;
     @Autowired
     BaseStockService baseStockService;
+    @Resource
+    private BaseBondService baseBondService;
+    @Resource
+    private ConfStockService confStockService;
+
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void monitorTask() {
@@ -59,6 +65,36 @@ public class TaskService {
         } catch (Exception e) {
             log.error("监控任务执行失败{}", e.getMessage());
         }
+    }
+
+    @Scheduled(cron = "0 5 0 * * ?")
+    public void finalTask() {
+        try {
+            finalTask(null);
+        } catch (Exception e) {
+            log.error("日终任务执行失败{}", e.getMessage());
+        }
+    }
+
+    /**
+     * 执行一些日终任务
+     * @param date
+     */
+    public void finalTask(String date) throws Exception {
+        //获得交易日日期
+        date = getTaskDealDate(date);
+        log.info("次新刷新");
+        //TODO 老的方法要去掉
+//            confCxStockService.imporCX();
+        confStockService.reflshCX();
+        log.info("小盘刷新");
+//        confStockService.reflshSmallStock(date);
+        log.info("可转债");
+        baseBondService.imporKZZ();
+        log.info("增量刷新股票的主业");
+        confStockService.reflshMyStock(date);
+        log.info("日期功能刷新");
+        //TODO 日期刷新最好不要用外部传入时间
     }
 
     /**
@@ -75,18 +111,15 @@ public class TaskService {
      * @return
      */
     public void monitorTaskMethod(String date) throws Exception {
+        //获得交易日日期
+        date = getTaskDealDate(date);
+
         String taskName = "监控任务";
         log.info("{}启动", taskName);
         StringBuffer bf = new StringBuffer("<p>监控任务警告：</p>");
         Boolean sendFlag = false;
         //检索数据是否成功落库
-        //取得交易日日期
-        date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
-        //交易日日期-1 这里如果减了一天是非交易日，那么还要调用一下日期配置
-        Date dateStr = DateUtil.getDayDiff(date, -1);
-        date = DateUtil.format(dateStr, DateConstant.DATE_FORMAT_10);
-        //前一个交易日的交易日期
-        date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+//        date = getTaskDealDate(date);
 
         //获取基础数据，用于后续的数据生成
         List<ZtReport> list1 = baseZtStockService.getZtReportByDate(date);
@@ -155,6 +188,18 @@ public class TaskService {
         //TODO 定时任务表 补偿用
         log.info("监控任务结束");
 
+    }
+
+    public String getTaskDealDate(String date) throws Exception {
+        //取得交易日日期
+        date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+        //交易日日期-1 这里如果减了一天是非交易日，那么还要调用一下日期配置
+        Date dateStr = DateUtil.getDayDiff(date, -1);
+
+        date = DateUtil.format(dateStr, DateConstant.DATE_FORMAT_10);
+        //前一个交易日的交易日期
+        date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+        return date;
     }
 
 }

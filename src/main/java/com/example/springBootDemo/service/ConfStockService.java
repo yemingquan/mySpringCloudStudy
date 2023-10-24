@@ -15,7 +15,7 @@ public interface ConfStockService extends IService<ConfStock>{
 
     void imporMyStock() throws Exception;
 
-    void reflshMyStock();
+    void reflshMyStock(String date);
 
     void reflshCX() throws Exception;
 

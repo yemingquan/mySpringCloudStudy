@@ -48,4 +48,11 @@ public class TaskController {
         return RespBean.success("触发成功");
     }
 
+    @ApiOperation(value = "调试-日终任务")
+    @PostMapping(value = "finalTask", name = "调试-日终任务")
+    public RespBean finalTask(@RequestParam(value = "date", required = false) String date) throws Exception {
+        log.info("调试-监控任务");
+        taskService.finalTask(date);
+        return RespBean.success("触发成功");
+    }
 }

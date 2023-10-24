@@ -263,7 +263,7 @@ public class InputController {
 
     @ApiOperationSupport(order = 30)
     @GetMapping("/getNewSTemplate")
-    @ApiOperation("3-0 Excel导入消息-获得摸板")
+    @ApiOperation("3-0 导入消息-获得摸板")
     public void exportBdRePort(HttpServletResponse response) throws Exception {
         String fileName = "NewsTemplate.xlsx";
 //        URL a1 = inputController.class.getResource("templates/NewsTemplate.xlsx");
@@ -293,7 +293,7 @@ public class InputController {
 
 
     @ApiOperationSupport(order = 31)
-    @ApiOperation("3-1 Excel导入消息-根据创建时间维护")
+    @ApiOperation("3-1 导入消息-根据创建时间维护")
     @PostMapping("/importNews/UseCreateDate")
     public RespBean importNewsUseCreateDate(@RequestParam( value = "clearFlag", required = false) String clearFlag,
                                             @RequestPart MultipartFile multipartFile) {
@@ -315,7 +315,7 @@ public class InputController {
     }
 
     @ApiOperationSupport(order = 32)
-    @ApiOperation("3-2 Excel导入消息-根据消息时间维护")
+    @ApiOperation("3-2 导入消息-根据消息时间维护")
     @PostMapping("/importNews/UseDate")
     public RespBean importNewsUseDate(@RequestParam(value = "date", required = true) String date,
                                       @RequestParam(value = "startDate", required = false) String startDate,
@@ -338,7 +338,7 @@ public class InputController {
     }
 
     @ApiOperationSupport(order = 41)
-    @ApiOperation("4-1 Excel导入消息-市场概要信息")
+    @ApiOperation("4-1 导入消息-市场概要信息")
     @PostMapping("/market")
     public RespBean market(@RequestPart MultipartFile multipartFile) {
         try {

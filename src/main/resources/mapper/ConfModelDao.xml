@@ -20,9 +20,9 @@
         model_type, model_name, abbr, behaviour, instructions, chance, risk, state, create_date, create_by
     </sql>
 
-    <select id="queryModel" resultType="com.example.springBootDemo.entity.input.Model" >
+    <select id="queryModel" resultType="com.example.springBootDemo.entity.Model" >
         SELECT m.model_type, m.model_name, m.abbr, m.behaviour, m.instructions, m.chance, m.risk,
-            md.model_detail_type,md.name model_detail_name, md.abbr detail_abbr, md.behaviour detail_behaviour, md.instructions detail_instructions, md.state detail_state
+            md.model_detail_type,md.name model_detail_name, md.attr detail_attr, md.behaviour detail_behaviour, md.instructions detail_instructions, md.state detail_state
          FROM conf_model m
         left join conf_model_detail md on md.model_type = m.model_type
         order by m.`model_type`,md.`model_detail_type`

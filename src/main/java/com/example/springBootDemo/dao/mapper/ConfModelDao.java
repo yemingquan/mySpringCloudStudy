@@ -2,7 +2,7 @@ package com.example.springBootDemo.dao.mapper;
 
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 import com.example.springBootDemo.entity.ConfModel;
-import com.example.springBootDemo.entity.input.Model;
+import com.example.springBootDemo.entity.Model;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

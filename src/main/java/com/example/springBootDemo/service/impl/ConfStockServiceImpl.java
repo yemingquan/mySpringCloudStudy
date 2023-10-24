@@ -102,12 +102,12 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
     }
 
     @Override
-    public void reflshMyStock() {
+    public void reflshMyStock(String date) {
         //我的股票 全量搜索
         List<ConfStock> list = selectList(new EntityWrapper<>());
         //将6个基础标的股票通过辨识度对象检索出来
 //        List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth(DateUtil.format(new Date()));
-        List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth("2023-09-21");
+        List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth(date);
         //股票和主业的映射关系
         Map<String, List<String>> map = Maps.newHashMap();
         Map<String, List<ConfBsdStock>> stockMap = bsdList.stream().collect(Collectors.groupingBy(ConfBsdStock::getStockCode));
