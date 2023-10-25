@@ -12,6 +12,7 @@ import com.example.springBootDemo.entity.input.*;
 import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
+import com.example.springBootDemo.util.StockUtil;
 import com.example.springBootDemo.util.excel.ExcelChangeUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
 import com.google.common.collect.Lists;
@@ -528,6 +529,15 @@ public class InputServiceImpl implements InputService {
 
         //没有被删除过的时间，会被过滤
         imputList = imputList.stream().filter(po -> {
+
+            String coreName = po.getCoreName();
+            coreName = StockUtil.calibrateHalfAngle(coreName);
+            po.setCoreName(coreName);
+            String helpName = po.getHelpName();
+            helpName = StockUtil.calibrateHalfAngle(helpName);
+            po.setHelpName(helpName);
+
+
             Date createDate = po.getCreateDate();
             if (StringUtils.isNotBlank(startDate)) {
                 Date start = DateUtil.parseDate(startDate);
@@ -548,6 +558,7 @@ public class InputServiceImpl implements InputService {
         genSubjectDate(imputList);
         return true;
     }
+
 
 
     @Override

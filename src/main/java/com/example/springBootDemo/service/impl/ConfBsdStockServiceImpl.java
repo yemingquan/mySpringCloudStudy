@@ -40,7 +40,7 @@ public class ConfBsdStockServiceImpl extends ServiceImpl<ConfBsdStockDao, ConfBs
 
         EntityWrapper ew = new EntityWrapper<ConfBsdStock>();
         confBsdStockService.delete(ew);
-        List<ConfBsdStock> list = confBsdStockDao.queryStockMonth(date);
+        List<ConfBsdStock> list = confBsdStockDao.queryStockMonth(date,5);
 //        辨识度标的
 //        走势：加速、天地板、大长腿、地天、A杀、重点监控、高度板
 //        频率；7(5)/3

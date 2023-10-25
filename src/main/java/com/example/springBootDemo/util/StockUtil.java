@@ -17,6 +17,17 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class StockUtil {
+
+
+    /**
+     * 字符串
+     * @param str
+     * @return
+     */
+    public static String calibrateHalfAngle(String str) {
+        return str.replaceAll("，", ",");
+    }
+
     public static void main(String[] args) {
 
 //        ExcelUtil.importtExcel(MultipartFile file, Class<T> pojoClass);

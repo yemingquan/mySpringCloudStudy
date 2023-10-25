@@ -14,6 +14,7 @@ import com.example.springBootDemo.service.ConfModelDetailService;
 import com.example.springBootDemo.service.ConfModelOtherService;
 import com.example.springBootDemo.service.ConfModelService;
 import com.example.springBootDemo.service.RelationConfService;
+import com.example.springBootDemo.util.StockUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -81,8 +82,8 @@ public class RelationConfServiceImpl extends ServiceImpl<RelationConfDao, Relati
 
             String stockName = rc.getStockName();
             if(StringUtils.isNotBlank(stockName)){
-                //TODO 需要改成方法
-                stockName = stockName.replaceAll("，", ",");
+                stockName = StockUtil.calibrateHalfAngle(stockName);
+                rc.setStockName(stockName);
             }
         }
     }

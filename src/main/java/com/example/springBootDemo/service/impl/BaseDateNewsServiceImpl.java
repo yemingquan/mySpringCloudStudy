@@ -12,6 +12,7 @@ import com.example.springBootDemo.service.BaseDateNewsService;
 import com.example.springBootDemo.service.ConfDateService;
 import com.example.springBootDemo.service.ConfBusinessService;
 import com.example.springBootDemo.util.DateUtil;
+import com.example.springBootDemo.util.StockUtil;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -141,7 +142,7 @@ public class BaseDateNewsServiceImpl extends ServiceImpl<BaseDateNewsDao, BaseDa
             //全角逗号转半角
             String mainBusiness = news.getMainBusiness();
             if (StringUtils.isNotBlank(mainBusiness)) {
-                mainBusiness = mainBusiness.replaceAll("，", ",");
+                mainBusiness = StockUtil.calibrateHalfAngle(mainBusiness);
                 news.setMainBusiness(mainBusiness);
             }
             //创建时间

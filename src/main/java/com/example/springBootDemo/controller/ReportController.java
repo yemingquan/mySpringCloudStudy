@@ -278,11 +278,12 @@ public class ReportController {
         Map<String, Object> data = new HashMap<String, Object>();
 
         try {
+            String dealDateStr = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+
             //刷新当天的连板数据
             Map<String, Object> map = Maps.newHashMap();
-            getEchelonComboData(date, map);
+            getEchelonComboData(dealDateStr, map);
 
-            String dealDateStr = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
             Date dealDate = DateUtil.format(dealDateStr, DateConstant.DATE_FORMAT_10);            //基础数据
             getBasicData(dealDate, data);
 

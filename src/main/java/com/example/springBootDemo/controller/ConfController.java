@@ -67,9 +67,9 @@ public class ConfController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("增量刷新股票配置信息")
     @PostMapping("/reflshMyStock")
-    public RespBean reflshMyStock() {
+    public RespBean reflshMyStock(@RequestParam(value = "date", required = false) String date) {
         try {
-            confStockService.reflshMyStock();
+            confStockService.reflshMyStock(date);
             return RespBean.success("刷新成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -108,7 +108,8 @@ public class ConfController {
     @PostMapping("/imporMyStock")
     public RespBean imporMyStock() {
         try {
-            confStockService.imporMyStock();
+            //初始化数据弄一次就好了
+//            confStockService.imporMyStock();
             return RespBean.success("导入成功");
         } catch (Exception e) {
             e.printStackTrace();

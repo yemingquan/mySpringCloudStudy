@@ -16,6 +16,6 @@ import java.util.List;
 @Mapper
 public interface ConfBsdStockDao extends BaseMapper<ConfBsdStock>{
 
-    List<ConfBsdStock> queryStockMonth(@Param("date") String date);
+    List<ConfBsdStock> queryStockMonth(@Param("date") String date,@Param("num")Integer num);
 }
 
