@@ -2,16 +2,20 @@ package com.example.springBootDemo.service.impl;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.dao.mapper.BaseSubjectLineDetailDao;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.service.BaseSubjectLineDetailService;
+import com.example.springBootDemo.util.DateUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -55,6 +59,20 @@ public class BaseSubjectLineDetailServiceImpl extends ServiceImpl<BaseSubjectLin
             detailWr.eq("create_date", date);
         }
         delete(detailWr);
+    }
+
+    @Override
+    public List<String> getHotBusiness(Integer dayCnt) {
+        if(dayCnt ==null){
+            dayCnt =-10;
+        }
+        String date = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
+        String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), dayCnt), DateConstant.DATE_FORMAT_10);
+        List<SubjectReport> subList = getSubjectReport(date, startDate);
+        return subList.stream()
+                .sorted(Comparator.comparing(SubjectReport::getCountZt, Comparator.reverseOrder()))
+                .sorted(Comparator.comparing(SubjectReport::getCreateDate, Comparator.reverseOrder()))
+                .map(SubjectReport::getMainBusiness).distinct().collect(Collectors.toList());
     }
 
     @Override

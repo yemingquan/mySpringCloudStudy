@@ -2,6 +2,7 @@ package com.example.springBootDemo.dao.mapper;
 
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 import com.example.springBootDemo.entity.ConfStock;
+import com.example.springBootDemo.entity.result.ResultstockExcavate;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -16,6 +17,6 @@ import java.util.List;
 @Mapper
 public interface ConfStockDao extends BaseMapper<ConfStock> {
 
-    List<ConfStock> queryStockExcavate(@Param("mainBusinessList") List<String> mainBusinessList, @Param("attrList") List<String> attrList, @Param("stockName") String stockName);
+    List<ResultstockExcavate> queryStockExcavate(@Param("mainBusinessList") List<String> mainBusinessList, @Param("attrList") List<String> attrList, @Param("stockName") String stockName);
 }
 

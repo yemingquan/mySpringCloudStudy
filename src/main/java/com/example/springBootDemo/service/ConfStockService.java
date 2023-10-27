@@ -2,6 +2,7 @@ package com.example.springBootDemo.service;
 
 import com.baomidou.mybatisplus.service.IService;
 import com.example.springBootDemo.entity.ConfStock;
+import com.example.springBootDemo.entity.result.ResultstockExcavate;
 
 import java.util.List;
 
@@ -25,5 +26,5 @@ public interface ConfStockService extends IService<ConfStock>{
 
     ConfStock getStockCodeByStockName(String stockName);
 
-    List<ConfStock> queryStockExcavate(List<String> mainBusinessList, List<String> attrList, String stockName);
+    List<ResultstockExcavate> queryStockExcavate(List<String> mainBusinessList, List<String> attrList, String stockName);
 }

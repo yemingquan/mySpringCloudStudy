@@ -12,6 +12,7 @@ import com.example.springBootDemo.entity.BaseStock;
 import com.example.springBootDemo.entity.ConfBsdStock;
 import com.example.springBootDemo.entity.ConfStock;
 import com.example.springBootDemo.entity.input.ConfBusiness;
+import com.example.springBootDemo.entity.result.ResultstockExcavate;
 import com.example.springBootDemo.service.BaseStockService;
 import com.example.springBootDemo.service.ConfBusinessService;
 import com.example.springBootDemo.service.ConfDateService;
@@ -260,7 +261,7 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
     }
 
     @Override
-    public List<ConfStock> queryStockExcavate(List<String> mainBusinessList, List<String> attrList, String stockName) {
+    public List<ResultstockExcavate> queryStockExcavate(List<String> mainBusinessList, List<String> attrList, String stockName) {
         return confStockDao.queryStockExcavate(mainBusinessList, attrList, stockName);
     }
 }

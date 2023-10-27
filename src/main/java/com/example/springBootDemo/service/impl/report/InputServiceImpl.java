@@ -9,7 +9,6 @@ import com.example.springBootDemo.entity.*;
 import com.example.springBootDemo.entity.base.BaseReportStock;
 import com.example.springBootDemo.entity.dto.QueryStockDto;
 import com.example.springBootDemo.entity.input.*;
-import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.StockUtil;
@@ -83,7 +82,7 @@ public class InputServiceImpl implements InputService {
         is.close();
 
         //查找历史主业
-        List<String> mainBusinessList = getMainBusinessList();
+        List<String> mainBusinessList = baseSubjectLineDetailService.getHotBusiness(null);
         list.stream().forEach(po -> {
             //根据历史数据设置主业
             setMainBusinessList(mainBusinessList, po);
@@ -97,16 +96,6 @@ public class InputServiceImpl implements InputService {
         return baseZthfStockService.insertBatch(list, list.size());
     }
 
-    public List<String> getMainBusinessList() {
-//        return Lists.newArrayList();
-        String date = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
-        String startDate = DateUtil.format(DateUtil.getDayDiff(new Date(), -10), DateConstant.DATE_FORMAT_10);
-        List<SubjectReport> subList = baseSubjectLineDetailService.getSubjectReport(date, startDate);
-        return subList.stream()
-                .sorted(Comparator.comparing(SubjectReport::getCountZt, Comparator.reverseOrder()))
-                .sorted(Comparator.comparing(SubjectReport::getCreateDate, Comparator.reverseOrder()))
-                .map(SubjectReport::getMainBusiness).distinct().collect(Collectors.toList());
-    }
 
     public void setMainBusinessList(List<String> mainBusinessList, BaseReportStock po) {
 //        log.info("股票名称[{}],代码[{}]", po.getStockName(), po.getStockCode());
@@ -165,7 +154,7 @@ public class InputServiceImpl implements InputService {
         is.close();
 
         //查找历史主业
-        List<String> mainBusinessList = getMainBusinessList();
+        List<String> mainBusinessList = baseSubjectLineDetailService.getHotBusiness(null);
         list.stream().forEach(po -> {
             //根据历史数据设置主业
             setMainBusinessList(mainBusinessList, po);
@@ -190,7 +179,7 @@ public class InputServiceImpl implements InputService {
         is.close();
 
         //查找历史主业
-        List<String> mainBusinessList = getMainBusinessList();
+        List<String> mainBusinessList = baseSubjectLineDetailService.getHotBusiness(null);
         list.stream().forEach(po -> {
             //根据历史数据设置主业
             setMainBusinessList(mainBusinessList, po);
@@ -212,7 +201,7 @@ public class InputServiceImpl implements InputService {
         is.close();
 
         //查找历史主业
-        List<String> mainBusinessList = getMainBusinessList();
+        List<String> mainBusinessList = baseSubjectLineDetailService.getHotBusiness(null);
         list.stream().forEach(po -> {
             //根据历史数据设置主业
             setMainBusinessList(mainBusinessList, po);
@@ -234,7 +223,7 @@ public class InputServiceImpl implements InputService {
         is.close();
 
         //查找历史主业
-        List<String> mainBusinessList = getMainBusinessList();
+        List<String> mainBusinessList = baseSubjectLineDetailService.getHotBusiness(null);
         list.stream().forEach(po -> {
             //根据历史数据设置主业
             setMainBusinessList(mainBusinessList, po);
@@ -262,7 +251,7 @@ public class InputServiceImpl implements InputService {
         is.close();
 
         //查找历史主业
-        List<String> mainBusinessList = getMainBusinessList();
+        List<String> mainBusinessList = baseSubjectLineDetailService.getHotBusiness(null);
         list.stream().forEach(po -> {
             //根据历史数据设置主业
             setMainBusinessList(mainBusinessList, po);

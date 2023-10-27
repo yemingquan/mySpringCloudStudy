@@ -27,7 +27,7 @@
     </sql>
 
 
-    <select id="queryStockExcavate" resultType="com.example.springBootDemo.entity.ConfStock" >
+    <select id="queryStockExcavate" resultType="com.example.springBootDemo.entity.result.ResultstockExcavate" >
         select * from
         `conf_stock` cs
         left join base_stock bs on cs.`stock_code` = bs.`stock_code` and bs.create_date =(SELECT  MAX(DATE) FROM conf_Date WHERE CURRENT_DATE()-1 >=DATE AND TYPE IN (0))
@@ -53,6 +53,7 @@
                 </foreach>
             )
         </if>
+        order by  cs.plate ,bs.`circulation`
     </select>
 </mapper>
 
