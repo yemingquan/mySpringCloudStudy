@@ -3,6 +3,8 @@ package com.example.springBootDemo.service;
 import com.baomidou.mybatisplus.service.IService;
 import com.example.springBootDemo.entity.ConfStock;
 
+import java.util.List;
+
 
 /**
  * 配置化自定义个股(ConfStock)表服务接口
@@ -22,4 +24,6 @@ public interface ConfStockService extends IService<ConfStock>{
     void reflshSmallStock(String date);
 
     ConfStock getStockCodeByStockName(String stockName);
+
+    List<ConfStock> queryStockExcavate(List<String> mainBusinessList, List<String> attrList, String stockName);
 }

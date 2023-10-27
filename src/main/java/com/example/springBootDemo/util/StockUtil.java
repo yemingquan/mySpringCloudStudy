@@ -2,6 +2,7 @@ package com.example.springBootDemo.util;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.function.Function;
@@ -25,6 +26,9 @@ public class StockUtil {
      * @return
      */
     public static String calibrateHalfAngle(String str) {
+        if(StringUtils.isBlank(str)){
+            return str;
+        }
         return str.replaceAll("，", ",");
     }
 

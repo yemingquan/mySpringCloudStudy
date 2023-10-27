@@ -25,5 +25,34 @@
     <sql id="Base_Column_List">
         stock_code, stock_name, issue_date, price, plate, main_business, niche_business, attr, instructions, tag, my_instructions, state, create_date, create_by, modifed_date, modifed_by
     </sql>
+
+
+    <select id="queryStockExcavate" resultType="com.example.springBootDemo.entity.ConfStock" >
+        select * from
+        `conf_stock` cs
+        left join base_stock bs on cs.`stock_code` = bs.`stock_code` and bs.create_date =(SELECT  MAX(DATE) FROM conf_Date WHERE CURRENT_DATE()-1 >=DATE AND TYPE IN (0))
+        where 1=1
+        <if test="stockName != null and stockName != ''">
+            AND cs.stock_Name like  CONCAT('%', #{stockName},'%')
+        </if>
+        <if test="mainBusinessList != null and mainBusinessList.size()>0">
+            AND (
+                <foreach collection="mainBusinessList" item="item" open="(" close=")" separator=" and ">
+                    cs.main_business like  CONCAT('%', #{item},'%')
+                </foreach>
+                or
+                <foreach collection="mainBusinessList" item="item" open="(" close=")" separator=" and ">
+                    cs.niche_business like  CONCAT('%', #{item},'%')
+                </foreach>
+            )
+        </if>
+        <if test="attrList != null and attrList.size()>0">
+            AND(
+                <foreach collection="attrList" item="item" open="(" close=")" separator=" and ">
+                     cs.attr like  CONCAT('%', #{item},'%')
+                </foreach>
+            )
+        </if>
+    </select>
 </mapper>
 

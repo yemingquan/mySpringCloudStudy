@@ -427,7 +427,7 @@ public class ExcelUtil<T> implements Serializable {
                 setRowStyle(workbook, cell, attr, true);
             }
             //冻结首行
-            sheet.createFreezePane( 0, 1, 0, 1 );
+            sheet.createFreezePane(0, 1, 0, 1);
             log.info("自定义excel导出-表头设置耗时:{}ms ", stopWatch.getTime());
             stopWatch.reset();
 
@@ -1184,7 +1184,7 @@ public class ExcelUtil<T> implements Serializable {
 
     public static void exportExel(HttpServletResponse response, String fileName, Workbook workbook) throws IOException {
         if (!fileName.contains(".")) {
-            fileName = fileName + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date()) + ".xlsx";
+            fileName = fileName + "-" + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date()) + ".xlsx";
         }
         fileName = new String(fileName.getBytes("UTF-8"), StandardCharsets.ISO_8859_1);
 
@@ -1200,7 +1200,7 @@ public class ExcelUtil<T> implements Serializable {
         }
     }
 
-    public static<E> ExportParams getSimpleExportParams(List<E> list, Class tClass) {
+    public static <E> ExportParams getSimpleExportParams(List<E> list, Class tClass) {
         Map<String, Object> excelParam = new HashMap<>();
         ExportParams params = new ExportParams();
         params.setType(ExcelType.XSSF);
@@ -1210,7 +1210,7 @@ public class ExcelUtil<T> implements Serializable {
         return params;
     }
 
-    public static<E> ExportParams getExportParams(String title, String sheetName, List<E> list, Class tClass) {
+    public static <E> ExportParams getExportParams(String title, String sheetName, List<E> list, Class tClass) {
         Map<String, Object> excelParam = new HashMap<>();
         ExportParams params = new ExportParams();
         if (StringUtils.isNotBlank(title)) {
@@ -1274,7 +1274,7 @@ public class ExcelUtil<T> implements Serializable {
 
                 map.put("backgroundColor", colorMap.get(modelName));
                 //当天日期改为红色
-                if (modelDate.equals(DateUtil.format(date,DateConstant.DATE_FORMAT_10))) {
+                if (modelDate.equals(DateUtil.format(date, DateConstant.DATE_FORMAT_10))) {
                     map.put("color", IndexedColors.RED);
                 } else {
                     map.put("color", IndexedColors.BLACK);

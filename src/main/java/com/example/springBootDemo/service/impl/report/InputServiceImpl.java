@@ -468,48 +468,48 @@ public class InputServiceImpl implements InputService {
         //配置数据的循环
         for (int i = 0; i < msList.size(); i++) {
             //数据补充(包括上市日期、名字、发行价格)
-            ConfStock dto = msList.get(i);
-            String stockCode = dto.getStockCode();
+            ConfStock confStock = msList.get(i);
+            String stockCode = confStock.getStockCode();
             BaseStock bs = baseStockMap.get(stockCode);
             //基础数据为空时，跳过补充
             if (bs == null) continue;
             Boolean flag = false;
 
             //上市日期
-            Date issueDate = dto.getIssueDate();
+            Date issueDate = confStock.getIssueDate();
             if (issueDate == null) {
-                dto.setIssueDate(bs.getIssueDate());
+                confStock.setIssueDate(bs.getIssueDate());
                 flag = true;
             }
 
             //名字
-            String stockName = dto.getStockName();
+            String stockName = confStock.getStockName();
             String baseName = bs.getStockName();
             if (!stockName.equals(baseName) && StringUtils.isNotBlank(StockConstant.SpecilNameEnum.getTip(stockName))) {
                 log.info("stockName conf:{},input:{}", stockName, baseName);
-                if (StringUtils.isNotBlank(StockConstant.SpecilNameEnum.getTip(baseName))) {
-                    dto.setStockName(baseName);
+                if (StringUtils.isBlank(StockConstant.SpecilNameEnum.getTip(baseName))) {
+                    confStock.setStockName(baseName);
                     flag = true;
                 }
             }
 
             //发行价格
-            Double price = dto.getPrice();
+            Double price = confStock.getPrice();
             if (price == null) {
-                dto.setPrice(bs.getPrice());
+                confStock.setPrice(bs.getPrice());
                 flag = true;
             }
 
             //板块
-            String plate = dto.getPlate();
+            String plate = confStock.getPlate();
             if (plate == null) {
-                dto.setPlate(bs.getPlate());
+                confStock.setPlate(bs.getPlate());
                 flag = true;
             }
 
             //添加修正list中
             if (flag) {
-                fixConfStockList.add(dto);
+                fixConfStockList.add(confStock);
             }
         }
 

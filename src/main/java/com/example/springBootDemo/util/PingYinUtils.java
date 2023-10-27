@@ -51,7 +51,7 @@ public class PingYinUtils {
                 pinyinStr += newChar[i];
             }
         }
-        log.info(":{} 首字母大写:{}", chinese, pinyinStr);
+        log.info("中文:{} 首字母大写:{}", chinese, pinyinStr);
         return pinyinStr;
     }
 

@@ -81,6 +81,9 @@ public class TaskService {
      * @param date
      */
     public void finalTask(String date) throws Exception {
+        String taskName = "日终任务";
+        log.info("{}启动", taskName);
+
         //获得交易日日期
         date = getTaskDealDate(date);
         log.info("次新刷新");
@@ -88,7 +91,7 @@ public class TaskService {
 //            confCxStockService.imporCX();
         confStockService.reflshCX();
         log.info("小盘刷新");
-//        confStockService.reflshSmallStock(date);
+        confStockService.reflshSmallStock(date);
         log.info("可转债");
         baseBondService.imporKZZ();
         log.info("增量刷新股票的主业");

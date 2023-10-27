@@ -68,7 +68,7 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
 //            is.close();
 
 
-        List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth(null,null);
+        List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth(null, null);
         Map<String, String> map = Maps.newHashMap();
         Map<String, List<ConfBsdStock>> stockMap = bsdList.stream().collect(Collectors.groupingBy(ConfBsdStock::getStockCode));
         for (String stockCode : stockMap.keySet()) {
@@ -108,7 +108,7 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
         List<ConfStock> list = selectList(new EntityWrapper<>());
         //将6个基础标的股票通过辨识度对象检索出来
 //        List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth(DateUtil.format(new Date()));
-        List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth(date,2);
+        List<ConfBsdStock> bsdList = confBsdStockDao.queryStockMonth(date, 2);
         //股票和主业的映射关系
         Map<String, List<String>> map = Maps.newHashMap();
         Map<String, List<ConfBsdStock>> stockMap = bsdList.stream().collect(Collectors.groupingBy(ConfBsdStock::getStockCode));
@@ -197,7 +197,7 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
 
 
             cb = ConfBusiness.builder()
-                    .id(id)
+//                    .id(id)
                     .refushFlag("1")
                     .type("属性")
                     .sort(sort)
@@ -211,7 +211,7 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
             updateList.add(cb);
         }
         //插入数据
-        confBusinessService.insertOrUpdateBatch(updateList, updateList.size());
+//        confBusinessService.insertOrUpdateBatch(updateList, updateList.size());
         //刷新数据
         for (int i = 0; i < updateList.size(); i++) {
             ConfBusiness cb = updateList.get(i);
@@ -228,16 +228,16 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
         confStockEW.lt("circulation", StockConstant.PLAT_SMALL);
         List<BaseStock> list = baseStockService.selectList(confStockEW);
 
-        EntityWrapper ew = new EntityWrapper<ConfBusiness>();
-        ew.eq("sort", StockConstant.FinalPlanStockEnum.PLAT_SMALL.getCode());
-        ConfBusiness cb = confBusinessService.selectOne(ew);
-        Integer id = null;
-        if (cb != null) {
-            id = cb.getId();
-        }
+//        EntityWrapper ew = new EntityWrapper<ConfBusiness>();
+//        ew.eq("sort", StockConstant.FinalPlanStockEnum.PLAT_SMALL.getCode());
+//        ConfBusiness cb = confBusinessService.selectOne(ew);
+//        Integer id = null;
+//        if (cb != null) {
+//            id = cb.getId();
+//        }
 
-        cb = ConfBusiness.builder()
-                .id(id)
+        ConfBusiness cb = ConfBusiness.builder()
+//                .id(id)
                 .refushFlag("1")
                 .type("属性")
                 .sort(StockConstant.FinalPlanStockEnum.PLAT_SMALL.getCode())
@@ -257,5 +257,10 @@ public class ConfStockServiceImpl extends ServiceImpl<ConfStockDao, ConfStock> i
         EntityWrapper<ConfStock> ew = new EntityWrapper<>();
         ew.eq("stock_name", stockName);
         return confStockService.selectOne(ew);
+    }
+
+    @Override
+    public List<ConfStock> queryStockExcavate(List<String> mainBusinessList, List<String> attrList, String stockName) {
+        return confStockDao.queryStockExcavate(mainBusinessList, attrList, stockName);
     }
 }

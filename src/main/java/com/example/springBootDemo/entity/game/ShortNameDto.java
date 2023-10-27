@@ -33,7 +33,7 @@ public class ShortNameDto implements Serializable {
     @Excel(name = "数量")
     private Integer count;
 
-    @Excel(name = "名称")
+    @Excel(name = "名称",width = 200)
     private List<String> infoList;
 }
 

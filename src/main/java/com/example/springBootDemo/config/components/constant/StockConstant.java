@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -174,15 +175,17 @@ public class StockConstant {
 
 
     public static void main(String[] args) {
-            System.out.println(SpecilNameEnum.getTip("九号公司-WD"));
-            System.out.println(SpecilNameEnum.getTip("TCL科技"));
-            System.out.println(SpecilNameEnum.getTip("*ST中捷"));
-            System.out.println(SpecilNameEnum.getTip("ST中捷"));
-            System.out.println(SpecilNameEnum.getTip("盛科通信-U"));
-            System.out.println(SpecilNameEnum.getTip("C恒兴"));
+
+        System.out.println(StringUtils.isNotBlank(StockConstant.SpecilNameEnum.getTip("C爱科")));
+        System.out.println(StringUtils.isNotBlank(StockConstant.SpecilNameEnum.getTip("爱科赛博")));
+
+//        System.out.println(SpecilNameEnum.getTip("九号公司-WD"));
+//        System.out.println(SpecilNameEnum.getTip("TCL科技"));
+//        System.out.println(SpecilNameEnum.getTip("*ST中捷"));
+//        System.out.println(SpecilNameEnum.getTip("ST中捷"));
+//        System.out.println(SpecilNameEnum.getTip("盛科通信-U"));
+//        System.out.println(SpecilNameEnum.getTip("C恒兴"));
     }
-
-
 
 
 }
