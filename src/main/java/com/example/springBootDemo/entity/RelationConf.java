@@ -53,6 +53,11 @@ public class RelationConf implements Serializable {
     @Excel(name = "股票名称", width = 22)
     private String stockName;
     /**
+     * 1成功 0失败
+     */
+    @Excel(name = "结果", width = 10)
+    private String result;
+    /**
      * 类型
      */
     @Excel(name = "类型", width = 10)

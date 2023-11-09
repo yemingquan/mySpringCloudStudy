@@ -8,6 +8,7 @@ import com.example.springBootDemo.entity.BaseStockMonitor;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.ConfDate;
 import com.example.springBootDemo.entity.input.BaseSubjectDetail;
+import com.example.springBootDemo.entity.input.BaseZtStock;
 import com.example.springBootDemo.entity.input.ConfBusiness;
 import com.example.springBootDemo.entity.report.*;
 import com.example.springBootDemo.service.*;
@@ -372,17 +373,30 @@ public class ReportController {
                 }
                 finalBaseStockMonitorMap.put(count, sb.toString());
             }
-            LinkedHashMap<Integer, String> sortReverseOrderMap =  finalBaseStockMonitorMap.entrySet().stream()
-                    .sorted(Map.Entry.comparingByKey()) .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+            LinkedHashMap<Integer, String> sortReverseOrderMap = finalBaseStockMonitorMap.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                             (oldValue, newValue) -> oldValue, LinkedHashMap::new));
             data.put("MONITOR", sortReverseOrderMap.toString());
 
+            //题材高标 ：查询2个月内的高标信息 6以上的高标
+            //展示样式 2023-11-7-圣龙股份（14）汽车| 2023-11-7-圣龙股份（14）汽车|
+            List<BaseZtStock> highStockList = baseZtStockService.queryHighStock(DateUtil.getDayDiff(dealDateStr, -40), dealDate, 6);
+            StringBuffer highStock = new StringBuffer();
+            for(BaseZtStock st :highStockList){
+                highStock.append(DateUtil.format(st.getCreateDate(), DateConstant.DATE_FORMAT_10)+"-"+st.getStockName()
+                        +"("+st.getCombo()+")"+st.getMainBusiness()+"        ");
+            }
+            data.put("HIGH_STOCK", highStock);
+
+            //异动预警
+
+
             //TODO 活跃板块
-            //TODO 异动预警
             //TODO 百日新高
             //TODO 新股
             //TODO 新债
             //TODO 活跃板块
+            //TODO 过去、现在、未来
 
 
             URL a5 = ClassLoader.getSystemResource("templates/ComboTemplate.xlsx");
@@ -401,7 +415,7 @@ public class ReportController {
     @GetMapping("/exportModelReport")
     @ApiOperation("3-2 模式报表导出")
     public void exportModelReport(@RequestParam(value = "date", required = false) String date,
-                                 HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
+                                  HttpServletResponse response) throws IllegalAccessException, NoSuchFieldException {
         log.info("3-2 模式报表导出 {}", date);
         String fileName = "MODEL-";
         date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
@@ -409,7 +423,7 @@ public class ReportController {
         List<ModelReport> list = relationConfService.exportModelReport(date);
 
         ExcelUtil<ModelReport> excelUtil = new ExcelUtil<>(ModelReport.class);
-        Map<String, Map> annotationMapping = excelUtil.OprModelReport(list,date);
+        Map<String, Map> annotationMapping = excelUtil.OprModelReport(list, date);
         excelUtil.exportCustomExcel(annotationMapping, list, fileName, response);
     }
 

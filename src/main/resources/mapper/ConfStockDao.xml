@@ -28,7 +28,10 @@
 
 
     <select id="queryStockExcavate" resultType="com.example.springBootDemo.entity.result.ResultstockExcavate" >
-        select * from
+        select
+            cs.*,
+            bs.current_Price,bs.average_Price5,bs.circulation,bs.average_Price10
+         from
         `conf_stock` cs
         left join base_stock bs on cs.`stock_code` = bs.`stock_code` and bs.create_date =(SELECT  MAX(DATE) FROM conf_Date WHERE CURRENT_DATE()-1 >=DATE AND TYPE IN (0))
         where 1=1

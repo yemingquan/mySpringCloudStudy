@@ -24,7 +24,7 @@ import java.io.Serializable;
 public class Model implements Serializable {
     private static final long serialVersionUID = 403954534424349449L;
 
-    @Excel(name = "类型")
+    @Excel(name = "类型",height = 20)
     private String modelType;
 
     @Excel(name = "名字")
@@ -36,7 +36,7 @@ public class Model implements Serializable {
     @Excel(name = "行为",width = 65)
     private String behaviour;
 
-    @Excel(name = "模式说明")
+    @Excel(name = "模式说明" ,width = 30)
     private String instructions;
     /**
      * 效果预测，比如1：救情绪、2：带节奏、3：超预期、4：产品

@@ -10,6 +10,7 @@ import com.example.springBootDemo.service.BaseZtStockService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,5 +32,10 @@ public class BaseZtStockServiceImpl extends ServiceImpl<BaseZtStockDao, BaseZtSt
     @Override
     public Integer getMaxCombo(QueryStockDto queryStock) {
         return baseZtStockDao.getMaxCombo(queryStock);
+    }
+
+    @Override
+    public List<BaseZtStock> queryHighStock(Date startDate, Date endDate, int combo) {
+            return baseZtStockDao.queryHighStock(startDate,endDate,combo);
     }
 }

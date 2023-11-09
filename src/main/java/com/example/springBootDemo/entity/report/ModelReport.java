@@ -60,6 +60,9 @@ public class ModelReport implements Serializable {
     @Excel(name = "股票")
     private String stockname;
 
+    @Excel(name = "结果")
+    private String result;
+
     @Excel(name = "说明")
     private String instructions;
 }

@@ -21,7 +21,7 @@ public class ResultstockExcavate implements Serializable {
 
     @Excel(name = "代码")
     private String stockCode;
-    @Excel(name = "名称")
+    @Excel(name = "名称", width = 12)
     private String stockName;
     @Excel(name = "板块")
     private String plate;
@@ -30,13 +30,13 @@ public class ResultstockExcavate implements Serializable {
 
     @Excel(name = "行业", width = 30 )
     private String mainBusiness;
-    @Excel(name = "热点行业", width = 76)
+    @Excel(name = "热点行业", width = 60)
     private String nicheBusiness;
     @Excel(name = "属性", width = 30)
     private String attr;
 
-    @Excel(name = "说明", width = 30)
-    private String instructions;
+    @Excel(name = "说明", width = 50)
+    private String myInstructions;
 
     @Excel(name = "现价")
     private Double currentPrice;

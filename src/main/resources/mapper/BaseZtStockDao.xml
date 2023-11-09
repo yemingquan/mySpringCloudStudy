@@ -63,4 +63,27 @@
           #{item}  
         </foreach>
     </select>
+
+    <select id="queryHighStock" resultType="com.example.springBootDemo.entity.input.BaseZtStock">
+            select c.stock_name,c.combo ,c.main_business ,c.create_date from
+            (
+                select
+                    stock_name,max(d.combo) combo
+                from (
+                    SELECT * FROM base_zt_stock
+                    UNION
+                    SELECT * FROM  base_zthf_stock
+                ) d
+                where create_date between #{startDate} and #{endDate}
+                and combo>= #{combo}
+                group by stock_name
+            ) d
+            INNER JOIN (
+                SELECT * FROM base_zt_stock
+                UNION
+                SELECT * FROM  base_zthf_stock
+            ) c ON c.`stock_name` = d.stock_name AND c.combo = d.combo
+            where c.create_date between #{startDate} and #{endDate}
+            order by combo desc
+    </select>
 </mapper>

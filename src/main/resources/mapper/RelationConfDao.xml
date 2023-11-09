@@ -9,19 +9,20 @@
         <result property="model" column="model" jdbcType="VARCHAR"/>
         <result property="modelOther" column="model_other" jdbcType="VARCHAR"/>
         <result property="stockName" column="stock_name" jdbcType="VARCHAR"/>
+        <result property="result" column="result" jdbcType="VARCHAR"/>
         <result property="type" column="type" jdbcType="VARCHAR"/>
         <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, date, model, model_other, stock_name, type, instructions
+        id, date, model, model_other, stock_name, result, type, instructions
     </sql>
 
 
     <select id="exportModelReport" resultType="com.example.springBootDemo.entity.report.ModelReport"
             parameterType="java.lang.String">
         SELECT  * from (
-        SELECT rc.type,mo.attr,mo.behaviour ,mo.name,cd.date,cd.week,
+        SELECT rc.type,mo.attr,mo.behaviour ,mo.name,cd.date,cd.week,rc.result,
          m.bidding,m.sse_bidding,m.key_words,m.market_trends,
          rc.stock_name, CONCAT('昨日:',IFNULL(b2.instructions,''),'---今日:',IFNULL(b.instructions,''))  instructions
         FROM relation_conf rc
@@ -33,7 +34,7 @@
 
         union all
 
-        SELECT  rc.type,md.attr,md.behaviour ,md.name,cd.date,cd.week,
+        SELECT  rc.type,md.attr,md.behaviour ,md.name,cd.date,cd.week,rc.result,
          m.bidding,m.sse_bidding,m.key_words,m.market_trends,
          rc.stock_name,rc.instructions
         FROM relation_conf rc

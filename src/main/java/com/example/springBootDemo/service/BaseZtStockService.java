@@ -6,6 +6,7 @@ import com.example.springBootDemo.entity.dto.QueryStockDto;
 import com.example.springBootDemo.entity.input.BaseZtStock;
 import com.example.springBootDemo.entity.report.ZtReport;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,9 +15,11 @@ import java.util.List;
  * @author makejava
  * @since 2023-08-05 20:47:19
  */
-public interface BaseZtStockService  extends IService<BaseZtStock> {
+public interface BaseZtStockService extends IService<BaseZtStock> {
 
     List<ZtReport> getZtReportByDate(String date);
 
     Integer getMaxCombo(QueryStockDto queryStock);
+
+    List<BaseZtStock> queryHighStock(Date startDate, Date endDate, int combo);
 }

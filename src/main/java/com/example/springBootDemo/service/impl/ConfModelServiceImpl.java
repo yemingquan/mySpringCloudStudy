@@ -2,6 +2,7 @@ package com.example.springBootDemo.service.impl;
 
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.example.springBootDemo.dao.mapper.ConfModelDao;
 import com.example.springBootDemo.entity.ConfModel;
@@ -11,6 +12,7 @@ import com.example.springBootDemo.service.ConfModelDetailService;
 import com.example.springBootDemo.service.ConfModelService;
 import com.example.springBootDemo.util.excel.ExcelUtil;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Service;
@@ -45,9 +47,14 @@ public class ConfModelServiceImpl extends ServiceImpl<ConfModelDao, ConfModel> i
         List<Model> modelList = ExcelUtil.excelToList(is, Model.class);
         is.close();
 
-        Map<String,Model> map = modelList.stream().collect(Collectors.toMap(Model::getModelType, Function.identity(), (item1, item2) -> item2));
+        //全量配置的新增修改，需要删除之前的数据
+        confModelService.delete(new EntityWrapper<>());
+        confModelDetailService.delete(new EntityWrapper<>());
+
+        Map<String, Model> map = modelList.stream().collect(Collectors.toMap(Model::getModelType, Function.identity(), (item1, item2) -> item2));
         List<ConfModel> confModelList = Lists.newArrayList();
-        for (String str : map.keySet()){
+        for (String str : map.keySet()) {
+            if (StringUtils.isBlank(str)) continue;
             Model m = map.get(str);
             ConfModel po = ConfModel.builder()
                     .modelType(m.getModelType())
@@ -60,11 +67,13 @@ public class ConfModelServiceImpl extends ServiceImpl<ConfModelDao, ConfModel> i
 //            po.setCreateDate(new Date());
             confModelList.add(po);
         }
-        confModelService.insertOrUpdateBatch(confModelList, confModelList.size());
+        if (CollectionUtils.isNotEmpty(confModelList)) {
+            confModelService.insertOrUpdateBatch(confModelList, confModelList.size());
+        }
 
         List<ConfModelDetail> confModelDetailList = Lists.newArrayList();
-        for (Model m :modelList){
-            if(StringUtils.isEmpty(m.getModelDetailType()))continue;
+        for (Model m : modelList) {
+            if (StringUtils.isEmpty(m.getModelDetailType())) continue;
 
             ConfModelDetail po = ConfModelDetail.builder()
                     .modelType(m.getModelType())
@@ -78,7 +87,9 @@ public class ConfModelServiceImpl extends ServiceImpl<ConfModelDao, ConfModel> i
 //            po.setCreateDate(new Date());
             confModelDetailList.add(po);
         }
-        confModelDetailService.insertOrUpdateBatch(confModelDetailList, confModelDetailList.size());
+        if (CollectionUtils.isNotEmpty(confModelDetailList)) {
+            confModelDetailService.insertOrUpdateBatch(confModelDetailList, confModelDetailList.size());
+        }
     }
 
     @Override

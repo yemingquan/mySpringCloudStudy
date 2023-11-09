@@ -6,9 +6,12 @@ import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.system.session.RespBean;
+import com.example.springBootDemo.entity.BaseStock;
 import com.example.springBootDemo.entity.ConfStock;
 import com.example.springBootDemo.entity.game.ShortNameDto;
+import com.example.springBootDemo.entity.input.StockDiary;
 import com.example.springBootDemo.entity.result.ResultstockExcavate;
+import com.example.springBootDemo.service.BaseStockService;
 import com.example.springBootDemo.service.BaseSubjectLineDetailService;
 import com.example.springBootDemo.service.ConfStockService;
 import com.example.springBootDemo.util.PingYinUtils;
@@ -23,15 +26,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URL;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,16 +47,64 @@ import java.util.stream.Collectors;
  * @公司名称
  */
 @Slf4j
-@Api(tags = "娱乐模块")
+@Api(tags = "休闲模块")
 @RequestMapping("game")
 @RestController
 public class GameController {
 
     @Resource
     private ConfStockService confStockService;
-
+    @Resource
+    private BaseStockService baseStockService;
     @Resource
     private BaseSubjectLineDetailService baseSubjectLineDetailService;
+
+    @ApiOperationSupport(order = 1)
+    @PostMapping("/inputStockDiary")
+    @ApiOperation("0-1 写股票日记")
+    public RespBean inputStockDiary(@RequestPart(required = false) MultipartFile multipartFile)  throws Exception {
+
+        List<StockDiary> stockDiaryList = ExcelUtil.excelToList(multipartFile, StockDiary.class);
+
+        for(StockDiary dto : stockDiaryList){
+            try{
+                EntityWrapper<BaseStock> wrapper = new EntityWrapper<>();
+                wrapper.eq("create_Date", dto.getCreateDate());
+                if(StringUtils.isNotBlank(dto.getStockCode())){
+                    wrapper.like("stock_code", dto.getStockCode());
+                }else{
+                    wrapper.eq("stock_name", dto.getStockName());
+                }
+
+                BaseStock bs = BaseStock.builder()
+                        .instructions(dto.getInstructions())
+                        .modifedDate(new Date())
+                        .modifedBy("股票日记")
+                        .build();
+                baseStockService.update(bs, wrapper);
+            }catch(Exception e){
+                log.info("{} 数据异常",dto);
+                log.error("数据修改失败:",e);
+            }
+        }
+        return RespBean.success("修改成功");
+    }
+
+
+    @ApiOperationSupport(order = 2)
+    @PostMapping("/queryStockDiary")
+    @ApiOperation("0-2 翻阅股票日记")
+    public void queryStockDiary(HttpServletResponse response)  throws Exception {
+        /**
+         * 可选，第一行：日期 市场动态
+         * 可选，单个标的的日期（不选择市场动态时，会跳过部分日期，有说明就展示）
+         * 可选，板块日记。第二行板块日记。然后依次展示板块内 带说明的标 的日记
+         */
+
+
+    }
+
+
 
     @ApiOperationSupport(order = 11)
     @GetMapping("/shortNameStatistics")
@@ -112,6 +162,7 @@ public class GameController {
                               @RequestParam(value = "nicheBusiness", required = false) String nicheBusiness,
                               @RequestParam(value = "attr", required = false) String attr,
                               @RequestParam(value = "keyWord", required = false) String keyWord,
+                              @RequestParam(value = "exportType", required = false) String exportType,
                               HttpServletResponse response) throws Exception {
         /**
          * 需要满足以下场景
@@ -121,32 +172,33 @@ public class GameController {
          *      属性：可叠加，分隔。一般是小盘、地区、次新、中字头。TODO 暂无：破发、国资委控股、
          *      姓名：可部分填写。TODO 没有配置字典
          *
-         *
-         * 1.输入以上任意一个条件时，可以展示对应的瀑布数据。排序方式是板块，流通市值
-         * 2.输入多个行业或属性时，需要分类排序。默认分类是行业、板块、流通盘，流通盘。顺序横向/竖向流通盘排序
-         *
-         *  注意：三者都可以单独搜索
+         * 输出：
+         *      1.输入以上任意一个条件时，可以展示对应的瀑布数据。排序方式是板块，流通市值
+         *      2.输入多个行业或属性时，需要分类排序。并给出推荐结果
+         *          默认分类是板块、流通盘。
+         *          顺序横向/竖向流通盘排序
          */
         String fileName = "STOCK_EXCAVATE";
         List<String> mainBusinessList = Lists.newArrayList();
         List<String> nicheBusinessList = Lists.newArrayList();
         List<String> attrList = Lists.newArrayList();
         Map<String, Object> data = Maps.newHashMap();
+        //TODO 暂时未使用
         int queryCount = 0;
 
         //行业
         if (StringUtils.isNotBlank(mainBusiness)) {
             mainBusiness = StockUtil.calibrateHalfAngle(mainBusiness);
             mainBusinessList = Lists.newArrayList(mainBusiness.split(","));
-            data.put("QUERY_DATE_MAIN_BUSINESS", mainBusiness);
+            data.put("QUERY_DATE_MAIN_BUSINESS", mainBusinessList);
             queryCount++;
         }
 
-        //行业
+        //支业
         if (StringUtils.isNotBlank(nicheBusiness)) {
             nicheBusiness = StockUtil.calibrateHalfAngle(nicheBusiness);
             nicheBusinessList = Lists.newArrayList(nicheBusiness.split(","));
-            data.put("QUERY_DATE_NICHE_BUSINESS", nicheBusiness);
+            data.put("QUERY_DATE_NICHE_BUSINESS", nicheBusinessList);
         }
 
         //属性
@@ -172,7 +224,7 @@ public class GameController {
         List<ResultstockExcavate> msList = confStockService.queryStockExcavate(mainBusinessList, attrList, keyWord);
 
         //如果条件较少，则生成excel简单的文档
-        if (queryCount == 1) {
+        if (StringUtils.isBlank(exportType)) {
             mainBusinessList.addAll(nicheBusinessList);
             //其余字段展示热点行业
             List<String> hotBusinessList = baseSubjectLineDetailService.getHotBusiness(-10);
@@ -225,10 +277,25 @@ public class GameController {
     }
 
 
-    @ApiOperationSupport(order = 00)
-    @GetMapping("/ssss")
-    @ApiOperation("0-0 自定义问题")
-    public RespBean ssss(HttpServletResponse response) throws Exception {
+    @ApiOperationSupport(order = 22)
+    @GetMapping("/stockEnvy")
+    @ApiOperation("2-2 补涨挖掘")
+    public void stockEnvy(@RequestParam(value = "mainBusiness", required = false) String mainBusiness,
+                              @RequestParam(value = "nicheBusiness", required = false) String nicheBusiness,
+                              @RequestParam(value = "attr", required = false) String attr,
+                              @RequestParam(value = "keyWord", required = false) String keyWord,
+                              @RequestParam(value = "exportType", required = false) String exportType,
+                              HttpServletResponse response) throws Exception {
+
+
+    }
+
+
+
+    @ApiOperationSupport(order = 31)
+    @GetMapping("/getQuestionAndAnswer")
+    @ApiOperation("3-1 刷题")
+    public RespBean getQuestionAndAnswer(HttpServletResponse response) throws Exception {
 //        confStockService.reflshSmallStock(null);
         confStockService.reflshCX();
         return RespBean.success("还没开发");
