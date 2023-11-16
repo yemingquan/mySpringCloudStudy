@@ -22,4 +22,8 @@ public interface BaseStockMonitorService extends IService<BaseStockMonitor>{
     void imporBaseStockMonitor(InputStream inputStream) throws Exception;
 
     List<BaseStockMonitor> getStockMonitorListByDate(String dealDateStr);
+
+    List<BaseStockMonitor> getNewStockMonitor(String date);
+
+    List<BaseStockMonitor> getCloseToRemoveStockMonitor(String date);
 }

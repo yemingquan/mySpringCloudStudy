@@ -23,5 +23,15 @@
         SELECT * FROM base_stock_monitor
         WHERE #{date} BETWEEN monitor_start AND monitor_end
     </select>
+
+    <select id="getNewStockMonitor" resultType="com.example.springBootDemo.entity.BaseStockMonitor">
+        SELECT * FROM base_stock_monitor
+        WHERE #{date} = monitor_start
+    </select>
+
+    <select id="getCloseToRemoveStockMonitor" resultType="com.example.springBootDemo.entity.BaseStockMonitor">
+        SELECT * FROM base_stock_monitor
+        WHERE DATE_FORMAT(#{date},'%Y-%m-%d') BETWEEN DATE_FORMAT(DATE_ADD(monitor_end,INTERVAL -3 DAY) ,'%Y-%m-%d')   AND DATE_FORMAT(monitor_end,'%Y-%m-%d')
+    </select>
 </mapper>
 

@@ -17,5 +17,9 @@ import java.util.List;
 public interface BaseStockMonitorDao extends BaseMapper<BaseStockMonitor> {
 
     List<BaseStockMonitor> getStockMonitorListByDate(@Param("date") String date);
+
+    List<BaseStockMonitor> getNewStockMonitor(@Param("date")String date);
+
+    List<BaseStockMonitor> getCloseToRemoveStockMonitor(@Param("date")String date);
 }
 

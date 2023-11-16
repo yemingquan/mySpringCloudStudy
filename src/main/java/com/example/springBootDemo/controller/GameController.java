@@ -5,15 +5,16 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.BaseStock;
+import com.example.springBootDemo.entity.BaseStockMonitor;
 import com.example.springBootDemo.entity.ConfStock;
 import com.example.springBootDemo.entity.game.ShortNameDto;
 import com.example.springBootDemo.entity.input.StockDiary;
 import com.example.springBootDemo.entity.result.ResultstockExcavate;
-import com.example.springBootDemo.service.BaseStockService;
-import com.example.springBootDemo.service.BaseSubjectLineDetailService;
-import com.example.springBootDemo.service.ConfStockService;
+import com.example.springBootDemo.service.*;
+import com.example.springBootDemo.util.DateUtil;
 import com.example.springBootDemo.util.PingYinUtils;
 import com.example.springBootDemo.util.StockUtil;
 import com.example.springBootDemo.util.excel.ExcelUtil;
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -58,21 +60,27 @@ public class GameController {
     private BaseStockService baseStockService;
     @Resource
     private BaseSubjectLineDetailService baseSubjectLineDetailService;
+    @Autowired
+    ConfDateService confDateService;
+    @Autowired
+    BaseStockMonitorService baseStockMonitorService;
+    @Autowired
+    BaseZtStockService baseZtStockService;
 
     @ApiOperationSupport(order = 1)
     @PostMapping("/inputStockDiary")
     @ApiOperation("0-1 写股票日记")
-    public RespBean inputStockDiary(@RequestPart(required = false) MultipartFile multipartFile)  throws Exception {
+    public RespBean inputStockDiary(@RequestPart(required = false) MultipartFile multipartFile) throws Exception {
 
         List<StockDiary> stockDiaryList = ExcelUtil.excelToList(multipartFile, StockDiary.class);
 
-        for(StockDiary dto : stockDiaryList){
-            try{
+        for (StockDiary dto : stockDiaryList) {
+            try {
                 EntityWrapper<BaseStock> wrapper = new EntityWrapper<>();
                 wrapper.eq("create_Date", dto.getCreateDate());
-                if(StringUtils.isNotBlank(dto.getStockCode())){
+                if (StringUtils.isNotBlank(dto.getStockCode())) {
                     wrapper.like("stock_code", dto.getStockCode());
-                }else{
+                } else {
                     wrapper.eq("stock_name", dto.getStockName());
                 }
 
@@ -82,9 +90,9 @@ public class GameController {
                         .modifedBy("股票日记")
                         .build();
                 baseStockService.update(bs, wrapper);
-            }catch(Exception e){
-                log.info("{} 数据异常",dto);
-                log.error("数据修改失败:",e);
+            } catch (Exception e) {
+                log.info("{} 数据异常", dto);
+                log.error("数据修改失败:", e);
             }
         }
         return RespBean.success("修改成功");
@@ -94,7 +102,7 @@ public class GameController {
     @ApiOperationSupport(order = 2)
     @PostMapping("/queryStockDiary")
     @ApiOperation("0-2 翻阅股票日记")
-    public void queryStockDiary(HttpServletResponse response)  throws Exception {
+    public void queryStockDiary(HttpServletResponse response) throws Exception {
         /**
          * 可选，第一行：日期 市场动态
          * 可选，单个标的的日期（不选择市场动态时，会跳过部分日期，有说明就展示）
@@ -103,7 +111,6 @@ public class GameController {
 
 
     }
-
 
 
     @ApiOperationSupport(order = 11)
@@ -281,15 +288,154 @@ public class GameController {
     @GetMapping("/stockEnvy")
     @ApiOperation("2-2 补涨挖掘")
     public void stockEnvy(@RequestParam(value = "mainBusiness", required = false) String mainBusiness,
-                              @RequestParam(value = "nicheBusiness", required = false) String nicheBusiness,
-                              @RequestParam(value = "attr", required = false) String attr,
-                              @RequestParam(value = "keyWord", required = false) String keyWord,
-                              @RequestParam(value = "exportType", required = false) String exportType,
-                              HttpServletResponse response) throws Exception {
+                          @RequestParam(value = "nicheBusiness", required = false) String nicheBusiness,
+                          @RequestParam(value = "attr", required = false) String attr,
+                          @RequestParam(value = "keyWord", required = false) String keyWord,
+                          @RequestParam(value = "exportType", required = false) String exportType,
+                          HttpServletResponse response) throws Exception {
 
 
     }
 
+    @ApiOperationSupport(order = 31)
+    @GetMapping("/alert")
+    @ApiOperation("3-1 预警 测试")
+    public RespBean alert(@RequestParam(value = "date", required = true) String date) throws Exception {
+        /**
+         * 预警和警告
+         * 预警:提前预判警告的到来，从而做好准备
+         * 警告：交易日前一天发送提醒信息
+         *
+         */
+
+        /**
+         * 简单的预警
+         *
+
+         *
+         *  大票指数预警
+         *  预警：3k+3%内时、警告：3k+2%
+         *
+         *  量能预警
+         *  机构预警：预警：>9k、警告:>1w
+         *  流动性危机预警：预警:<7k、警告:<6k 且 成交量比昨天低
+         *
+         *
+         *
+         */
+
+
+
+        StringBuffer sb = new StringBuffer();
+        Date today = DateUtil.format(date, DateConstant.DATE_FORMAT_10);
+
+        /**
+         * 节前效应
+         * 周末博弈（消息小于3天时）：预警：倒数第三个交易日、警告：节前倒数第二个交易日（比如周四复盘时收到警告消息）
+         * 节前效应（休息大于3天时）：预警：提前半个月发送、警告：最后一周开始时
+         * 月末效应：预警：最后一周开始时、警告：月底前一天
+         */
+        //休息日预警
+        restAlert(sb, today);
+        //节假日预期
+        holiDayAlert(sb, today);
+        //月末效应
+        monthAlert(sb, today);
+
+        /**
+         * 监管变动预警（含小黑屋）
+         *  预警:加入监管池时、警告（持续）：剩下不到4个交易日时
+         /
+        //监管新增预警
+        newStockMonitorAlert(date, sb);
+        //即将出监管预警
+        closeToRemoveStockMonitor(date, sb);
+        //        TODO 补涨节点 &新周期博弈
+//        List<BaseZtStock> highStockList = baseZtStockService.queryHighStock(DateUtil.getDayDiff(today, -40), today, 6);
+
+         /
+         *  特殊节点预警
+         *  预警:业绩预披露前3天、警告：业绩披露开始前一个交易日
+         */
+
+
+        return RespBean.success(sb);
+    }
+
+
+
+    public void closeToRemoveStockMonitor(String date, StringBuffer sb) {
+        //警告（持续）：剩下不到4个交易日时
+        List<BaseStockMonitor> list2 = baseStockMonitorService.getCloseToRemoveStockMonitor(date);
+        if(CollectionUtils.isNotEmpty(list2)){
+            sb.append("即将出监管标的:");
+            for (BaseStockMonitor bsm : list2){
+                sb.append(bsm.getStockName()+"("+bsm.getBusiness()+")"+"\\n");
+            }
+        }
+    }
+
+    public void newStockMonitorAlert(String date, StringBuffer sb) {
+        /**
+         * 监管变动预警（含小黑屋）
+         * 预警:加入监管池时、警告（持续）：剩下不到4个交易日时
+         */
+//        预警:加入监管池时、警告（持续）
+        List<BaseStockMonitor> list1 = baseStockMonitorService.getNewStockMonitor(date);
+        if(CollectionUtils.isNotEmpty(list1)){
+            sb.append("新加入监管标的:");
+            for (BaseStockMonitor bsm : list1){
+                sb.append(bsm.getStockName()+"("+bsm.getBusiness()+")"+"\\n");
+            }
+        }
+    }
+
+    public void monthAlert(StringBuffer sb, Date today) throws Exception {
+        //        月末效应：预警：最后一周开始时、警告：月底前一天
+        //先计算月末节点
+        Date[] monthDate = DateUtil.getMonthLimit(today);
+        //在根据交易日往前倒推，得到时间节点
+        Date monthDealdate = confDateService.getBeforeTypeDate(monthDate[1], DateConstant.DEAL_LIST);
+        //判定当前时间节点是否为推送节点
+        Long monthDateBetween = DateUtil.getDaysBetween(today, monthDealdate);
+        if (2 < monthDateBetween && monthDateBetween < 5) {
+            sb.append("月末效应：预警：最后一周开始时\\n");
+        } else if (monthDateBetween < 2) {
+            sb.append("月末效应：警告：月底前一天\\n");
+        }
+    }
+
+    public void holiDayAlert(StringBuffer sb, Date today) {
+        Date nextHoliDayDate = confDateService.getAfterTypeDate(today, DateConstant.HOLIDAY_LIST);
+        Date restdateAfterHoliDay = confDateService.getAfterTypeDate(nextHoliDayDate, DateConstant.DEAL_LIST);
+        //还差几天放假
+        Long betweenHoliDayDate = DateUtil.getDaysBetween(today, nextHoliDayDate);
+        // 休息几天
+        Long holiDay = DateUtil.getDaysBetween(nextHoliDayDate, restdateAfterHoliDay);
+        if(holiDay>3){
+            //节前效应（休息大于3天时）：预警：提前半个月发送、警告：最后一周开始时
+            if (7 < betweenHoliDayDate && betweenHoliDayDate <= 15) {
+                sb.append("节前效应预警：提前半个月发送\\n");
+            } else if (betweenHoliDayDate <= 7) {
+                sb.append("节前效应警告：最后一周开始时\\n");
+            }
+        }
+    }
+
+    public void restAlert(StringBuffer sb, Date today) {
+        Date nextRestDate = confDateService.getAfterTypeDate(today, DateConstant.REST_LIST);
+        Date restdateAfterRest = confDateService.getAfterTypeDate(nextRestDate, DateConstant.DEAL_LIST);
+        //还差几天放假
+        Long betweenRestDate = DateUtil.getDaysBetween(today, nextRestDate);
+        // 休息几天
+        Long restDay = DateUtil.getDaysBetween(nextRestDate, restdateAfterRest);
+        //休息日博弈（消息小于3天时）：预警：倒数第三个交易日、警告：节前倒数第二个交易日（比如周四复盘时收到警告消息）
+        if (betweenRestDate == 3) {
+            sb.append("休息日预警：倒数第三个交易日\\n");
+        } else if (betweenRestDate == 2) {
+            sb.append("休息日警告：节前倒数第二个交易日（比如周四复盘时收到警告消息）\\n");
+        }
+    }
 
 
     @ApiOperationSupport(order = 31)
@@ -297,7 +443,7 @@ public class GameController {
     @ApiOperation("3-1 刷题")
     public RespBean getQuestionAndAnswer(HttpServletResponse response) throws Exception {
 //        confStockService.reflshSmallStock(null);
-        confStockService.reflshCX();
+//        confStockService.reflshCX();
         return RespBean.success("还没开发");
     }
 

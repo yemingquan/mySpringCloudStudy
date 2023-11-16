@@ -86,4 +86,14 @@ public class BaseStockMonitorServiceImpl extends ServiceImpl<BaseStockMonitorDao
         return baseStockMonitorDao.getStockMonitorListByDate(date);
     }
 
+    @Override
+    public List<BaseStockMonitor> getNewStockMonitor(String date) {
+        return baseStockMonitorDao.getNewStockMonitor(date);
+    }
+
+    @Override
+    public List<BaseStockMonitor> getCloseToRemoveStockMonitor(String date) {
+        return baseStockMonitorDao.getCloseToRemoveStockMonitor(date);
+    }
+
 }
