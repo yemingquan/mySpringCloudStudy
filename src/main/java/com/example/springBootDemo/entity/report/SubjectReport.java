@@ -40,6 +40,9 @@ public class SubjectReport implements Serializable {
     @Excel(name = "竞价")
     private String bidding;
 
+    @Excel(name = "节点")
+    private String node;
+
     @Excel(name = "关键词")
     private String keyWords;
 
@@ -52,10 +55,10 @@ public class SubjectReport implements Serializable {
     @Excel(name = "辨识度")
     private String helpName;
 
-    @Excel(name = "涨停数")
+    @Excel(name = "涨停")
     private Integer countZt;
 
-    @Excel(name = "回封数")
+    @Excel(name = "回封")
     private Integer countZthf;
 
 //    @Excel(name = "模式")

@@ -351,6 +351,13 @@ public class ReportController {
                     data.put("NAME_" + i, "");
                 }
 
+                //次新
+                List<String> zzList = todayZtStock.stream()
+                        .filter(po -> po.getCombo() == finalI)
+                        .filter(po -> StringUtils.isNotBlank(po.getBond()))
+                        .map(ZtReport::getStockName)
+                        .collect(Collectors.toList());
+                data.put("ZZ_" + i, zzList);
                 //低价
 //                data.put("Cheap_"+i, cheapList);
                 //极端走势

@@ -7,6 +7,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.config.components.system.session.RespBean;
+import com.example.springBootDemo.entity.BaseMarket;
 import com.example.springBootDemo.entity.BaseStock;
 import com.example.springBootDemo.entity.BaseStockMonitor;
 import com.example.springBootDemo.entity.ConfStock;
@@ -66,6 +67,8 @@ public class GameController {
     BaseStockMonitorService baseStockMonitorService;
     @Autowired
     BaseZtStockService baseZtStockService;
+    @Autowired
+    BaseMarketService baseMarketService;
 
     @ApiOperationSupport(order = 1)
     @PostMapping("/inputStockDiary")
@@ -311,19 +314,7 @@ public class GameController {
         /**
          * 简单的预警
          *
-
-         *
-         *  大票指数预警
-         *  预警：3k+3%内时、警告：3k+2%
-         *
-         *  量能预警
-         *  机构预警：预警：>9k、警告:>1w
-         *  流动性危机预警：预警:<7k、警告:<6k 且 成交量比昨天低
-         *
-         *
-         *
          */
-
 
 
         StringBuffer sb = new StringBuffer();
@@ -345,32 +336,89 @@ public class GameController {
         /**
          * 监管变动预警（含小黑屋）
          *  预警:加入监管池时、警告（持续）：剩下不到4个交易日时
-         /
+         **/
         //监管新增预警
         newStockMonitorAlert(date, sb);
         //即将出监管预警
-        closeToRemoveStockMonitor(date, sb);
+        closeToRemoveStockMonitor(today,date, sb);
         //        TODO 补涨节点 &新周期博弈
-//        List<BaseZtStock> highStockList = baseZtStockService.queryHighStock(DateUtil.getDayDiff(today, -40), today, 6);
+        //        List<BaseZtStock> highStockList = baseZtStockService.queryHighStock(DateUtil.getDayDiff(today, -40), today, 6);
 
-         /
+        /**
          *  特殊节点预警
          *  预警:业绩预披露前3天、警告：业绩披露开始前一个交易日
          */
 
+        /**
+         *
+         *  大票指数预警
+         *  预警：3k+3%内时、警告：3k+1%
+         *
+         *  量能预警
+         *  机构预警：预警：>9k、警告:>1w
+         *  流动性危机预警：预警:<7k、警告:<6k 且 成交量比昨天低
+         */
+        BaseMarket baseMarket = baseMarketService.selectById(BaseMarket.builder().date(today).build());
+        if (baseMarket != null) {
+            //上证点数
+            Double point = baseMarket.getPoint();
+            if (point != null) {
+                //TODO 目前先录入3k相关的预警
+                double warnDeviation = 0.03;
+                int classicsPoint = 3000;
+                Double warnTop = classicsPoint * (1 + warnDeviation);
+                Double warnFloor = classicsPoint * (1 - warnDeviation);
+
+
+                double alertDeviation = 0.01;
+                Double alertTop = classicsPoint * (1 + alertDeviation);
+                Double alertFloor = classicsPoint * (1 - alertDeviation);
+
+                if (warnTop.compareTo(point) >= 1 && point.compareTo(alertTop) >= 1) {
+                    sb.append("即将进入" + classicsPoint + "保卫战!\\n");
+                } else if (alertTop.compareTo(point) >= 1 && point.compareTo(alertFloor) >= 1) {
+                    sb.append(classicsPoint + "保卫战开始!\\n");
+                } else if (alertFloor.compareTo(point) >= 1 && point.compareTo(warnFloor) >= 1) {
+                    sb.append(classicsPoint + "修复战!\\n");
+                }
+            }
+
+
+            //量能
+            String vol = baseMarket.getVol();
+            Double num;
+            if (vol.contains("w")) {
+                vol = vol.replaceAll("w", "");
+                num = Double.valueOf(vol) * 10;
+            } else {
+                vol = vol.replaceAll("k", "");
+                num = Double.valueOf(vol);
+            }
+
+//            机构预警：预警：>9k、警告:>1w
+//             流动性危机预警：预警:<7k、警告:<6k 且 成交量比昨天低
+            if (num > 9) {
+                sb.append("量能适配机构行情预警；\\n");
+            } else if (num > 10) {
+                sb.append("量能适配机构行情警告；\\n");
+            } else if (num < 7) {
+                sb.append("流动性危机预警；\\n");
+            } else if (num < 6) {
+                sb.append("流动性危机警告；\\n");
+            }
+        }
 
         return RespBean.success(sb);
     }
 
 
-
-    public void closeToRemoveStockMonitor(String date, StringBuffer sb) {
+    public void closeToRemoveStockMonitor(Date today, String date, StringBuffer sb) {
         //警告（持续）：剩下不到4个交易日时
         List<BaseStockMonitor> list2 = baseStockMonitorService.getCloseToRemoveStockMonitor(date);
-        if(CollectionUtils.isNotEmpty(list2)){
+        if (CollectionUtils.isNotEmpty(list2)) {
             sb.append("即将出监管标的:");
-            for (BaseStockMonitor bsm : list2){
-                sb.append(bsm.getStockName()+"("+bsm.getBusiness()+")"+"\\n");
+            for (BaseStockMonitor bsm : list2) {
+                sb.append(bsm.getStockName() + "(" + bsm.getBusiness() + ")" + "-" + DateUtil.getDaysBetween(today, bsm.getMonitorEnd()) + "\\n");
             }
         }
     }
@@ -382,10 +430,10 @@ public class GameController {
          */
 //        预警:加入监管池时、警告（持续）
         List<BaseStockMonitor> list1 = baseStockMonitorService.getNewStockMonitor(date);
-        if(CollectionUtils.isNotEmpty(list1)){
+        if (CollectionUtils.isNotEmpty(list1)) {
             sb.append("新加入监管标的:");
-            for (BaseStockMonitor bsm : list1){
-                sb.append(bsm.getStockName()+"("+bsm.getBusiness()+")"+"\\n");
+            for (BaseStockMonitor bsm : list1) {
+                sb.append(bsm.getStockName() + "(" + bsm.getBusiness() + ")" + "\\n");
             }
         }
     }
@@ -412,7 +460,7 @@ public class GameController {
         Long betweenHoliDayDate = DateUtil.getDaysBetween(today, nextHoliDayDate);
         // 休息几天
         Long holiDay = DateUtil.getDaysBetween(nextHoliDayDate, restdateAfterHoliDay);
-        if(holiDay>3){
+        if (holiDay > 3) {
             //节前效应（休息大于3天时）：预警：提前半个月发送、警告：最后一周开始时
             if (7 < betweenHoliDayDate && betweenHoliDayDate <= 15) {
                 sb.append("节前效应预警：提前半个月发送\\n");

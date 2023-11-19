@@ -75,7 +75,8 @@ public class InputServiceImpl implements InputService {
     public boolean importExcelZthfStock(InputStream is) throws Exception {
         //导入前先删除当天的数据
         EntityWrapper<BaseZthfStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
+        String date = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
+        wrapper.eq("create_date", date);
         baseZthfStockService.delete(wrapper);
 
         List<BaseZthfStock> list = ExcelUtil.excelToList(is, BaseZthfStock.class);
@@ -83,9 +84,17 @@ public class InputServiceImpl implements InputService {
 
         //查找历史主业
         List<String> mainBusinessList = baseSubjectLineDetailService.getHotBusiness(null);
+        //查找最近三天的基础数据（用来匹配炒作概念）
+        List<BaseReportStock> recentlyStock = baseZtStockService.getRecentlyStock(date);
+        Map<String, BaseReportStock> recentlyStockMap = recentlyStock.stream().collect(Collectors.toMap(BaseReportStock::getStockCode, Function.identity(), (item1, item2) -> item2));
         list.stream().forEach(po -> {
-            //根据历史数据设置主业
-            setMainBusinessList(mainBusinessList, po);
+            if(recentlyStockMap.containsKey(po.getStockCode())){
+                //根据之前配置的数据设置主业
+                setBusinessByRecently(recentlyStockMap, po);
+            }else{
+                //根据历史数据设置主业
+                setBusinessBySubject(mainBusinessList, po);
+            }
             datePro(po);
             try {
                 ztInstructions(po);
@@ -96,8 +105,15 @@ public class InputServiceImpl implements InputService {
         return baseZthfStockService.insertBatch(list, list.size());
     }
 
+    public void setBusinessByRecently(Map<String, BaseReportStock> recentlyStockMap, BaseReportStock po) {
+        BaseReportStock brs = recentlyStockMap.get(po.getStockCode());
+        po.setMainBusiness(brs.getMainBusiness());
+        po.setNicheBusiness(brs.getNicheBusiness());
+        log.info("++++股票名称[{}],代码[{}],系统回忆主业为[{}],支业为[{}]", po.getStockName(), po.getStockCode(), po.getMainBusiness(), po.getNicheBusiness());
+    }
 
-    public void setMainBusinessList(List<String> mainBusinessList, BaseReportStock po) {
+
+    public void setBusinessBySubject(List<String> mainBusinessList, BaseReportStock po) {
 //        log.info("股票名称[{}],代码[{}]", po.getStockName(), po.getStockCode());
         EntityWrapper<ConfStock> wr = new EntityWrapper<>();
         wr.eq("STOCK_CODE", po.getStockCode());
@@ -136,7 +152,7 @@ public class InputServiceImpl implements InputService {
                     }
 
                     po.setModifedDate(new Date());
-                    log.info("++++股票名称[{}],代码[{}],系统设置主业为[{}],支业为[{}]", po.getStockName(), po.getStockCode(), mainBusiness, po.getNicheBusiness());
+                    log.info("++++股票名称[{}],代码[{}],系统根据热点判定主业为[{}],支业为[{}]", po.getStockName(), po.getStockCode(), mainBusiness, po.getNicheBusiness());
                 }
             }
         }
@@ -147,7 +163,8 @@ public class InputServiceImpl implements InputService {
     public boolean importExcelZtStock(InputStream is) throws Exception {
         //导入前先删除当天的数据
         EntityWrapper<BaseZtStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
+        String date = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
+        wrapper.eq("create_date", date);
         baseZtStockService.delete(wrapper);
 
         List<BaseZtStock> list = ExcelUtil.excelToList(is, BaseZtStock.class);
@@ -155,9 +172,17 @@ public class InputServiceImpl implements InputService {
 
         //查找历史主业
         List<String> mainBusinessList = baseSubjectLineDetailService.getHotBusiness(null);
+        //查找最近三天的基础数据（用来匹配炒作概念）
+        List<BaseReportStock> recentlyStock = baseZtStockService.getRecentlyStock(date);
+        Map<String, BaseReportStock> recentlyStockMap = recentlyStock.stream().collect(Collectors.toMap(BaseReportStock::getStockCode, Function.identity(), (item1, item2) -> item2));
         list.stream().forEach(po -> {
-            //根据历史数据设置主业
-            setMainBusinessList(mainBusinessList, po);
+            if(recentlyStockMap.containsKey(po.getStockCode())){
+                //根据之前配置的数据设置主业
+                setBusinessByRecently(recentlyStockMap, po);
+            }else{
+                //根据历史数据设置主业
+                setBusinessBySubject(mainBusinessList, po);
+            }
             datePro(po);
             try {
                 ztInstructions(po);
@@ -172,7 +197,8 @@ public class InputServiceImpl implements InputService {
     public boolean importExcelBdUpStock(InputStream is) throws Exception {
         //导入前先删除当天的数据
         EntityWrapper<BaseBdUpStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
+        String date = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
+        wrapper.eq("create_date", date);
         baseBdUpStockService.delete(wrapper);
 
         List<BaseBdUpStock> list = ExcelUtil.excelToList(is, BaseBdUpStock.class);
@@ -180,9 +206,17 @@ public class InputServiceImpl implements InputService {
 
         //查找历史主业
         List<String> mainBusinessList = baseSubjectLineDetailService.getHotBusiness(null);
+        //查找最近三天的基础数据（用来匹配炒作概念）
+        List<BaseReportStock> recentlyStock = baseZtStockService.getRecentlyStock(date);
+        Map<String, BaseReportStock> recentlyStockMap = recentlyStock.stream().collect(Collectors.toMap(BaseReportStock::getStockCode, Function.identity(), (item1, item2) -> item2));
         list.stream().forEach(po -> {
-            //根据历史数据设置主业
-            setMainBusinessList(mainBusinessList, po);
+            if(recentlyStockMap.containsKey(po.getStockCode())){
+                //根据之前配置的数据设置主业
+                setBusinessByRecently(recentlyStockMap, po);
+            }else{
+                //根据历史数据设置主业
+                setBusinessBySubject(mainBusinessList, po);
+            }
             datePro(po);
             //波动报表说明字段处理
             bdInstructions(po);
@@ -194,7 +228,8 @@ public class InputServiceImpl implements InputService {
     public boolean importExcelBdDownStock(InputStream is) throws Exception {
         //导入前先删除当天的数据
         EntityWrapper<BaseBdDownStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
+        String date = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
+        wrapper.eq("create_date", date);
         baseBdDownStockService.delete(wrapper);
 
         List<BaseBdDownStock> list = ExcelUtil.excelToList(is, BaseBdDownStock.class);
@@ -202,9 +237,17 @@ public class InputServiceImpl implements InputService {
 
         //查找历史主业
         List<String> mainBusinessList = baseSubjectLineDetailService.getHotBusiness(null);
+        //查找最近三天的基础数据（用来匹配炒作概念）
+        List<BaseReportStock> recentlyStock = baseZtStockService.getRecentlyStock(date);
+        Map<String, BaseReportStock> recentlyStockMap = recentlyStock.stream().collect(Collectors.toMap(BaseReportStock::getStockCode, Function.identity(), (item1, item2) -> item2));
         list.stream().forEach(po -> {
-            //根据历史数据设置主业
-            setMainBusinessList(mainBusinessList, po);
+            if(recentlyStockMap.containsKey(po.getStockCode())){
+                //根据之前配置的数据设置主业
+                setBusinessByRecently(recentlyStockMap, po);
+            }else{
+                //根据历史数据设置主业
+                setBusinessBySubject(mainBusinessList, po);
+            }
             datePro(po);
             bdInstructions(po);
         });
@@ -215,7 +258,8 @@ public class InputServiceImpl implements InputService {
     public boolean importExcelDtStock(InputStream is) throws Exception {
         //导入前先删除当天的数据
         EntityWrapper<BaseDtStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
+        String date = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
+        wrapper.eq("create_date", date);
         baseDtStockService.delete(wrapper);
 
 
@@ -224,9 +268,17 @@ public class InputServiceImpl implements InputService {
 
         //查找历史主业
         List<String> mainBusinessList = baseSubjectLineDetailService.getHotBusiness(null);
+        //查找最近三天的基础数据（用来匹配炒作概念）
+        List<BaseReportStock> recentlyStock = baseZtStockService.getRecentlyStock(date);
+        Map<String, BaseReportStock> recentlyStockMap = recentlyStock.stream().collect(Collectors.toMap(BaseReportStock::getStockCode, Function.identity(), (item1, item2) -> item2));
         list.stream().forEach(po -> {
-            //根据历史数据设置主业
-            setMainBusinessList(mainBusinessList, po);
+            if(recentlyStockMap.containsKey(po.getStockCode())){
+                //根据之前配置的数据设置主业
+                setBusinessByRecently(recentlyStockMap, po);
+            }else{
+                //根据历史数据设置主业
+                setBusinessBySubject(mainBusinessList, po);
+            }
             datePro(po);
             mbInstructions(po);
             StringBuffer instructions = new StringBuffer(po.getInstructions());
@@ -244,7 +296,8 @@ public class InputServiceImpl implements InputService {
     public boolean importExcelZbStock(InputStream is) throws Exception {
         //导入前先删除当天的数据
         EntityWrapper<BaseZbStock> wrapper = new EntityWrapper<>();
-        wrapper.eq("create_date", DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
+        String date = DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10);
+        wrapper.eq("create_date", date);
         baseZbStockService.delete(wrapper);
 
         List<BaseZbStock> list = ExcelUtil.excelToList(is, BaseZbStock.class);
@@ -252,9 +305,17 @@ public class InputServiceImpl implements InputService {
 
         //查找历史主业
         List<String> mainBusinessList = baseSubjectLineDetailService.getHotBusiness(null);
+        //查找最近三天的基础数据（用来匹配炒作概念）
+        List<BaseReportStock> recentlyStock = baseZtStockService.getRecentlyStock(date);
+        Map<String, BaseReportStock> recentlyStockMap = recentlyStock.stream().collect(Collectors.toMap(BaseReportStock::getStockCode, Function.identity(), (item1, item2) -> item2));
         list.stream().forEach(po -> {
-            //根据历史数据设置主业
-            setMainBusinessList(mainBusinessList, po);
+            if(recentlyStockMap.containsKey(po.getStockCode())){
+                //根据之前配置的数据设置主业
+                setBusinessByRecently(recentlyStockMap, po);
+            }else{
+                //根据历史数据设置主业
+                setBusinessBySubject(mainBusinessList, po);
+            }
             datePro(po);
             mbInstructions(po);
             StringBuffer instructions = new StringBuffer(po.getInstructions());
@@ -273,44 +334,44 @@ public class InputServiceImpl implements InputService {
 
     @Override
     public void importExcelBdDownStock(String thsBasePath) throws Exception {
-        File file = new File(thsBasePath + "6.xls");
+        File file = new File(thsBasePath + "table6.xls");
         File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
-        importStock(new FileInputStream(tempFile));
+        importExcelBdDownStock(new FileInputStream(tempFile));
     }
 
     @Override
     public void importExcelBdUpStock(String thsBasePath) throws Exception {
-        File file = new File(thsBasePath + "5.xls");
+        File file = new File(thsBasePath + "table5.xls");
         File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
-        importStock(new FileInputStream(tempFile));
+        importExcelBdUpStock(new FileInputStream(tempFile));
     }
 
     @Override
     public void importExcelDtStock(String thsBasePath) throws Exception {
-        File file = new File(thsBasePath + "4.xls");
+        File file = new File(thsBasePath + "table4.xls");
         File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
-        importStock(new FileInputStream(tempFile));
+        importExcelDtStock(new FileInputStream(tempFile));
     }
 
     @Override
     public void importExcelZbStock(String thsBasePath) throws Exception {
-        File file = new File(thsBasePath + "3.xls");
+        File file = new File(thsBasePath + "table3.xls");
         File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
-        importStock(new FileInputStream(tempFile));
+        importExcelZbStock(new FileInputStream(tempFile));
     }
 
     @Override
     public void importExcelZthfStock(String thsBasePath) throws Exception {
-        File file = new File(thsBasePath + "2.xls");
+        File file = new File(thsBasePath + "table2.xls");
         File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
-        importStock(new FileInputStream(tempFile));
+        importExcelZthfStock(new FileInputStream(tempFile));
     }
 
     @Override
     public void importExcelZtStock(String thsBasePath) throws Exception {
-        File file = new File(thsBasePath + "1.xls");
+        File file = new File(thsBasePath + "table1.xls");
         File tempFile = ExcelChangeUtil.csvToXlsxConverter(file, file.getName());
-        importStock(new FileInputStream(tempFile));
+        importExcelZtStock(new FileInputStream(tempFile));
     }
 
     @Override

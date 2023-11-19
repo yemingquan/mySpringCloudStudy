@@ -41,10 +41,10 @@ public class BaseSubjectDetail implements Serializable {
     @Excel(name = "辨识度")
     private String helpName;
 
-    @Excel(name = "涨停数")
+    @Excel(name = "涨停")
     private Integer countZt;
 
-    @Excel(name = "回封数")
+    @Excel(name = "回封")
     private Integer countZthf;
 
 //    @Excel(name = "预期")

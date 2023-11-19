@@ -86,4 +86,31 @@
             where c.create_date between #{startDate} and #{endDate}
             order by combo desc
     </select>
+
+
+
+    <select id="getRecentlyStock" resultType="com.example.springBootDemo.entity.base.BaseReportStock">
+        select DISTINCT create_date,stock_name,stock_code,main_business,niche_business
+        from (
+            select *,
+                   ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY stock_code,create_date desc) AS row_num
+            from
+            (
+                SELECT create_date,stock_name,stock_code,main_business,niche_business FROM base_zt_stock 	WHERE create_date >=(SELECT  MAX(DATE) FROM conf_Date WHERE CURRENT_DATE()-10 >=DATE AND TYPE IN (0))
+                UNION
+                SELECT create_date,stock_name,stock_code,main_business,niche_business FROM base_zthf_stock 	WHERE create_date >=(SELECT  MAX(DATE) FROM conf_Date WHERE CURRENT_DATE()-10 >=DATE AND TYPE IN (0))
+                UNION
+                SELECT create_date,stock_name,stock_code,main_business,niche_business  FROM base_zb_stock 	WHERE create_date >=(SELECT  MAX(DATE) FROM conf_Date WHERE CURRENT_DATE()-10 >=DATE AND TYPE IN (0))
+                UNION
+                SELECT create_date,stock_name,stock_code,main_business,niche_business  FROM base_dt_stock 	WHERE create_date >=(SELECT  MAX(DATE) FROM conf_Date WHERE CURRENT_DATE()-10 >=DATE AND TYPE IN (0))
+                UNION
+                SELECT create_date,stock_name,stock_code,main_business,niche_business FROM base_bd_up_stock 	WHERE create_date >=(SELECT  MAX(DATE) FROM conf_Date WHERE CURRENT_DATE()-10 >=DATE AND TYPE IN (0))
+                UNION
+                SELECT create_date,stock_name,stock_code,main_business,niche_business FROM base_bd_down_stock 	WHERE create_date >=(SELECT  MAX(DATE) FROM conf_Date WHERE CURRENT_DATE()-10 >=DATE AND TYPE IN (0))
+
+            ) bdd
+            -- where stock_name = '三柏硕'
+        ) a
+        where a.row_num = 1
+    </select>
 </mapper>

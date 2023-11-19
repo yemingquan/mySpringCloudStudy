@@ -105,7 +105,7 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("小夜的服务文档")
+                .title("服务文档")
 //                .description("超厉害的！会自动生成代码")
 //                .termsOfServiceUrl("http://www.这是小夜的url.com")
 //                .contact(new Contact("叶明权", "", ""))

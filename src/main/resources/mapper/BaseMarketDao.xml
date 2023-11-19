@@ -6,8 +6,11 @@
         <!--@Table base_market-->
         <result property="date" column="date" jdbcType="TIMESTAMP"/>
         <result property="bidding" column="bidding" jdbcType="VARCHAR"/>
+        <result property="point" column="point" jdbcType="NUMERIC"/>
         <result property="sseBidding" column="sse_bidding" jdbcType="NUMERIC"/>
         <result property="keyWords" column="key_words" jdbcType="VARCHAR"/>
+        <result property="node" column="node" jdbcType="VARCHAR"/>
+        <result property="cycle" column="cycle" jdbcType="VARCHAR"/>
         <result property="marketTrends" column="market_trends" jdbcType="VARCHAR"/>
         <result property="subject" column="subject" jdbcType="VARCHAR"/>
         <result property="sse" column="sse" jdbcType="NUMERIC"/>
@@ -24,7 +27,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        date, bidding, sse_bidding, key_words, market_trends, subject, sse, vol, relatively_vol, teacher_thinking, instructions, state, create_date, create_by, modifed_date, modifed_by, remark
+        date, bidding, point, sse_bidding, key_words, node, cycle, market_trends, subject, sse, vol, relatively_vol, teacher_thinking, instructions, state, create_date, create_by, modifed_date, modifed_by, remark
     </sql>
 </mapper>
 

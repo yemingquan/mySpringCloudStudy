@@ -40,14 +40,24 @@ public class BaseMarket implements Serializable {
 
     @Excel(name = "竞价状态")
     private String bidding;
+
     @Excel(name = "竞价上证指数")
     private Double sseBidding;
+
+    @Excel(name = "上证点数")
+    private Double point;
 
     @Excel(name = "关键词")
     private String keyWords;
 
     @Excel(name = "市场动态")
     private String marketTrends;
+
+    @Excel(name = "节点")
+    private String node;
+
+    @Excel(name = "周期")
+    private String cycle;
     /**
      * 市场主题/情绪节点
      */
