@@ -42,9 +42,10 @@ public class BaseStockMonitorServiceImpl extends ServiceImpl<BaseStockMonitorDao
     private ConfDateService confDateService;
 
     @Override
-    public void queryBaseStockMonitor(HttpServletResponse response) throws IOException {
+    public void queryBaseStockMonitor(String date, HttpServletResponse response) throws IOException {
         EntityWrapper ew = new EntityWrapper<>();
-        ew.orderBy("monitor_start", false);
+        ew.ge("monitor_End",date).le("monitor_start",date);
+        ew.orderBy("monitor_start", true);
         List<BaseStockMonitor> list = baseStockMonitorDao.selectList(ew);
 
         //生成excel文档

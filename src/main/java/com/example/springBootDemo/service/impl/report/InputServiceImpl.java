@@ -70,6 +70,8 @@ public class InputServiceImpl implements InputService {
     ConfStockService confStockService;
     @Autowired
     ConfDateService confDateService;
+    @Autowired
+    BaseMarketService baseMarketService;
 
     @Override
     public boolean importExcelZthfStock(InputStream is) throws Exception {
@@ -109,7 +111,8 @@ public class InputServiceImpl implements InputService {
         BaseReportStock brs = recentlyStockMap.get(po.getStockCode());
         po.setMainBusiness(brs.getMainBusiness());
         po.setNicheBusiness(brs.getNicheBusiness());
-        log.info("++++股票名称[{}],代码[{}],系统回忆主业为[{}],支业为[{}]", po.getStockName(), po.getStockCode(), po.getMainBusiness(), po.getNicheBusiness());
+        po.setCreateBy("回忆");
+        log.info("----股票名称[{}],代码[{}],系统回忆主业为[{}],支业为[{}]", po.getStockName(), po.getStockCode(), po.getMainBusiness(), po.getNicheBusiness());
     }
 
 
@@ -151,6 +154,7 @@ public class InputServiceImpl implements InputService {
                         po.setNicheBusiness(nicheBusiness);
                     }
 
+                    po.setCreateBy("热点");
                     po.setModifedDate(new Date());
                     log.info("++++股票名称[{}],代码[{}],系统根据热点判定主业为[{}],支业为[{}]", po.getStockName(), po.getStockCode(), mainBusiness, po.getNicheBusiness());
                 }
@@ -470,9 +474,11 @@ public class InputServiceImpl implements InputService {
             BigDecimal contribution = dto.getContribution() == null ? BigDecimal.ZERO : new BigDecimal(dto.getContribution());
             dto.setContribution(contribution.doubleValue());
             //流通盘
-            BigDecimal circulation = new BigDecimal(dto.getCirculation()).divide(new BigDecimal(100000000), 4, BigDecimal.ROUND_HALF_UP);
-            dto.setCirculation(circulation.doubleValue());
-
+//            BigDecimal circulation = new BigDecimal(dto.getCirculation()).divide(new BigDecimal(100000000), 4, BigDecimal.ROUND_HALF_UP);
+            String strCirculation = dto.getStrCirculation();
+            if(StringUtils.isNotBlank(strCirculation)){
+                dto.setCirculation(Double.valueOf(strCirculation.replaceAll("亿", "")));
+            }
             dto.setAmplitude(dto.getAmplitude() * 100);
             dto.setChangingHands(dto.getChangingHands() * 100);
             if (dto.getGains() != null) dto.setGains(dto.getGains() * 100);
@@ -509,8 +515,17 @@ public class InputServiceImpl implements InputService {
 
         log.info("统计-沪市-成交额:{},点数:{},涨幅:{}", shAmount, shContribution.setScale(2, BigDecimal.ROUND_HALF_UP), shGains.setScale(2, BigDecimal.ROUND_HALF_UP));
         log.info("统计-深市-成交额:{},点数:{},涨幅:{}", szAmount, szContribution.setScale(2, BigDecimal.ROUND_HALF_UP), szGains.setScale(2, BigDecimal.ROUND_HALF_UP));
-        log.info("统计-两市成交额:{}", shAmount.add(szAmount));
+        BigDecimal vol = shAmount.add(szAmount);
+        String volStr = "";
+        if(vol.compareTo(new BigDecimal(10000))>1){
+            volStr = vol.divide(new BigDecimal(1000)).setScale(2, BigDecimal.ROUND_HALF_UP).toString()+"w";
+        }else{
+            volStr = vol.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).toString()+"k";
+        }
+
+        log.info("统计-两市成交额:{}", vol);
         baseStockService.insertBatch(list, list.size());
+        baseMarketService.selectById(BaseMarket.builder().date(date).vol(volStr).build());
     }
 
 
@@ -740,8 +755,12 @@ public class InputServiceImpl implements InputService {
 
         po.setCreateDate(new Date());
         po.setModifedDate(new Date());
-        BigDecimal before = new BigDecimal(po.getCirculation());
-        po.setCirculation(before.divide(new BigDecimal(100000000), 2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//        BigDecimal before = new BigDecimal(po.getCirculation());
+//        po.setCirculation(before.divide(new BigDecimal(100000000), 2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        String strCirculation = po.getStrCirculation();
+        if(StringUtils.isNotBlank(strCirculation)){
+            po.setCirculation(Double.valueOf(strCirculation.replaceAll("亿", "")));
+        }
         po.setAmplitude(po.getAmplitude() * 100);
 //                po.setYesterdayAmplitude(po.getYesterdayAmplitude() * 100);
         po.setChangingHands(po.getChangingHands() * 100);
@@ -755,7 +774,7 @@ public class InputServiceImpl implements InputService {
 
 
         double value = 0;
-        if (po.getCirculation() < 30) {
+        if (po.getCirculation() < StockConstant.PLAT_SMALL) {
             instructions.append("小盘;");
         }
 

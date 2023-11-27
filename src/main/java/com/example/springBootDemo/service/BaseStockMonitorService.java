@@ -17,7 +17,7 @@ import java.util.List;
  */
 public interface BaseStockMonitorService extends IService<BaseStockMonitor>{
 
-    void queryBaseStockMonitor(HttpServletResponse response) throws IOException;
+    void queryBaseStockMonitor(String date, HttpServletResponse response) throws IOException;
 
     void imporBaseStockMonitor(InputStream inputStream) throws Exception;
 

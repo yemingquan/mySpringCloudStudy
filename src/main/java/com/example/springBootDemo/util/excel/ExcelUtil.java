@@ -644,9 +644,9 @@ public class ExcelUtil<T> implements Serializable {
         Double circulation = po.getCirculation();
         byte fontUnderLine = Font.U_NONE;
         boolean strikeout = false;
-        if (circulation < 30) {
+        if (circulation < StockConstant.PLAT_SMALL) {
             fontUnderLine = Font.U_SINGLE;
-        } else if (circulation > 400) {
+        } else if (circulation > StockConstant.PLAT_BIG) {
             strikeout = true;
         }
 

@@ -7,10 +7,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.config.components.system.session.RespBean;
-import com.example.springBootDemo.entity.BaseMarket;
-import com.example.springBootDemo.entity.BaseStock;
-import com.example.springBootDemo.entity.BaseStockMonitor;
-import com.example.springBootDemo.entity.ConfStock;
+import com.example.springBootDemo.entity.*;
 import com.example.springBootDemo.entity.game.ShortNameDto;
 import com.example.springBootDemo.entity.input.StockDiary;
 import com.example.springBootDemo.entity.result.ResultstockExcavate;
@@ -69,6 +66,8 @@ public class GameController {
     BaseZtStockService baseZtStockService;
     @Autowired
     BaseMarketService baseMarketService;
+    @Autowired
+    ConfModelDetailService confModelDetailService;
 
     @ApiOperationSupport(order = 1)
     @PostMapping("/inputStockDiary")
@@ -340,13 +339,14 @@ public class GameController {
         //监管新增预警
         newStockMonitorAlert(date, sb);
         //即将出监管预警
-        closeToRemoveStockMonitor(today,date, sb);
+        closeToRemoveStockMonitor(today, date, sb);
         //        TODO 补涨节点 &新周期博弈
         //        List<BaseZtStock> highStockList = baseZtStockService.queryHighStock(DateUtil.getDayDiff(today, -40), today, 6);
 
         /**
          *  特殊节点预警
          *  预警:业绩预披露前3天、警告：业绩披露开始前一个交易日
+         *  TODO 这个考虑给数据库处理
          */
 
         /**
@@ -358,6 +358,43 @@ public class GameController {
          *  机构预警：预警：>9k、警告:>1w
          *  流动性危机预警：预警:<7k、警告:<6k 且 成交量比昨天低
          */
+        marketAlert(sb, today);
+
+        /**
+         * 节点关联提示
+         */
+        nodeAlert(sb, today);
+
+
+        return RespBean.success(sb);
+    }
+
+    public void nodeAlert(StringBuffer sb, Date today) {
+        Date tempDate = confDateService.getBeforeTypeDate(today, DateConstant.DEAL_LIST);
+        BaseMarket bm = baseMarketService.selectById(BaseMarket.builder().date(tempDate).build());
+        if (bm != null) {
+            String node = bm.getNode();
+            if (StringUtils.isNotBlank(node)) {
+                List<String> nodeList = Lists.newArrayList(node.split("\\|"));
+                nodeList.remove("");
+                for (String str : nodeList) {
+                    EntityWrapper<ConfModelDetail> wrapper = new EntityWrapper<>();
+                    if (str.length() == 2) {
+                        wrapper.eq("name", str);
+                    } else {
+                        wrapper.like("name", str);
+                    }
+
+                    ConfModelDetail cmd = confModelDetailService.selectOne(wrapper);
+                    if (cmd != null) {
+                        sb.append(str + cmd.toString());
+                    }
+                }
+            }
+        }
+    }
+
+    public void marketAlert(StringBuffer sb, Date today) {
         BaseMarket baseMarket = baseMarketService.selectById(BaseMarket.builder().date(today).build());
         if (baseMarket != null) {
             //上证点数
@@ -407,8 +444,6 @@ public class GameController {
                 sb.append("流动性危机警告；\\n");
             }
         }
-
-        return RespBean.success(sb);
     }
 
 

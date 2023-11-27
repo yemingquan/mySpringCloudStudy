@@ -14,6 +14,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,9 +26,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -130,7 +133,7 @@ public class InputController {
             }
             return RespBean.success("导入成功");
         } catch (Exception e) {
-            log.error("导入失败:{}", e);
+            log.error("导入失败:", e);
             return RespBean.error("导入失败");
         }
     }
@@ -164,7 +167,7 @@ public class InputController {
             }
             return RespBean.success("导入成功");
         } catch (Exception e) {
-            log.error("导入失败:{}", e);
+            log.error("导入失败:", e);
             return RespBean.error("导入失败");
         }
     }
@@ -181,7 +184,7 @@ public class InputController {
             }
             return RespBean.success("导入成功");
         } catch (Exception e) {
-            log.error("导入失败:{}", e);
+            log.error("导入失败:", e);
             return RespBean.error("导入失败");
         }
     }
@@ -198,7 +201,7 @@ public class InputController {
             }
             return RespBean.success("导入成功");
         } catch (Exception e) {
-            log.error("导入失败:{}", e);
+            log.error("导入失败:", e);
             return RespBean.error("导入失败");
         }
     }
@@ -215,7 +218,7 @@ public class InputController {
             }
             return RespBean.success("导入成功");
         } catch (Exception e) {
-            log.error("导入失败:{}", e);
+            log.error("导入失败:", e);
             return RespBean.error("导入失败");
         }
     }
@@ -233,7 +236,7 @@ public class InputController {
             }
             return RespBean.success("导入成功");
         } catch (Exception e) {
-            log.error("导入失败:{}", e);
+            log.error("导入失败:", e);
             return RespBean.error("导入失败");
         }
     }
@@ -295,7 +298,7 @@ public class InputController {
     @ApiOperationSupport(order = 31)
     @ApiOperation("3-1 导入消息-根据创建时间维护")
     @PostMapping("/importNews/UseCreateDate")
-    public RespBean importNewsUseCreateDate(@RequestParam( value = "clearFlag", required = false) String clearFlag,
+    public RespBean importNewsUseCreateDate(@RequestParam(value = "clearFlag", required = false) String clearFlag,
                                             @RequestPart MultipartFile multipartFile) {
         if (StringUtils.isNotBlank(clearFlag)) {
             baseDateNewsService.deleteByCreateDate(DateUtil.format(new Date(), DateConstant.DATE_FORMAT_10));
@@ -343,7 +346,51 @@ public class InputController {
     public RespBean market(@RequestPart MultipartFile multipartFile) {
         try {
             List<BaseMarket> list = ExcelUtil.excelToList(multipartFile, BaseMarket.class);
-            list = list.stream().filter(po -> po.getDate() != null).collect(Collectors.toList());
+
+            //过滤空数据，输出数据集合
+            list = list.stream().filter(po -> po.getDate() != null)
+                    .sorted(Comparator.comparing(BaseMarket::getDate))
+                    .collect(Collectors.toList());
+
+            if (CollectionUtils.isEmpty(list)) {
+                return RespBean.success("暂无数据需要处理");
+            }
+
+            //初次判定是否需要初始化数据
+            BaseMarket bmLast = list.get(list.size() - 1);
+            //如果最后一条数据填写了指数，没有填写点数，则系统计算赋值。一般情况下，都是1条的日常维护
+            if (bmLast.getPoint() == null && bmLast.getSse() != null) {
+                //先从集合里找到这种数据
+                list = list.stream().filter(po -> (po.getSse() != null))
+                        .sorted(Comparator.comparing(BaseMarket::getDate))
+                        .collect(Collectors.toList());
+                //如果历史数据有，则使用历史数据，不然就去查数据库
+                BaseMarket bmFirst = list.get(0);
+
+                Double begainPoint = bmFirst.getPoint();
+                if (begainPoint == null) {
+                    Date tempDate = confDateService.getBeforeTypeDate(DateUtil.getDayDiff(bmFirst.getDate(), -1), DateConstant.DEAL_LIST);
+                    BaseMarket bm = baseMarketService.selectById(BaseMarket.builder().date(tempDate).build());
+                    begainPoint = bm.getPoint();
+                    log.debug("bm{}", bm);
+                }
+
+
+                if (begainPoint == null) {
+                    log.info("Point 计算缺少基础数据");
+                } else {
+                    BigDecimal b = new BigDecimal(begainPoint).setScale(2, BigDecimal.ROUND_HALF_UP);
+                    for (BaseMarket bm : list) {
+                        BigDecimal see = new BigDecimal(bm.getSse()).setScale(2, BigDecimal.ROUND_HALF_UP)
+                                .divide(new BigDecimal(100))
+                                .add(BigDecimal.ONE);
+                        b = b.multiply(see).setScale(2, BigDecimal.ROUND_HALF_UP);
+                        log.info("系统赋值日期:{}，begainPoint:{}，see:{},point为:{}", DateUtil.format(bm.getDate(), DateConstant.DATE_FORMAT_10), begainPoint, see, b);
+                        bm.setPoint(b.doubleValue());
+                    }
+                }
+            }
+
             for (BaseMarket bm : list) {
                 String marketTrends = bm.getMarketTrends();
                 if (StringUtils.isNotBlank(marketTrends)) {
@@ -389,9 +436,9 @@ public class InputController {
     @ApiOperationSupport(order = 71)
     @ApiOperation("7-1 监管池-查询")
     @PostMapping("/queryBaseStockMonitor")
-    public void queryBaseStockMonitor(HttpServletResponse response) {
+    public void queryBaseStockMonitor(@RequestParam(value = "date", required = true) String date,HttpServletResponse response) {
         try {
-            baseStockMonitorService.queryBaseStockMonitor(response);
+            baseStockMonitorService.queryBaseStockMonitor(date,response);
             log.info("查询成功");
         } catch (Exception e) {
             e.printStackTrace();

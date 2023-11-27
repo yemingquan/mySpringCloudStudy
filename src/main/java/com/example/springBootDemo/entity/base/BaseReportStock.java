@@ -1,5 +1,6 @@
 package com.example.springBootDemo.entity.base;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotations.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -49,6 +50,11 @@ public class BaseReportStock implements Serializable {
      * 流通市值,亿元
      */
     private Double circulation;
+
+    @Excel(name = "流通市值")
+    @TableField(exist = false)
+    private String strCirculation;
+
     /**
      * 说明
      */

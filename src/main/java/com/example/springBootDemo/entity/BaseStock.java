@@ -53,6 +53,9 @@ public class BaseStock implements Serializable {
      * 流通市值,亿元
      */
     @Excel(name = "流通市值")
+    @TableField(exist = false)
+    private String strCirculation;
+
     private Double circulation;
     /**
      * 成交额

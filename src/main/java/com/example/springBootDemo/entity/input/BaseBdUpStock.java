@@ -1,6 +1,7 @@
 package com.example.springBootDemo.entity.input;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
 import com.baomidou.mybatisplus.enums.IdType;
@@ -62,8 +63,11 @@ public class BaseBdUpStock extends BaseReportStock implements Serializable {
     @Excel(name = "细分行业", orderNum = "3")
     private String nicheBusiness;
 
-    @Excel(name = "流通市值", orderNum = "4")
     private Double circulation;
+
+    @Excel(name = "流通市值")
+    @TableField(exist = false)
+    private String strCirculation;
     /**
      * 说明
      */
