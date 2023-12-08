@@ -481,9 +481,9 @@ public class GameController {
         Date monthDealdate = confDateService.getBeforeTypeDate(monthDate[1], DateConstant.DEAL_LIST);
         //判定当前时间节点是否为推送节点
         Long monthDateBetween = DateUtil.getDaysBetween(today, monthDealdate);
-        if (2 < monthDateBetween && monthDateBetween < 5) {
+        if (2 < monthDateBetween && monthDateBetween <= 5) {
             sb.append("月末效应：预警：最后一周开始时\\n");
-        } else if (monthDateBetween < 2) {
+        } else if (monthDateBetween <= 2) {
             sb.append("月末效应：警告：月底前一天\\n");
         }
     }

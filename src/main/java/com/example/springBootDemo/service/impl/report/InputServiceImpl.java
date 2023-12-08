@@ -774,19 +774,19 @@ public class InputServiceImpl implements InputService {
 
 
         double value = 0;
-        if (po.getCirculation() < StockConstant.PLAT_SMALL) {
+        if (po.getCirculation() <= StockConstant.PLAT_SMALL) {
             instructions.append("小盘;");
         }
 
         value = po.getChangingHands();
-        if (75 > value && value > 50) {
+        if (75 >= value && value > 50) {
             instructions.append("高换手;");
-        } else if (value > 75) {
+        } else if (value >= 75) {
             instructions.append("死亡换手;");
         }
 
         value = po.getAmplitude();
-        if ("主板".equals(po.getPlate()) && value > 13 || value > 25) {
+        if ("主板".equals(po.getPlate()) && value >= 13 || value >= 25) {
             instructions.append("大长腿;");
         }
 
@@ -812,7 +812,7 @@ public class InputServiceImpl implements InputService {
         Double entitySize = po.getEntitySize();
         Double amplitude = po.getAmplitude();
         if (Math.abs(entitySize) < 2) {
-            if (Math.abs(amplitude) > 9) {
+            if (Math.abs(amplitude) >= 9) {
                 instructions.append("大分歧;");
             }
             if (Math.abs(amplitude) == 0) {
@@ -820,9 +820,9 @@ public class InputServiceImpl implements InputService {
             } else {
                 instructions.append("十字星;");
             }
-        } else if (entitySize > 6) {
+        } else if (entitySize >= 6) {
             instructions.append("大阳线;");
-        } else if (entitySize < -6) {
+        } else if (entitySize <= -6) {
             instructions.append("负反馈;");
         }
         po.setInstructions(instructions.toString());

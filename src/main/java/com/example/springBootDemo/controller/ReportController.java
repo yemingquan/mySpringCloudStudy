@@ -289,13 +289,14 @@ public class ReportController {
             getBasicData(dealDate, data);
 
             //当天以及历史连板梯队
+            Date tempDate = DateUtil.getDayDiff(dealDate, 1);
             for (int i = 0; i < 3; i++) {
-                Date tempDate = confDateService.getBeforeTypeDate(DateUtil.getDayDiff(dealDateStr, -i), DateConstant.DEAL_LIST);
+                tempDate = confDateService.getBeforeTypeDate(DateUtil.getDayDiff(tempDate, -1), DateConstant.DEAL_LIST);
                 BaseCombo baseCombo = baseComboService.selectById(tempDate);
                 data.put("COMBO_" + i, baseCombo);
             }
 
-//            //炸板数据表现
+//             //炸板数据表现
             List<ZtReport> beforZtStock = reportService.getZtReportByDate(DateUtil.format(DateUtil.getDayDiff(dealDateStr, -1), DateConstant.DATE_FORMAT_10));
             List<String> beforList = beforZtStock.stream().map(ZtReport::getStockCode).collect(Collectors.toList());
             List<ZtReport> todayZtStock = reportService.getZtReportByDate(dealDateStr);

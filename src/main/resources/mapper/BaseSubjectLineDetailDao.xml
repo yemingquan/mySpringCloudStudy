@@ -35,7 +35,7 @@
         <if test="startDate != null">
             where rsl.duration_end  BETWEEN #{startDate} AND #{date}
         </if>
-        order by s.sub_name,rsl.duration_start,sld.create_date
+        order by s.sub_name,rsl.sub_line_name,rsl.duration_start,sld.create_date
     </select>
 
     <select id="getActiveBusinessList" resultType="java.lang.String" parameterType="java.util.Date">
