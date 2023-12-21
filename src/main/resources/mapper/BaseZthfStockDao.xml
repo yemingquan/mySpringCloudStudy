@@ -46,7 +46,7 @@
         from base_zthf_stock zthf
         left join base_zb_stock zb on zthf.stock_code = zb.stock_code and  zb.create_date = zthf.create_date-1
         LEFT JOIN base_bond b on b.stk_short_name = zthf.stock_name
-        LEFT JOIN conf_cx_stock cs on cs.stock_code = zthf.stock_code
+        LEFT JOIN conf_stock cs ON cs.stock_code = zthf.stock_code AND cs.attr LIKE '%次新%'
         where zthf.create_date = #{date}
     </select>
 </mapper>

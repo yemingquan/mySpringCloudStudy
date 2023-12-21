@@ -46,7 +46,7 @@
                   END AS cxFlag
         from base_zb_stock zd
         LEFT JOIN base_bond b on b.stk_short_name = zd.stock_name
-        LEFT JOIN conf_cx_stock cs on cs.stock_code = zd.stock_code
+        LEFT JOIN conf_stock cs ON cs.stock_code = zd.stock_code AND cs.attr LIKE '%次新%'
         where zd.create_date = #{date}
     </select>
 </mapper>
