@@ -805,7 +805,7 @@ public class InputServiceImpl implements InputService {
 //        BigDecimal b = new BigDecimal(po.getStartGains()).setScale(2, BigDecimal.ROUND_UP);
 //        BigDecimal result = MAIN_1.subtract(b);
 //        double entitySize = result.doubleValue();
-
+        po.setMainBusiness(po.getMainBusiness().replaceAll("最-", ""));
 
         //说明
         StringBuffer instructions = new StringBuffer(po.getInstructions());
@@ -890,6 +890,7 @@ public class InputServiceImpl implements InputService {
      * @param po
      */
     private void mbInstructions(BaseReportStock po) {
+        po.setMainBusiness(po.getMainBusiness().replaceAll("最-", ""));
         //说明
         StringBuffer instructions = new StringBuffer(po.getInstructions());
         Double entitySize = po.getEntitySize();

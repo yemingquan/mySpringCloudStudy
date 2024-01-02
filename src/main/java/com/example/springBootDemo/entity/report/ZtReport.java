@@ -40,7 +40,8 @@ public class ZtReport extends BaseReportStock implements Serializable {
     @Excel(name = "说明")
     private String instructions;
 
-    @Excel(name = "连板")
+//    @Excel(name = "连板")
+    @Excel(name = "板")
     private Integer combo;
 
     @Excel(name = "首次时间",dateFormat="HH:mm:ss")
