@@ -260,8 +260,10 @@ public class GameController {
 
                 //行业再加工，默认只展示搜索的+最近热点
                 //如果设置了搜索了条件，则主业展示这部分，否则这个字段为空
-                List<String> business1 = Lists.newArrayList(re.getMainBusiness().split(","));
-                List<String> business2 = Lists.newArrayList(re.getNicheBusiness().split(","));
+                String mainBusiness1 = StringUtils.isBlank(re.getMainBusiness()) ? "" : re.getMainBusiness();
+                String nicheBusiness1 = StringUtils.isBlank(re.getNicheBusiness()) ? "" : re.getNicheBusiness();
+                List<String> business1 = Lists.newArrayList(mainBusiness1.split(","));
+                List<String> business2 = Lists.newArrayList(nicheBusiness1.split(","));
                 business1.addAll(business2);
                 //数据展示可以用加号
                 List resultMainBusiness = (List) CollectionUtils.intersection(mainBusinessList, business1);

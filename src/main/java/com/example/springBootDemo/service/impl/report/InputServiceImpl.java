@@ -477,7 +477,11 @@ public class InputServiceImpl implements InputService {
 //            BigDecimal circulation = new BigDecimal(dto.getCirculation()).divide(new BigDecimal(100000000), 4, BigDecimal.ROUND_HALF_UP);
             String strCirculation = dto.getStrCirculation();
             if(StringUtils.isNotBlank(strCirculation)){
-                dto.setCirculation(Double.valueOf(strCirculation.replaceAll("亿", "")));
+                if(strCirculation.contains("亿")){
+                    dto.setCirculation(Double.valueOf(strCirculation.replaceAll("亿", "")));
+                }else if(strCirculation.contains("万")){
+                    dto.setCirculation(Double.valueOf(strCirculation.replaceAll("万", ""))/10000);
+                }
             }
             dto.setAmplitude(dto.getAmplitude() * 100);
             dto.setChangingHands(dto.getChangingHands() * 100);

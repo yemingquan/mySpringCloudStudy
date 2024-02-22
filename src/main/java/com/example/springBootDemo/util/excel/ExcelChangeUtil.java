@@ -33,6 +33,7 @@ public class ExcelChangeUtil {
      */
     public static File csvToXlsxConverter(File csvFile, String fileName) throws Exception {
         StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         if (null == csvFile) {
             throw new Exception("文件生成失败");
         }
@@ -65,7 +66,7 @@ public class ExcelChangeUtil {
                 }
             }
         } catch (Exception e) {
-            log.error("excel转换异常{}", e);
+            log.error("excel转换异常", e);
             throw new RuntimeException("导出Excel失败，请联系网站管理员！");
         }
 
@@ -129,7 +130,7 @@ public class ExcelChangeUtil {
                 cell.setCellValue(cellData);
             }
         } catch (Exception e) {
-            log.error("excel转换异常{}", e);
+            log.error("excel转换异常", e);
             throw new RuntimeException("导出Excel失败，请联系网站管理员！");
         }
     }

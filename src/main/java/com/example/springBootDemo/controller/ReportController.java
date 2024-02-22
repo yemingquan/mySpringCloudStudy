@@ -140,7 +140,7 @@ public class ReportController {
             ExcelUtil<SubjectReport> excelUtil = new ExcelUtil<>(SubjectReport.class);
             start = System.currentTimeMillis();
             Map<String, Map> annotationMapping = excelUtil.OprSubjectReport(list, date);
-            log.info("样式配置耗时{} ", System.currentTimeMillis() - start);
+            log.info("样式配置耗时{} ms", System.currentTimeMillis() - start);
 
             excelUtil.exportCustomExcel(annotationMapping, list, fileName, response);
 
@@ -676,6 +676,23 @@ public class ReportController {
         bc.setZthfCount(list2.size());
         bc.setMaxCombo(maxCombo);
         bc.setMaxInfo(maxInfo);
+
+        if(bc.getCombo1().length()>1100){
+            bc.setCombo1(null);
+        }
+        if(bc.getCombo2().length()>600){
+            bc.setCombo2(null);
+        }
+        if(bc.getCombo3().length()>200){
+            bc.setCombo3(null);
+        }
+        if(bc.getCombo4().length()>200){
+            bc.setCombo4(null);
+        }
+        if(bc.getCombo5().length()>100){
+            bc.setCombo5(null);
+        }
+
         baseComboService.insertOrUpdate(bc);
         return bc;
     }

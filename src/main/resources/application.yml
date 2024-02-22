@@ -48,8 +48,6 @@ springdoc:
     operations-sorter: alpha
 
 
-
-#wo：
 #  name:WO
 #  profile:E:/uploadPath
 #eureka:

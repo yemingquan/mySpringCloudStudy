@@ -200,6 +200,7 @@ public class ReportServiceImpl implements ReportService {
         List<SubjectReport> list = baseSubjectLineDetailService.getSubjectReport(date, startDate);
         for (SubjectReport sr : list) {
 //            log.info(sr.toString());
+            sr.setMainBusiness(sr.getMainBusiness().replaceAll("最-", ""));
             sr.setWeek(DateUtil.getWeek(sr.getCreateDate()));
         }
         return list;

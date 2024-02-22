@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.example.springBootDemo.entity.ConfDate;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -125,11 +126,21 @@ public class HolidayUtil {
         return list;
     }
 
-    public static void main(String[] args) throws ParseException {
-        String year = "2023";
-        List<ConfDate> list = getYearHoliday(year);
-        System.out.println("holiday:"+holiday);
-        System.out.println("extraWorkDay:"+extraWorkDay);
-        System.out.println(list);
+    public static void main(String[] args) throws ParseException, InterruptedException {
+//        String year = "2023";
+//        List<ConfDate> list = getYearHoliday(year);
+//        System.out.println("holiday:"+holiday);
+//        System.out.println("extraWorkDay:"+extraWorkDay);
+//        System.out.println(list);
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        Thread.sleep(1000);
+        log.info("定时器-耗时:{}ms ", stopWatch.getTime());
+        stopWatch.reset();
+
+        stopWatch.start();
+        Thread.sleep(1000);
+        log.info("定时器-耗时:{}ms ", stopWatch.getTime());
+        stopWatch.reset();
     }
 }
