@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: Recovery
+  cache:
+    type: simple   #指定所使用的缓存管理器
+#    cache-names: sampleCache
+  main:
+      allow-bean-definition-overriding: true #当遇到同样名字的时候，是否允许覆盖注册(测试@EnableCache)
   servlet:
     multipart:
       #单个文件大小限制

@@ -689,7 +689,7 @@ public class ReportController {
         if(bc.getCombo4().length()>200){
             bc.setCombo4(null);
         }
-        if(bc.getCombo5().length()>100){
+        if(bc.getCombo5().length()>200){
             bc.setCombo5(null);
         }
 

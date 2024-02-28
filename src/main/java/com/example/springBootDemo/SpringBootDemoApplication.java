@@ -18,16 +18,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @EnableTransactionManagement
 public class SpringBootDemoApplication {
 
-	@RequestMapping("/")
-	@ResponseBody
-	String home() {
-		return "Hello World";
-	}
-
 	public static void main(String[] args) {
 		System.out.println("hello world");
 		SpringApplication.run(SpringBootDemoApplication.class, args);
         System.out.println("success!");
 	}
 
+	@RequestMapping("/")
+	@ResponseBody
+	String home() {
+		return "Hello World";
+	}
 }

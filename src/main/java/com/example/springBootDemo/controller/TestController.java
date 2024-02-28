@@ -9,6 +9,9 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,10 +23,29 @@ import java.util.List;
 @RestController
 @RequestMapping("/ssm")
 @Api(tags = {"测试模块(功能测试)"})
+@EnableCaching
+@Component
 public class TestController {
 
     @Autowired
     StudentService studentService;
+
+    @ApiOperation("缓存测试")
+//    @Cacheable(cacheNames="sampleCache", value = "c", key = "123")
+    @Cacheable(value = "c", key = "123")
+    @GetMapping("c")
+    public String hello(String name) {
+        System.out.println("name - " + name);
+        return "hello " + name;
+    }
+
+//    @Bean
+//    public CacheManager cacheManager() {
+//        SimpleCacheManager cacheManager = new SimpleCacheManager();
+//        cacheManager.setCaches(Arrays.asList(new ConcurrentMapCache("sampleCache")));//注册名为sampleCache的缓存
+//        return cacheManager;
+//    }
+
 
     @GetMapping("/save")
     public String save(Student po){
