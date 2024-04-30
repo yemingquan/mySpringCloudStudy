@@ -428,7 +428,7 @@ public class ExcelUtil<T> implements Serializable {
             }
             //冻结首行
             sheet.createFreezePane(0, 1, 0, 1);
-            log.info("自定义excel导出-表头设置耗时:{}ms ", stopWatch.getTime());
+            log.info("自定义excel导出-表头设置耗时:{}s ", stopWatch.getTime()/1000);
             stopWatch.reset();
 
             // 写入各条记录
@@ -489,7 +489,7 @@ public class ExcelUtil<T> implements Serializable {
                     }
                 }
             }
-            log.info("自定义excel导出-数据写入耗时:{}ms ", stopWatch.getTime());
+            log.info("自定义excel导出-数据写入耗时:{}s ", stopWatch.getTime()/1000);
             stopWatch.reset();
 
             //自动调整行宽 表头不动
@@ -538,7 +538,7 @@ public class ExcelUtil<T> implements Serializable {
                 }
                 sheet.setColumnWidth(z, (int) (result * 256 * 1.1));
             }
-            log.info("自定义excel导出-自动调整行宽耗时:{}ms ", stopWatch.getTime());
+            log.info("自定义excel导出-自动调整行宽耗时:{}s ", stopWatch.getTime()/1000);
             stopWatch.stop();
 
             //导出到浏览器

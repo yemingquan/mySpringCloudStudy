@@ -22,8 +22,8 @@ public class StockConstant {
 
     public static List<String> BSD_STOCK_LIST;
 
-    public static final Integer PLAT_SMALL = 30;
-    public static final Integer PLAT_BIG = 300;
+    public static final Integer PLAT_SMALL = 25;
+    public static final Integer PLAT_BIG = 200;
 
     {
         BSD_STOCK_LIST = Lists.newArrayList(

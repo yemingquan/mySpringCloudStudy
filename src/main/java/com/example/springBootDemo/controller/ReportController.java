@@ -362,6 +362,14 @@ public class ReportController {
                 //低价
 //                data.put("Cheap_"+i, cheapList);
                 //极端走势
+
+                //20cm套利
+                List<String> stock20List = todayZtStock.stream()
+                        .filter(po -> po.getCombo() == finalI)
+                        .filter(po -> !po.getPlate().equals("主板"))
+                        .map(ZtReport::getStockName)
+                        .collect(Collectors.toList());
+                data.put("20_" + i, stock20List);
             }
 
             //小黑屋数据
@@ -658,40 +666,39 @@ public class ReportController {
         String comboSize5 = ECHELON_COMBO_MAP.get("COMBO_SIZE_5");
         if (StringUtils.isNotBlank(comboSize1)) {
             bc.setCombo1Count(Integer.parseInt(comboSize1.replace("(", "").replace(")", "")));
+            if(bc.getCombo1().length()>1100){
+                bc.setCombo1(null);
+            }
         }
         if (StringUtils.isNotBlank(comboSize2)) {
             bc.setCombo2Count(Integer.parseInt(comboSize2.replace("(", "").replace(")", "")));
+            if(bc.getCombo2().length()>600){
+                bc.setCombo2(null);
+            }
         }
         if (StringUtils.isNotBlank(comboSize3)) {
             bc.setCombo3Count(Integer.parseInt(comboSize3.replace("(", "").replace(")", "")));
+            if(bc.getCombo3().length()>200){
+                bc.setCombo3(null);
+            }
         }
         if (StringUtils.isNotBlank(comboSize4)) {
             bc.setCombo4Count(Integer.parseInt(comboSize4.replace("(", "").replace(")", "")));
+            if(bc.getCombo4().length()>200){
+                bc.setCombo4(null);
+            }
         }
         if (StringUtils.isNotBlank(comboSize5)) {
             bc.setCombo5Count(Integer.parseInt(comboSize5.replace("-高度(", "").replace(")", "")));
+            if(bc.getCombo5().length()>200){
+                bc.setCombo5(null);
+            }
         }
         bc.setSumCount(list.size());
         bc.setZtCount(list1.size());
         bc.setZthfCount(list2.size());
         bc.setMaxCombo(maxCombo);
         bc.setMaxInfo(maxInfo);
-
-        if(bc.getCombo1().length()>1100){
-            bc.setCombo1(null);
-        }
-        if(bc.getCombo2().length()>600){
-            bc.setCombo2(null);
-        }
-        if(bc.getCombo3().length()>200){
-            bc.setCombo3(null);
-        }
-        if(bc.getCombo4().length()>200){
-            bc.setCombo4(null);
-        }
-        if(bc.getCombo5().length()>200){
-            bc.setCombo5(null);
-        }
 
         baseComboService.insertOrUpdate(bc);
         return bc;

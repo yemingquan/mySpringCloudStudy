@@ -72,7 +72,7 @@ public class TaskService {
         try {
             finalTask(null);
         } catch (Exception e) {
-            log.error("日终任务执行失败{}", e.getMessage());
+            log.error("日终任务执行失败", e);
         }
     }
 

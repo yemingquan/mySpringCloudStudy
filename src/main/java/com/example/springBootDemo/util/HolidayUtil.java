@@ -135,12 +135,12 @@ public class HolidayUtil {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         Thread.sleep(1000);
-        log.info("定时器-耗时:{}ms ", stopWatch.getTime());
+        log.info("定时器-耗时:{}s ", stopWatch.getTime()/1000);
         stopWatch.reset();
 
         stopWatch.start();
         Thread.sleep(1000);
-        log.info("定时器-耗时:{}ms ", stopWatch.getTime());
+        log.info("定时器-耗时:{}s ", stopWatch.getTime()/1000);
         stopWatch.reset();
     }
 }

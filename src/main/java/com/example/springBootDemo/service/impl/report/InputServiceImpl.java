@@ -391,24 +391,24 @@ public class InputServiceImpl implements InputService {
         List<BaseStock> list = ExcelUtil.excelToList(is, BaseStock.class);
         Map<String, BaseStock> baseStockMap = list.stream().collect(Collectors.toMap(BaseStock::getStockCode, Function.identity(), (item1, item2) -> item1));
         is.close();
-        log.info("基础股票数据导入-excel转换成对象耗时:{}ms ", stopWatch.getTime());
+        log.info("基础股票数据导入-excel转换成对象耗时:{}s ", stopWatch.getTime()/1000);
         stopWatch.reset();
 
         stopWatch.start();
         List<ConfStock> msList = confStockService.selectList(new EntityWrapper<>());
         Map<String, ConfStock> confStockMap = msList.stream().collect(Collectors.toMap(ConfStock::getStockCode, Function.identity(), (item1, item2) -> item1));
         List<ConfStock> fixConfStockList = Lists.newArrayList();
-        log.info("基础股票数据导入-查询配置数据耗时:{}ms ", stopWatch.getTime());
+        log.info("基础股票数据导入-查询配置数据耗时:{}s ", stopWatch.getTime()/1000);
         stopWatch.reset();
 
         stopWatch.start();
         insertBaseDate(date,list, confStockMap, fixConfStockList);
-        log.info("基础股票数据导入-大盘统计与数据处理耗时:{}ms ", stopWatch.getTime());
+        log.info("基础股票数据导入-大盘统计与数据处理耗时:{}s ", stopWatch.getTime()/1000);
         stopWatch.reset();
 
         stopWatch.start();
         fixConfStockDateByBasedStock(baseStockMap, msList, fixConfStockList);
-        log.info("基础股票数据导入-补充配置数据耗时:{}ms ", stopWatch.getTime());
+        log.info("基础股票数据导入-补充配置数据耗时:{}s ", stopWatch.getTime()/1000);
         stopWatch.reset();
 
         return true;

@@ -98,7 +98,7 @@ public class ExcelChangeUtil {
         }
         //记得删除临时文件，我自己的需求在后面做了处理，不需要在此删除临时文件
 //            csvFile.delete();
-        log.info("基础股票数据导入-excel转换成对象耗时:{}ms ", stopWatch.getTime());
+        log.info("基础股票数据导入-excel转换成对象耗时:{}s ", stopWatch.getTime()/1000);
         stopWatch.reset();
         return xlsxFile;
     }
