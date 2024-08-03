@@ -8,6 +8,7 @@ import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.service.BaseSubjectLineDetailService;
 import com.example.springBootDemo.util.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
  * @author makejava
  * @since 2023-08-25 17:39:59
  */
+@Slf4j
 @Service("baseSubjectLineDetailService")
 public class BaseSubjectLineDetailServiceImpl extends ServiceImpl<BaseSubjectLineDetailDao, BaseSubjectLineDetail> implements BaseSubjectLineDetailService {
     @Resource
