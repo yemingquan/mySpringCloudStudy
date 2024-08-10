@@ -297,7 +297,7 @@ public class ExcelUtil<T> implements Serializable {
                     // 设置列中写入内容为String类型
                     cell.setCellType(CellType.STRING);
                     // 设置列宽
-                    sheet.setColumnWidth(i, (int) ((attr.width() + 0.72) * 256));
+                    sheet.setColumnWidth(i, (int) ((attr.width() + 0.72) * 265));
                     // 提示信息
 //                    if (StringUtils.isNotEmpty(attr.prompt())) {
 //                        // 这里默认设了2-101列提示.
@@ -536,7 +536,7 @@ public class ExcelUtil<T> implements Serializable {
                 if (maxCharWidth > 70) {
                     result = 70;
                 }
-                sheet.setColumnWidth(z, (int) (result * 256 * 1.1));
+                sheet.setColumnWidth(z, (int) (result * 265 * 1.15));
             }
             log.info("自定义excel导出-自动调整行宽耗时:{}s ", stopWatch.getTime()/1000);
             stopWatch.stop();
