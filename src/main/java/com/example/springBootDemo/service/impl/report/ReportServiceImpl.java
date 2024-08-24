@@ -4,6 +4,7 @@ package com.example.springBootDemo.service.impl.report;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.constant.DateConstant;
+import com.example.springBootDemo.config.components.enums.NewsEnum;
 import com.example.springBootDemo.entity.BaseMarketDetail;
 import com.example.springBootDemo.entity.base.BaseReportStock;
 import com.example.springBootDemo.entity.input.*;
@@ -22,10 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -203,6 +201,28 @@ public class ReportServiceImpl implements ReportService {
             sr.setMainBusiness(sr.getMainBusiness().replaceAll("最-", ""));
             sr.setWeek(DateUtil.getWeek(sr.getCreateDate()));
         }
+        //添加
+        Map<String, List<SubjectReport>> oprMap = list.stream().collect(Collectors.groupingBy(SubjectReport::getSubName));
+        Map<String, List<SubjectReport>> relationMap = list.stream()
+                .filter(k -> !NewsEnum.SCOPE_UNKNOW.getName().equals(k.getSubName())).collect(Collectors.groupingBy(SubjectReport::getMainBusiness));
+
+        List<SubjectReport> todayList = oprMap.get(NewsEnum.SCOPE_UNKNOW.getName());
+        for (SubjectReport sr : todayList) {
+            String mainBusiness = sr.getMainBusiness();
+            List<SubjectReport> tempList = relationMap.get(mainBusiness);
+            if(CollectionUtils.isEmpty(tempList)){
+
+            }else if (tempList.size() > 1) {
+                SubjectReport tempPo = tempList.get(0);
+                sr.setSubName(tempPo.getSubName());
+                sr.setSubLineName(tempPo.getSubLineName());
+            } else if (tempList.size() == 1) {
+                SubjectReport tempPo = tempList.get(0);
+                tempPo.setSubName(Calendar.getInstance().get(Calendar.YEAR)+tempPo.getMainBusiness());
+                sr.setSubName(tempPo.getSubName());
+                sr.setSubLineName(tempPo.getSubLineName());
+            }
+        }
         return list;
     }
 
@@ -278,7 +298,7 @@ public class ReportServiceImpl implements ReportService {
             }
 
             BaseSubjectDetail detail = BaseSubjectDetail.builder()
-                    .subName("未定义")
+                    .subName(NewsEnum.SCOPE_UNKNOW.getName())
                     .subLineName(date + zt.getMainBusiness())
                     .mainBusiness(zt.getMainBusiness())
                     .createDate(zt.getCreateDate())
