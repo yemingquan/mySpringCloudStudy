@@ -207,6 +207,11 @@ public class ReportServiceImpl implements ReportService {
                 .filter(k -> !NewsEnum.SCOPE_UNKNOW.getName().equals(k.getSubName())).collect(Collectors.groupingBy(SubjectReport::getMainBusiness));
 
         List<SubjectReport> todayList = oprMap.get(NewsEnum.SCOPE_UNKNOW.getName());
+        if(CollectionUtils.isEmpty(todayList)){
+            return list;
+        }
+
+        //加工今天的数据
         for (SubjectReport sr : todayList) {
             String mainBusiness = sr.getMainBusiness();
             List<SubjectReport> tempList = relationMap.get(mainBusiness);
@@ -223,6 +228,12 @@ public class ReportServiceImpl implements ReportService {
                 sr.setSubLineName(tempPo.getSubLineName());
             }
         }
+
+        //重新排个序
+        list = list.stream()
+                .sorted(Comparator.comparing(SubjectReport::getCreateDate))
+                .sorted(Comparator.comparing(SubjectReport::getSubName))
+                .collect(Collectors.toList());
         return list;
     }
 
