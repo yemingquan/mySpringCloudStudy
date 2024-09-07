@@ -260,14 +260,12 @@ public class ReportServiceImpl implements ReportService {
 
             List<ZtReport> coreNameList = ztList.stream().filter(po -> {
                         String in = po.getInstructions();
-                        if (in.contains("龙") || in.contains("高度") || in.contains("最高")
-                                || in.contains("中军") || in.contains("连续加速") || in.contains("活口")
-                                || in.matches(".*[0-9]{1,2}")) {
+                        if ( po.getCombo() >= 3) {
                             return true;
                         }
                         return false;
                     }
-            ).collect(Collectors.toList());
+            ).limit(3).collect(Collectors.toList());
             String coreName = coreNameList.stream().map(ZtReport::getStockName).collect(Collectors.joining(","));
             //删除所有重复的标的
             ztList.removeAll(coreNameList);
@@ -280,13 +278,17 @@ public class ReportServiceImpl implements ReportService {
             helpNameList = ztList.stream().sorted(Comparator.comparing(ZtReport::getCombo, Comparator.nullsFirst(Integer::compareTo)))
                     .sorted(Comparator.comparing(ZtReport::getFinalHardenTime, Comparator.nullsFirst(Date::compareTo)))
                     .filter(po -> {
-                                String instructions = po.getInstructions();
-                                if ((instructions.contains("加速") && !instructions.contains("高度")) || po.getCombo() > 1) {
+                                String in = po.getInstructions();
+                                if (in.contains("加速") || po.getCombo() > 1 || in.contains("秒板") ||
+                                        in.contains("龙") || in.contains("中军") || in.contains("连续加速")
+                                    /*|| !in.contains("高度")|| in.contains("高度")|| in.contains("最高")
+                                 || in.contains("活口")
+                                || in.matches(".*[0-9]{1,2}")||*/) {
                                     return true;
                                 }
                                 return false;
                             }
-                    ).collect(Collectors.toList());
+                    ).limit(3).collect(Collectors.toList());
 //            } else {
 //                helpNameList = ztList.stream().sorted(Comparator.comparing(ZtReport::getFinalHardenTime, Comparator.nullsFirst(Date::compareTo)))
 //                        .filter(po -> {
@@ -302,11 +304,18 @@ public class ReportServiceImpl implements ReportService {
             helpNameList.removeAll(coreNameList);
             helpName = helpNameList.stream().map(ZtReport::getStockName).collect(Collectors.joining((",")));
 
+
             //如果只有助攻数据，那么自动提高一级
-            if (StringUtils.isBlank(coreName) && StringUtils.isNotBlank(helpName)) {
-                coreName = helpName;
-                helpName = "";
+//            if (StringUtils.isBlank(coreName) && StringUtils.isNotBlank(helpName)) {
+//                coreName = helpName;
+//                helpName = "";
+//            }
+
+            //如果两个都是空，那么默认取一个放到助攻那
+            if (StringUtils.isBlank(coreName) && StringUtils.isBlank(helpName)) {
+                helpName =  ztList.stream().map(ZtReport::getStockName).limit(2).collect(Collectors.joining(","));
             }
+
 
             BaseSubjectDetail detail = BaseSubjectDetail.builder()
                     .subName(NewsEnum.SCOPE_UNKNOW.getName())
