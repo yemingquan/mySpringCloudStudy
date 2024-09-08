@@ -24,7 +24,7 @@
 
     <select id="queryStockMonth" resultType="com.example.springBootDemo.entity.ConfBsdStock"
             parameterType="java.lang.String">
-    select bdd.*,b.bond_full_name bond,b.instructions bondInstructions
+    select bdd.*,b.bond,b.bondInstructions
     from(
 	select stock_code,stock_name,plate,group_concat(instructions  separator ';') instructions,group_concat(main_Business  separator ';') main_Business,group_concat(niche_Business  separator ';') niche_Business
 	from
@@ -73,7 +73,20 @@
        ) a
 	    GROUP BY stock_code,stock_name,plate
      ) bdd
-    LEFT JOIN base_bond b ON b.stk_short_name = bdd.stock_name
+    LEFT JOIN (
+        SELECT
+        b.stk_short_name,
+        CASE
+        WHEN b2.id IS NOT NULL THEN CONCAT(b.bond_full_name,'|',b2.bond_full_name)
+        ELSE b.bond_full_name
+        END AS bond,
+        CASE
+        WHEN b2.id IS NOT NULL THEN CONCAT(b.instructions,'|',b2.instructions)
+        ELSE b.instructions
+        END AS bondInstructions
+        FROM base_bond b
+        LEFT JOIN base_bond b2 ON  b.stk_short_name = b2.stk_short_name AND b.ts_code !=b2.ts_code AND b.id >b2.id
+    )  b ON b.stk_short_name = bdd.stock_name
 
     </select>
 

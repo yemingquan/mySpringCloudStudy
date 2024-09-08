@@ -37,12 +37,25 @@
           /*id, stock_code, stock_name, plate, main_business, niche_business, circulation, instructions, yesterday_gains, start_gains, gains, amplitude, changing_hands, yesterday_amplitude, yesterday_changing_hands, average_Price10, average_Price5, current_Price, create_date, create_by, modifed_date, modifed_by, trend_type, remark,*/
           bdu.*,
           5 source,
-          b.bond_full_name bond,b.instructions bondInstructions,
+          b.bond,b.bondInstructions,
            CASE WHEN cs.stock_code is not null THEN '次新;'
                  ELSE  ''
                   END AS cxFlag
         from base_bd_up_stock bdu
-        LEFT JOIN base_bond b on b.stk_short_name = bdu.stock_name
+                 LEFT JOIN (
+            SELECT
+                b.stk_short_name,
+                CASE
+                    WHEN b2.id IS NOT NULL THEN CONCAT(b.bond_full_name,'|',b2.bond_full_name)
+                    ELSE b.bond_full_name
+                    END AS bond,
+                CASE
+                    WHEN b2.id IS NOT NULL THEN CONCAT(b.instructions,'|',b2.instructions)
+                    ELSE b.instructions
+                    END AS bondInstructions
+            FROM base_bond b
+                     LEFT JOIN base_bond b2 ON  b.stk_short_name = b2.stk_short_name AND b.ts_code !=b2.ts_code AND b.id >b2.id
+        ) b on b.stk_short_name = bdu.stock_name
         LEFT JOIN conf_cx_stock cs on cs.stock_code = bdu.stock_code
         where bdu.create_date = #{date}
     </select>

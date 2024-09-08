@@ -39,13 +39,26 @@
           zthf.*,
           2 source,
           zb.entity_Size yestedayEntitySize,
-          b.bond_full_name bond,b.instructions bondInstructions,
+          b.bond,b.bondInstructions,
            CASE WHEN cs.stock_code is not null THEN '次新;'
                  ELSE  ''
                   END AS cxFlag
         from base_zthf_stock zthf
         left join base_zb_stock zb on zthf.stock_code = zb.stock_code and  zb.create_date = zthf.create_date-1
-        LEFT JOIN base_bond b on b.stk_short_name = zthf.stock_name
+        LEFT JOIN (
+            SELECT
+                b.stk_short_name,
+                CASE
+                    WHEN b2.id IS NOT NULL THEN CONCAT(b.bond_full_name,'|',b2.bond_full_name)
+                    ELSE b.bond_full_name
+                    END AS bond,
+                CASE
+                    WHEN b2.id IS NOT NULL THEN CONCAT(b.instructions,'|',b2.instructions)
+                    ELSE b.instructions
+                    END AS bondInstructions
+            FROM base_bond b
+                     LEFT JOIN base_bond b2 ON  b.stk_short_name = b2.stk_short_name AND b.ts_code !=b2.ts_code AND b.id >b2.id
+        ) b on b.stk_short_name = zthf.stock_name
         LEFT JOIN conf_stock cs ON cs.stock_code = zthf.stock_code AND cs.attr LIKE '%次新%'
         where zthf.create_date = #{date}
     </select>

@@ -46,7 +46,7 @@
             and dn.date  BETWEEN #{startDate} AND #{date}
         </if>
         AND dn.state = '1'
-        order by date,scope DESC
+        order by date,scope DESC,main_Business,content
         --         AND dn.type ='预期'
     </select>
 </mapper>
