@@ -54,7 +54,7 @@
                     ELSE b.instructions
                     END AS bondInstructions
             FROM base_bond b
-                     LEFT JOIN base_bond b2 ON  b.stk_short_name = b2.stk_short_name AND b.ts_code !=b2.ts_code AND b.id >b2.id
+                    JOIN base_bond b2 ON  b.stk_short_name = b2.stk_short_name AND b.ts_code !=b2.ts_code AND b.id >b2.id
         ) b on b.stk_short_name = bdd.stock_name
         LEFT JOIN conf_cx_stock cs on cs.stock_code = bdd.stock_code
         where bdd.create_date = #{date}
