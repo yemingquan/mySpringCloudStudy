@@ -225,7 +225,10 @@ public class InputServiceImpl implements InputService {
             //波动报表说明字段处理
             bdInstructions(po);
         });
-        return baseBdUpStockService.insertBatch(list, list.size());
+        if(CollectionUtils.isNotEmpty(list)){
+            return baseBdUpStockService.insertBatch(list, list.size());
+        }
+        return false;
     }
 
     @Override
@@ -255,7 +258,11 @@ public class InputServiceImpl implements InputService {
             datePro(po);
             bdInstructions(po);
         });
-        return baseBdDownStockService.insertBatch(list, list.size());
+
+        if(CollectionUtils.isNotEmpty(list)){
+            return baseBdDownStockService.insertBatch(list, list.size());
+        }
+        return false;
     }
 
     @Override
