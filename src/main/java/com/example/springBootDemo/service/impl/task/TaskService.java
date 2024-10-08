@@ -196,6 +196,14 @@ public class TaskService {
     public String getTaskDealDate(String date) throws Exception {
         //取得交易日日期
         date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+
+        //查询时间与当前系统时间，相差大于1天时，直接返回最新交易日
+        Long diffdate = DateUtil.getDaysBetween(DateUtil.format(date, DateConstant.DATE_FORMAT_10), new Date());
+        if (diffdate >= 1) {
+            return date;
+        }
+
+        //其他情况默认为，连续两个交易日的正常复盘场景
         //交易日日期-1 这里如果减了一天是非交易日，那么还要调用一下日期配置
         Date dateStr = DateUtil.getDayDiff(date, -1);
 

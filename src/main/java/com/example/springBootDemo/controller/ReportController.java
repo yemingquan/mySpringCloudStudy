@@ -507,8 +507,12 @@ public class ReportController {
         int countDownShort = DateUtil.getIntervalOfDays(dealDate, nextRest);
         BASIC_MAP.put("BASIC_COUNT_DOWN_SHORT", "还有" + countDownShort + "天休息");
         Date nextHoliday = confDateService.getAfterTypeDate(dealDate, DateConstant.HOLIDAY_LIST);
-        String holidayDateDetail = confDateService.queryDateDetail(nextHoliday);
-        BASIC_MAP.put("BASIC_COUNT_DOWN_LONG", holidayDateDetail);
+        if(nextHoliday==null){
+            BASIC_MAP.put("BASIC_COUNT_DOWN_LONG", "今年没有节日了");
+        }else{
+            String holidayDateDetail = confDateService.queryDateDetail(nextHoliday);
+            BASIC_MAP.put("BASIC_COUNT_DOWN_LONG", holidayDateDetail);
+        }
         Date nextDealDay = confDateService.getAfterTypeDate(dealDate, DateConstant.DEAL_LIST);
         String dealDateDetail = confDateService.queryDateDetail(nextDealDay);
         BASIC_MAP.put("BASIC_NEXT_DEAL_DATE", dealDateDetail);
