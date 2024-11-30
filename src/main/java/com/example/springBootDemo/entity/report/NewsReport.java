@@ -34,7 +34,7 @@ public class NewsReport implements Serializable {
     @TableField(exist = false)
     private Integer range;
 
-    @Excel(name = "名称")
+//    @Excel(name = "名称")
     private String name;
     /**
      * 日期

@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
@@ -184,7 +185,8 @@ public class ExcelUtil<T> implements Serializable {
      * @throws Exception
      */
     public static <T> List<T> excelToList(InputStream is, Class<T> tClass) throws Exception {
-        //设置导入参数
+        //设置导入参数 (文件太大，设置压缩)
+        ZipSecureFile.setMinInflateRatio(0.001);
         ImportParams importParams = new ImportParams();
         importParams.setHeadRows(1); //表头占1行，默认1
         return ExcelImportUtil.importExcel(is, tClass, importParams);
