@@ -72,10 +72,47 @@ public class ReportServiceImpl implements ReportService {
         List<ZtReport> list2 = baseZthfStockService.getZtReportByDate(date);
         list.addAll(list1);
         list.addAll(list2);
+
         //多重排序
-        list = list.stream().sorted(Comparator.comparing(ZtReport::getHardenTime))
-                .sorted(Comparator.comparing(ZtReport::getCombo, Comparator.reverseOrder()))
-                .sorted(Comparator.comparing(ZtReport::getMainBusiness, Comparator.reverseOrder())).collect(Collectors.toList());
+        Map<String, List<ZtReport>> map = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
+
+        //TODO 对象数组根据板块 对象中某个属性的数量 排序，待优化
+        Map<Integer, List<ZtReport>> linkedHashMap = new LinkedHashMap();
+        List<Integer> sortList = Lists.newArrayList();
+        for (String mainBusiness : map.keySet()) {
+            List<ZtReport> mbList = map.get(mainBusiness);
+            int size = mbList.size();
+
+            List<ZtReport> tempList = linkedHashMap.get(size);
+            if (CollectionUtils.isEmpty(tempList)) {
+                linkedHashMap.put(size, mbList);
+            } else {
+                tempList.addAll(mbList);
+            }
+
+            sortList.add(size);
+        }
+
+        sortList = sortList.stream().distinct().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+
+        list.clear();
+        for (Integer size : sortList) {
+            List<ZtReport> tempList = linkedHashMap.get(size);
+            if(size>1){
+                tempList = tempList.stream()
+                        .sorted(Comparator.comparing(ZtReport::getHardenTime))
+                        .sorted(Comparator.comparing(ZtReport::getCombo, Comparator.reverseOrder()))
+                        .sorted(Comparator.comparing(ZtReport::getMainBusiness, Comparator.reverseOrder()))
+                        .collect(Collectors.toList());
+            }else{
+                tempList = tempList.stream()
+                        .sorted(Comparator.comparing(ZtReport::getMainBusiness, Comparator.reverseOrder()))
+                        .sorted(Comparator.comparing(ZtReport::getHardenTime))
+                        .sorted(Comparator.comparing(ZtReport::getCombo, Comparator.reverseOrder()))
+                        .collect(Collectors.toList());
+            }
+            list.addAll(tempList);
+        }
         return list;
     }
 
@@ -270,7 +307,7 @@ public class ReportServiceImpl implements ReportService {
                         return false;
                     }
             ).limit(3).collect(Collectors.toList());
-            String coreName = coreNameList.stream().map(ZtReport::getStockName).collect(Collectors.joining(","));
+            String coreName = coreNameList.stream().map(po->po.getStockName()+po.getCombo()+"b").collect(Collectors.joining(","));
             //删除所有重复的标的
             ztList.removeAll(coreNameList);
 
@@ -279,7 +316,8 @@ public class ReportServiceImpl implements ReportService {
 //            int count = ztList.size() / 4;
             List<ZtReport> helpNameList = Lists.newArrayList();
 //            if (ztList.size() > 12) {
-            helpNameList = ztList.stream().sorted(Comparator.comparing(ZtReport::getCombo, Comparator.nullsFirst(Integer::compareTo)))
+            helpNameList = ztList.stream()
+                    .sorted(Comparator.comparing(ZtReport::getCombo, Comparator.nullsFirst(Integer::compareTo)))
                     .sorted(Comparator.comparing(ZtReport::getFinalHardenTime, Comparator.nullsFirst(Date::compareTo)))
                     .filter(po -> {
                                 String in = po.getInstructions();
@@ -306,7 +344,7 @@ public class ReportServiceImpl implements ReportService {
 //            }
             //删除所有重复的标的
             helpNameList.removeAll(coreNameList);
-            helpName = helpNameList.stream().map(ZtReport::getStockName).collect(Collectors.joining((",")));
+            helpName = helpNameList.stream().map(po->po.getStockName()+po.getCombo()+"b").collect(Collectors.joining((",")));
 
 
             //如果只有助攻数据，那么自动提高一级
@@ -317,7 +355,7 @@ public class ReportServiceImpl implements ReportService {
 
             //如果两个都是空，那么默认取一个放到助攻那
             if (StringUtils.isBlank(coreName) && StringUtils.isBlank(helpName)) {
-                helpName =  ztList.stream().map(ZtReport::getStockName).limit(2).collect(Collectors.joining(","));
+                helpName =  ztList.stream().map(po->po.getStockName()+po.getCombo()+"b").limit(2).collect(Collectors.joining(","));
             }
 
 

@@ -377,7 +377,7 @@ public class ExcelUtil<T> implements Serializable {
 //            response.flushBuffer();
 //            workbook.write(response.getOutputStream());
         } catch (Exception e) {
-            log.error("导出Excel异常{}", e);
+            log.error("导出Excel异常", e);
             throw new RuntimeException("导出Excel失败，请联系网站管理员！");
         } finally {
             if (workbook != null) {
@@ -546,7 +546,7 @@ public class ExcelUtil<T> implements Serializable {
             //导出到浏览器
             exportExel(response, fileName, workbook);
         } catch (Exception e) {
-            log.error("导出Excel异常{}", e);
+            log.error("导出Excel异常", e);
             throw new RuntimeException("导出Excel失败，请联系网站管理员！");
         } finally {
             if (workbook != null) {

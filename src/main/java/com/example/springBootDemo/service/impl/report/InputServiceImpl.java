@@ -609,6 +609,7 @@ public class InputServiceImpl implements InputService {
             String coreName = po.getCoreName();
             coreName = StockUtil.calibrateHalfAngle(coreName);
             po.setCoreName(coreName);
+
             String helpName = po.getHelpName();
             helpName = StockUtil.calibrateHalfAngle(helpName);
             po.setHelpName(helpName);
