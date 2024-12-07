@@ -17,4 +17,6 @@ import java.util.List;
 public interface BaseZthfStockService extends IService<BaseZthfStock> {
 
     List<ZtReport> getZtReportByDate(String date);
+
+    void updatePo(BaseZthfStock po);
 }

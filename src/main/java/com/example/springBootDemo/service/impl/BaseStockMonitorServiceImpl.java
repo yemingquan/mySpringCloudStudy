@@ -55,13 +55,13 @@ public class BaseStockMonitorServiceImpl extends ServiceImpl<BaseStockMonitorDao
     }
 
     @Override
-    public void imporBaseStockMonitor(InputStream is) throws Exception {
+    public void imporBaseStockMonitor(InputStream inputStream) throws Exception {
         //如果是全量导出，那么可以删除后再导入
 //        EntityWrapper ew = new EntityWrapper<>();
 //        baseStockMonitorService.delete(ew);
 
-        List<BaseStockMonitor> list = ExcelUtil.excelToList(is, BaseStockMonitor.class);
-        is.close();
+        List<BaseStockMonitor> list = ExcelUtil.excelToList(inputStream, BaseStockMonitor.class);
+        inputStream.close();
 
         for (BaseStockMonitor vo : list) {
             if (StringUtils.isEmpty(vo.getReason())) {

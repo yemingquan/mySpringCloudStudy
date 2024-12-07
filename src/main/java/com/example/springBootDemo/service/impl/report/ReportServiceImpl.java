@@ -7,6 +7,7 @@ import com.example.springBootDemo.config.components.constant.DateConstant;
 import com.example.springBootDemo.config.components.enums.NewsEnum;
 import com.example.springBootDemo.entity.BaseMarketDetail;
 import com.example.springBootDemo.entity.base.BaseReportStock;
+import com.example.springBootDemo.entity.fix.FixZtReport;
 import com.example.springBootDemo.entity.input.*;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
@@ -14,6 +15,8 @@ import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
+import com.example.springBootDemo.util.StockUtil;
+import com.example.springBootDemo.util.excel.ExcelUtil;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -21,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -392,6 +396,77 @@ public class ReportServiceImpl implements ReportService {
         }
 
 
+    }
+
+    @Override
+    public List<FixZtReport> getFixZtReports(String outNameList, String outMainBusiness, List<ZtReport> list) {
+        List<String> nameList = StringUtils.isEmpty(outNameList) ? Lists.newArrayList() : Lists.newArrayList(outNameList.split(","));
+        //涨停等于1的板块
+        Map<String, Long> mainBusinessMap = list.stream().collect(Collectors.groupingBy(p -> p.getMainBusiness(), Collectors.counting()));
+        List mainBusinessList = Lists.newArrayList();
+        for (String k : mainBusinessMap.keySet()) {
+            Long c = mainBusinessMap.get(k);
+            if (c == 1) {
+                mainBusinessList.add(k);
+            }
+        }
+        //过滤出符合条件的数据
+        list = list.stream().filter(p -> {
+            String mainBusiness = p.getMainBusiness();
+            //外部指定板块
+            if (StringUtils.isNotBlank(outMainBusiness) && CollectionUtils.isNotEmpty(nameList) && outNameList.contains(p.getStockName())) {
+                String newBusiness = StockUtil.addNewBusiness(p.getMainBusiness(), p.getNicheBusiness());
+                p.setMainBusiness(outMainBusiness);
+                p.setNicheBusiness(newBusiness);
+                return true;
+            }
+            //高位去板块
+            if (p.getCombo() > 1 && mainBusiness.contains("最-")) {
+                p.setMainBusiness(mainBusiness.replaceAll("最-", ""));
+                return true;
+            }
+            //首版板块单个标的
+            if (p.getCombo() == 1 && mainBusinessList.contains(mainBusiness)) {
+                p.setMainBusiness("最-" + mainBusiness.replaceAll("最-", ""));
+                return true;
+            }
+            return false;
+        }).collect(Collectors.toList());
+        //复制与最终排序
+        List<FixZtReport> fixList = BeanUtil.copyToList(list, FixZtReport.class);
+        fixList = fixList.stream()
+                .sorted(Comparator.comparing(FixZtReport::getHardenTime, Comparator.nullsFirst(Date::compareTo)))
+                .sorted(Comparator.comparing(FixZtReport::getCombo, Comparator.reverseOrder()))
+                .collect(Collectors.toList());
+        return fixList;
+    }
+
+    @Override
+    public void inputFixZtRePort(InputStream inputStream) throws Exception {
+        List<FixZtReport> fixZtReport = ExcelUtil.excelToList(inputStream, FixZtReport.class);
+        List<BaseZtStock> ztStockList = BeanUtil.copyToList(fixZtReport, BaseZtStock.class);
+        List<BaseZthfStock> zthfStockList = BeanUtil.copyToList(fixZtReport, BaseZthfStock.class);
+        Date date = confDateService.getBeforeTypeDate(new Date(), DateConstant.DEAL_LIST);
+
+        for (BaseZtStock po : ztStockList) {
+            po = BaseZtStock.builder()
+                    .stockName(po.getStockName())
+                    .mainBusiness(po.getMainBusiness())
+                    .nicheBusiness(po.getNicheBusiness())
+                    .createDate(date)
+                    .build();
+            baseZtStockService.updatePo(po);
+        }
+
+        for (BaseZthfStock po : zthfStockList) {
+            po = BaseZthfStock.builder()
+                    .stockName(po.getStockName())
+                    .mainBusiness(po.getMainBusiness())
+                    .nicheBusiness(po.getNicheBusiness())
+                    .createDate(date)
+                    .build();
+            baseZthfStockService.updatePo(po);
+        }
     }
 
     private void setCx(BaseReportStock bs) {

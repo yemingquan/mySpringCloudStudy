@@ -21,4 +21,5 @@ public interface BaseZtStockDao extends BaseMapper<BaseZtStock> {
     List<BaseZtStock> queryHighStock(@Param("startDate")Date startDate, @Param("endDate")Date endDate, @Param("combo")int combo);
 
     List<BaseReportStock> getRecentlyStock(@Param("date")String date);
+
 }

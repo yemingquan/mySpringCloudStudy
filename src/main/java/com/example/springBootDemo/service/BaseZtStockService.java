@@ -25,4 +25,6 @@ public interface BaseZtStockService extends IService<BaseZtStock> {
     List<BaseZtStock> queryHighStock(Date startDate, Date endDate, int combo);
 
     List<BaseReportStock> getRecentlyStock(String date);
+
+    void updatePo(BaseZtStock po);
 }

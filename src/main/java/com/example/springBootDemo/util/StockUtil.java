@@ -2,6 +2,7 @@ package com.example.springBootDemo.util;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -30,6 +31,22 @@ public class StockUtil {
             return str;
         }
         return str.replaceAll("，", ",");
+    }
+
+    /**
+     * 板块赋值时的处理
+     *
+     * @param newBusiness
+     * @param oldBusiness
+     * @return
+     */
+    public static String addNewBusiness(String newBusiness, String oldBusiness) {
+        oldBusiness = oldBusiness != null ? oldBusiness : "";
+        List<String> oldMBList = Lists.newArrayList(oldBusiness.split(","));
+        Collection<String> tempList = CollectionUtils.union(oldMBList, Lists.newArrayList(newBusiness));
+        tempList.remove(";");
+        tempList.remove("");
+        return tempList.stream().collect(Collectors.joining(("+")));
     }
 
     public static void main(String[] args) {

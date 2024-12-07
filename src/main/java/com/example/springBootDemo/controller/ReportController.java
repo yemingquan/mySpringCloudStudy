@@ -1,12 +1,15 @@
 package com.example.springBootDemo.controller;
 
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import com.example.springBootDemo.config.components.constant.DateConstant;
+import com.example.springBootDemo.config.components.system.session.RespBean;
 import com.example.springBootDemo.entity.BaseCombo;
 import com.example.springBootDemo.entity.BaseStockMonitor;
 import com.example.springBootDemo.entity.BaseSubjectLineDetail;
 import com.example.springBootDemo.entity.ConfDate;
+import com.example.springBootDemo.entity.fix.FixZtReport;
 import com.example.springBootDemo.entity.input.BaseSubjectDetail;
 import com.example.springBootDemo.entity.input.BaseZtStock;
 import com.example.springBootDemo.entity.input.ConfBusiness;
@@ -26,13 +29,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -189,6 +191,7 @@ public class ReportController {
             e.printStackTrace();
         }
     }
+
 
     @ApiOperationSupport(order = 12)
     @GetMapping("/exportMbRePort")
@@ -398,9 +401,9 @@ public class ReportController {
             //展示样式 2023-11-7-圣龙股份（14）汽车| 2023-11-7-圣龙股份（14）汽车|
             List<BaseZtStock> highStockList = baseZtStockService.queryHighStock(DateUtil.getDayDiff(dealDateStr, -40), dealDate, 6);
             StringBuffer highStock = new StringBuffer();
-            for(BaseZtStock st :highStockList){
-                highStock.append(DateUtil.format(st.getCreateDate(), DateConstant.DATE_FORMAT_10)+"-"+st.getStockName()
-                        +"("+st.getCombo()+")"+st.getMainBusiness()+"        ");
+            for (BaseZtStock st : highStockList) {
+                highStock.append(DateUtil.format(st.getCreateDate(), DateConstant.DATE_FORMAT_10) + "-" + st.getStockName()
+                        + "(" + st.getCombo() + ")" + st.getMainBusiness() + "        ");
             }
             data.put("HIGH_STOCK", highStock);
 
@@ -441,6 +444,41 @@ public class ReportController {
         ExcelUtil<ModelReport> excelUtil = new ExcelUtil<>(ModelReport.class);
         Map<String, Map> annotationMapping = excelUtil.OprModelReport(list, date);
         excelUtil.exportCustomExcel(annotationMapping, list, fileName, response);
+    }
+
+
+    @ApiOperationSupport(order = 101)
+    @GetMapping("/exportZtRePort/fix")
+    @ApiOperation("9-1 涨停修正报表导出")
+    public void exportFixZtRePort(@RequestParam(value = "date", required = false) String date,
+                               @RequestParam(value = "outNameList", required = false) String outNameList,
+                               @RequestParam(value = "outMainBusiness", required = false) String outMainBusiness,
+                               HttpServletResponse response) throws IOException {
+        log.info("9-1 涨停修正报表导出 {}", date);
+        date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
+
+        //获取数据
+        List<ZtReport> list = reportService.getZtReportByDate(date);
+        List<FixZtReport> fixList = reportService.getFixZtReports(outNameList, outMainBusiness, list);
+
+        //生成excel文档
+        ExportParams params = ExcelUtil.getSimpleExportParams(fixList, FixZtReport.class);
+        Workbook workbook = ExcelExportUtil.exportExcel(params, FixZtReport.class, fixList);
+        ExcelUtil.exportExel(response, "FIX-ZT", workbook);
+    }
+
+    @ApiOperationSupport(order = 102)
+    @PostMapping("/inputZtRePort/fix")
+    @ApiOperation("9-2 涨停修正报表导入")
+    public RespBean inputFixZtRePort(@RequestPart MultipartFile multipartFile) {
+        log.info("9-2 涨停修正报表导入");
+        try {
+            reportService.inputFixZtRePort(multipartFile.getInputStream());
+            return RespBean.success("导入成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return RespBean.error("导入失败");
     }
 
     @ApiOperationSupport(order = 1)
@@ -507,9 +545,9 @@ public class ReportController {
         int countDownShort = DateUtil.getIntervalOfDays(dealDate, nextRest);
         BASIC_MAP.put("BASIC_COUNT_DOWN_SHORT", "还有" + countDownShort + "天休息");
         Date nextHoliday = confDateService.getAfterTypeDate(dealDate, DateConstant.HOLIDAY_LIST);
-        if(nextHoliday==null){
+        if (nextHoliday == null) {
             BASIC_MAP.put("BASIC_COUNT_DOWN_LONG", "今年没有节日了");
-        }else{
+        } else {
             String holidayDateDetail = confDateService.queryDateDetail(nextHoliday);
             BASIC_MAP.put("BASIC_COUNT_DOWN_LONG", holidayDateDetail);
         }
@@ -670,31 +708,31 @@ public class ReportController {
         String comboSize5 = ECHELON_COMBO_MAP.get("COMBO_SIZE_5");
         if (StringUtils.isNotBlank(comboSize1)) {
             bc.setCombo1Count(Integer.parseInt(comboSize1.replace("(", "").replace(")", "")));
-            if(bc.getCombo1().length()>1100){
+            if (bc.getCombo1().length() > 1100) {
                 bc.setCombo1(null);
             }
         }
         if (StringUtils.isNotBlank(comboSize2)) {
             bc.setCombo2Count(Integer.parseInt(comboSize2.replace("(", "").replace(")", "")));
-            if(bc.getCombo2().length()>600){
+            if (bc.getCombo2().length() > 600) {
                 bc.setCombo2(null);
             }
         }
         if (StringUtils.isNotBlank(comboSize3)) {
             bc.setCombo3Count(Integer.parseInt(comboSize3.replace("(", "").replace(")", "")));
-            if(bc.getCombo3().length()>200){
+            if (bc.getCombo3().length() > 200) {
                 bc.setCombo3(null);
             }
         }
         if (StringUtils.isNotBlank(comboSize4)) {
             bc.setCombo4Count(Integer.parseInt(comboSize4.replace("(", "").replace(")", "")));
-            if(bc.getCombo4().length()>200){
+            if (bc.getCombo4().length() > 200) {
                 bc.setCombo4(null);
             }
         }
         if (StringUtils.isNotBlank(comboSize5)) {
             bc.setCombo5Count(Integer.parseInt(comboSize5.replace("-高度(", "").replace(")", "")));
-            if(bc.getCombo5().length()>200){
+            if (bc.getCombo5().length() > 200) {
                 bc.setCombo5(null);
             }
         }

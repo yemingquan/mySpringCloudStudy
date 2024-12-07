@@ -1,11 +1,13 @@
 package com.example.springBootDemo.service;
 
+import com.example.springBootDemo.entity.fix.FixZtReport;
 import com.example.springBootDemo.entity.input.BaseSubjectDetail;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.SubjectReport;
 import com.example.springBootDemo.entity.report.ZtReport;
 
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.List;
 
@@ -41,4 +43,8 @@ public interface ReportService {
     List<BaseSubjectDetail> genBaseSubjectDetail(List<ZtReport> list1, List<MbReport> list2, List<BdReport> list3);
 
     void getMarketDetail(List<ZtReport> list1, List<MbReport> list2, List<BdReport> list3);
+
+    List<FixZtReport> getFixZtReports(String outNameList, String outMainBusiness, List<ZtReport> list);
+
+    void inputFixZtRePort(InputStream inputStream) throws Exception;
 }

@@ -17,6 +17,7 @@ import java.util.List;
 public class DateConstant {
 
     public static final String DATE_FORMAT_10 = "yyyy-MM-dd";
+    public static final String TIME_FORMAT_8 = "HH:mm:ss";
 
     //0工作日、1周末、2节日、3调休
     public static final String DATE_TYPE_WORK = "0";
