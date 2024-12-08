@@ -399,12 +399,18 @@ public class ReportController {
 
             //题材高标 ：查询2个月内的高标信息 6以上的高标
             //展示样式 2023-11-7-圣龙股份（14）汽车| 2023-11-7-圣龙股份（14）汽车|
-            List<BaseZtStock> highStockList = baseZtStockService.queryHighStock(DateUtil.getDayDiff(dealDateStr, -40), dealDate, 6);
+            Integer checkCombo = 6;
+            List<BaseZtStock> highStockList = baseZtStockService.queryHighStock(DateUtil.getDayDiff(dealDateStr, -40), dealDate, checkCombo);
             StringBuffer highStock = new StringBuffer();
+            while (highStockList.size() > 15) {
+                Integer finalCheckCombo = checkCombo++;
+                highStockList = highStockList.stream().filter(p -> p.getCombo() >= finalCheckCombo).collect(Collectors.toList());
+            }
             for (BaseZtStock st : highStockList) {
                 highStock.append(DateUtil.format(st.getCreateDate(), DateConstant.DATE_FORMAT_10) + "-" + st.getStockName()
                         + "(" + st.getCombo() + ")" + st.getMainBusiness() + "        ");
             }
+
             data.put("HIGH_STOCK", highStock);
 
             //异动预警
@@ -841,12 +847,12 @@ public class ReportController {
 
         for (Integer combo : insideMap.keySet()) {
             List<ZtReport> mbList = insideMap.get(combo);
-            Map<String,List<ZtReport>> tempList = mbList.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
+            Map<String, List<ZtReport>> tempList = mbList.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
             //存入treeMap
-            StringBuffer sbTemp = new StringBuffer(combo+"-{");
-            for (String mb:tempList.keySet()){
+            StringBuffer sbTemp = new StringBuffer(combo + "-{");
+            for (String mb : tempList.keySet()) {
                 List<ZtReport> list = tempList.get(mb);
-                sbTemp.append(mb.replace("最-", "") + "(" + businessCountMap.get(mb) + "-" +list.size() + ")" + list.stream().map(po -> po.getStockName()).collect(Collectors.toList()) + "|");
+                sbTemp.append(mb.replace("最-", "") + "(" + businessCountMap.get(mb) + "-" + list.size() + ")" + list.stream().map(po -> po.getStockName()).collect(Collectors.toList()) + "|");
             }
             treeMap.put(combo, sbTemp.append("}\n").toString());
         }
