@@ -430,7 +430,7 @@ public class ExcelUtil<T> implements Serializable {
             }
             //冻结首行
             sheet.createFreezePane(0, 1, 0, 1);
-            log.info("自定义excel导出-表头设置耗时:{}s ", stopWatch.getTime()/1000);
+            log.info("自定义excel导出-表头设置耗时:{}s ", stopWatch.getTime() / 1000);
             stopWatch.reset();
 
             // 写入各条记录
@@ -491,7 +491,7 @@ public class ExcelUtil<T> implements Serializable {
                     }
                 }
             }
-            log.info("自定义excel导出-数据写入耗时:{}s ", stopWatch.getTime()/1000);
+            log.info("自定义excel导出-数据写入耗时:{}s ", stopWatch.getTime() / 1000);
             stopWatch.reset();
 
             //自动调整行宽 表头不动
@@ -540,7 +540,7 @@ public class ExcelUtil<T> implements Serializable {
                 }
                 sheet.setColumnWidth(z, (int) (result * 265 * 1.15));
             }
-            log.info("自定义excel导出-自动调整行宽耗时:{}s ", stopWatch.getTime()/1000);
+            log.info("自定义excel导出-自动调整行宽耗时:{}s ", stopWatch.getTime() / 1000);
             stopWatch.stop();
 
             //导出到浏览器
@@ -761,10 +761,11 @@ public class ExcelUtil<T> implements Serializable {
 
         //涨停底色处理
         Map<String, List<ZtReport>> ztMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
-        Map<String, Object> colorMap = Maps.newConcurrentMap();
+        Map<String, List<ZtReport>> ztMap2 = new TreeMap<>(ztMap);
+        Map<String, Object> colorMap = new TreeMap<>();
         IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME, IndexedColors.LIGHT_GREEN};
         int num = 0;
-        for (String str : ztMap.keySet()) {
+        for (String str : ztMap2.keySet()) {
             if (str.contains("最")) {
                 colorMap.put(str, IndexedColors.WHITE);
             } else {
@@ -1074,10 +1075,11 @@ public class ExcelUtil<T> implements Serializable {
 
         //底色处理
         Map<String, List<SubjectReport>> ztMap = list.stream().collect(Collectors.groupingBy(SubjectReport::getSubName));
-        Map<String, Object> colorMap = Maps.newConcurrentMap();
+        Map<String, List<SubjectReport>> ztMap2 = new TreeMap<>(ztMap);
+        Map<String, Object> colorMap = new TreeMap<>();
         IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME, IndexedColors.LIGHT_GREEN};
         int num = 0;
-        for (String str : ztMap.keySet()) {
+        for (String str : ztMap2.keySet()) {
             colorMap.put(str, colorArr[num++ % colorArr.length]);
         }
 
@@ -1127,10 +1129,11 @@ public class ExcelUtil<T> implements Serializable {
 
         //底色处理
         Map<Date, List<NewsReport>> ztMap = list.stream().collect(Collectors.groupingBy(NewsReport::getDate));
-        Map<Date, Object> colorMap = Maps.newHashMap();
+        Map<Date, List<NewsReport>> ztMap2 = new TreeMap<>(ztMap);
+        TreeMap<Date, Object> colorMap = new TreeMap<>();
         IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME, IndexedColors.LIGHT_GREEN};
         int num = 0;
-        for (Date temp : ztMap.keySet()) {
+        for (Date temp : ztMap2.keySet()) {
             String week = DateUtil.getWeek(temp);
             if (DateConstant.WEEKEND.contains(week)) {
                 colorMap.put(temp, IndexedColors.WHITE);
@@ -1246,10 +1249,11 @@ public class ExcelUtil<T> implements Serializable {
 
         //底色处理
         Map<String, List<ModelReport>> modelMap = list.stream().collect(Collectors.groupingBy(ModelReport::getName));
-        Map<String, Object> colorMap = Maps.newHashMap();
+        Map<String, List<ModelReport>> modelMap2 = new TreeMap<>(modelMap);
+        Map<String, Object> colorMap = new TreeMap<>();
         IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME, IndexedColors.LIGHT_GREEN};
         int num = 0;
-        for (String temp : modelMap.keySet()) {
+        for (String temp : modelMap2.keySet()) {
             colorMap.put(temp, colorArr[num++ % colorArr.length]);
         }
 
