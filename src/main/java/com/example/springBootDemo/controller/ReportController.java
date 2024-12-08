@@ -451,9 +451,9 @@ public class ReportController {
     @GetMapping("/exportZtRePort/fix")
     @ApiOperation("9-1 涨停修正报表导出")
     public void exportFixZtRePort(@RequestParam(value = "date", required = false) String date,
-                               @RequestParam(value = "outNameList", required = false) String outNameList,
-                               @RequestParam(value = "outMainBusiness", required = false) String outMainBusiness,
-                               HttpServletResponse response) throws IOException {
+                                  @RequestParam(value = "outNameList", required = false) String outNameList,
+                                  @RequestParam(value = "outMainBusiness", required = false) String outMainBusiness,
+                                  HttpServletResponse response) throws IOException {
         log.info("9-1 涨停修正报表导出 {}", date);
         date = confDateService.getBeforeTypeDate(date, DateConstant.DEAL_LIST);
 
@@ -646,6 +646,10 @@ public class ReportController {
             log.info("没有检索到对应的信息");
             return null;
         }
+
+        //板块-数量map
+        Map<String, Long> businessCountMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness, Collectors.counting()));
+
         //将连板梯队按照各自的梯队排好 注意5板以及以上放一块，板块内部根据主业分类，这里还要找到最高板
         Map<Integer, List<ZtReport>> comboMap = list.stream().collect(Collectors.groupingBy(ZtReport::getCombo));
         ECHELON_COMBO_MAP.put("COMBO_SIZE", "(" + list.size() + ")");
@@ -655,6 +659,7 @@ public class ReportController {
         //根据梯队分类，内部根据主业二次分类，value值展示为[股票(支业-说明),股票2(支业-说明)]。
         // 最终结果为：主业1：[股票(支业-说明),股票2(支业-说明)]|主业2：[股票(支业-说明),股票2(支业-说明)]
         int maxCombo = -1;
+        List<ZtReport> then5List = Lists.newArrayList();
         for (Integer combo : comboMap.keySet()) {
             List<ZtReport> ztList = comboMap.get(combo);
 
@@ -663,25 +668,24 @@ public class ReportController {
                 maxCombo = combo;
             }
 
-            //连板明细
-            StringBuffer sb = new StringBuffer();
+            //连板明细-5以内
             if (combo >= 5) {
-                getEchelonConectThen5(ztList, sb);
-                String str = ECHELON_COMBO_MAP.get("COMBO_" + 5);
-                if (StringUtils.isEmpty(str)) {
-                    ECHELON_COMBO_MAP.put("COMBO_" + 5, sb.toString());
-                } else {
-                    str = str + sb.toString();
-                    ECHELON_COMBO_MAP.put("COMBO_" + 5, str);
-                }
+                then5List.addAll(ztList);
             } else {
                 //连板数
-                getEchelonConect(ztList, sb);
+                StringBuffer sb = new StringBuffer();
+                getEchelonConect(ztList, sb, businessCountMap);
                 ECHELON_COMBO_MAP.put("COMBO_SIZE_" + combo, "(" + ztList.size() + ")");
                 ECHELON_COMBO_MAP.put("COMBO_" + combo, sb.toString());
             }
         }
 
+        //连板明细-5以外
+        StringBuffer sb = new StringBuffer("");
+        getEchelonConectThen5(then5List, sb, businessCountMap);
+        ECHELON_COMBO_MAP.put("COMBO_" + 5, sb.toString());
+
+        //
         ECHELON_COMBO_MAP.put("COMBO_MAX", "(" + maxCombo + ")");
         int finalMaxCombo = maxCombo;
         String maxInfo = list.stream().filter(po -> po.getCombo() == finalMaxCombo).map(ZtReport::getStockName).collect(Collectors.joining(","));
@@ -779,22 +783,78 @@ public class ReportController {
         return arrayList;
     }
 
-
-    public void getEchelonConect(List<ZtReport> ztList, StringBuffer sb) {
+    /**
+     * 当前板块数量排序
+     * 效果：
+     * 锂电池(24-3)[胜利精密, 深圳新星, 光华科技]
+     * 军工(1-1)[奥维通信]
+     *
+     * @param ztList
+     * @param sb
+     * @param businessCountMap
+     */
+    public void getEchelonConect(List<ZtReport> ztList, StringBuffer sb, Map<String, Long> businessCountMap) {
         Map<String, List<ZtReport>> insideMap = ztList.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
+        Comparator<Integer> c = new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o2.compareTo(o1);
+            }
+        };
+        Map<Integer, String> treeMap = new TreeMap<>(c);
+
+        //处理数据
         for (String mb : insideMap.keySet()) {
             List<ZtReport> mbList = insideMap.get(mb);
             List<String> tempList = mbList.stream().map(po -> po.getStockName()).collect(Collectors.toList());
-            sb.append(mb.replace("最-", "") + "(" + tempList.size() + ")" + tempList + "\n");
+            //存入treeMap
+            String treeValue = treeMap.get(tempList.size());
+            if (StringUtils.isNotBlank(treeValue)) {
+                treeValue = treeValue + mb.replace("最-", "") + "(" + businessCountMap.get(mb) + "-" + tempList.size() + ")" + tempList + "\n";
+                treeMap.put(tempList.size(), treeValue);
+            } else {
+                treeMap.put(tempList.size(), mb.replace("最-", "") + "(" + businessCountMap.get(mb) + "-" + tempList.size() + ")" + tempList + "\n");
+            }
+        }
+
+        //输出排序结果
+        for (Integer i : treeMap.keySet()) {
+            String str = treeMap.get(i);
+            sb.append(str);
         }
     }
 
-    public void getEchelonConectThen5(List<ZtReport> ztList, StringBuffer sb) {
-        Map<String, List<ZtReport>> insideMap = ztList.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
-        for (String mb : insideMap.keySet()) {
-            List<ZtReport> mbList = insideMap.get(mb);
-            List<String> tempList = mbList.stream().map(po -> po.getStockName() + "-" + po.getCombo()).collect(Collectors.toList());
-            sb.append(mb.replace("最-", "") + "(" + tempList.size() + ")" + tempList + "\n");
+    /**
+     * 9-{机器人(14-2)[日发精机, 五洲新春],消费(1-1)[一鸣食品]}
+     * 1-{[AI(1-1)[泰尔股份]}
+     */
+    public void getEchelonConectThen5(List<ZtReport> ztList, StringBuffer sb, Map<String, Long> businessCountMap) {
+        Map<Integer, List<ZtReport>> insideMap = ztList.stream().collect(Collectors.groupingBy(ZtReport::getCombo));
+        Comparator<Integer> c = new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o2.compareTo(o1);
+            }
+        };
+        Map<Integer, String> treeMap = new TreeMap<>(c);
+
+
+        for (Integer combo : insideMap.keySet()) {
+            List<ZtReport> mbList = insideMap.get(combo);
+            Map<String,List<ZtReport>> tempList = mbList.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
+            //存入treeMap
+            StringBuffer sbTemp = new StringBuffer(combo+"-{");
+            for (String mb:tempList.keySet()){
+                List<ZtReport> list = tempList.get(mb);
+                sbTemp.append(mb.replace("最-", "") + "(" + businessCountMap.get(mb) + "-" +list.size() + ")" + list.stream().map(po -> po.getStockName()).collect(Collectors.toList()) + "|");
+            }
+            treeMap.put(combo, sbTemp.append("}\n").toString());
+        }
+
+        //输出排序结果
+        for (Integer i : treeMap.keySet()) {
+            String str = treeMap.get(i);
+            sb.append(str);
         }
     }
 
