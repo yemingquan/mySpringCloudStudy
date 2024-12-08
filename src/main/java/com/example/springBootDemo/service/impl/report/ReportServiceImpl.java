@@ -98,13 +98,13 @@ public class ReportServiceImpl implements ReportService {
         list.clear();
         for (Integer size : sortList) {
             List<ZtReport> tempList = linkedHashMap.get(size);
-            if(size>1){
+            if (size > 1) {
                 tempList = tempList.stream()
                         .sorted(Comparator.comparing(ZtReport::getHardenTime))
                         .sorted(Comparator.comparing(ZtReport::getCombo, Comparator.reverseOrder()))
                         .sorted(Comparator.comparing(ZtReport::getMainBusiness, Comparator.reverseOrder()))
                         .collect(Collectors.toList());
-            }else{
+            } else {
                 tempList = tempList.stream()
                         .sorted(Comparator.comparing(ZtReport::getMainBusiness, Comparator.reverseOrder()))
                         .sorted(Comparator.comparing(ZtReport::getHardenTime))
@@ -212,8 +212,10 @@ public class ReportServiceImpl implements ReportService {
         List<ZtReport> list1 = list.stream().filter(po -> "1".equals(po.getSource())).collect(Collectors.toList());
         List<ZtReport> list2 = list.stream().filter(po -> "2".equals(po.getSource())).collect(Collectors.toList());
 
-        if(CollectionUtils.isNotEmpty(list1))baseZtStockService.updateBatchById(BeanUtil.copyToList(list1, BaseZtStock.class));
-        if(CollectionUtils.isNotEmpty(list2))baseZthfStockService.updateBatchById(BeanUtil.copyToList(list2, BaseZthfStock.class));
+        if (CollectionUtils.isNotEmpty(list1))
+            baseZtStockService.updateBatchById(BeanUtil.copyToList(list1, BaseZtStock.class));
+        if (CollectionUtils.isNotEmpty(list2))
+            baseZthfStockService.updateBatchById(BeanUtil.copyToList(list2, BaseZthfStock.class));
     }
 
     @Override
@@ -221,8 +223,10 @@ public class ReportServiceImpl implements ReportService {
         List<MbReport> list1 = list.stream().filter(po -> "3".equals(po.getSource())).collect(Collectors.toList());
         List<MbReport> list2 = list.stream().filter(po -> "4".equals(po.getSource())).collect(Collectors.toList());
 
-        if(CollectionUtils.isNotEmpty(list1))baseZbStockService.updateBatchById(BeanUtil.copyToList(list1, BaseZbStock.class));
-        if(CollectionUtils.isNotEmpty(list2))baseDtStockService.updateBatchById(BeanUtil.copyToList(list2, BaseDtStock.class));
+        if (CollectionUtils.isNotEmpty(list1))
+            baseZbStockService.updateBatchById(BeanUtil.copyToList(list1, BaseZbStock.class));
+        if (CollectionUtils.isNotEmpty(list2))
+            baseDtStockService.updateBatchById(BeanUtil.copyToList(list2, BaseDtStock.class));
     }
 
     @Override
@@ -230,8 +234,10 @@ public class ReportServiceImpl implements ReportService {
         List<BdReport> list1 = list.stream().filter(po -> "5".equals(po.getSource())).collect(Collectors.toList());
         List<BdReport> list2 = list.stream().filter(po -> "6".equals(po.getSource())).collect(Collectors.toList());
 
-        if(CollectionUtils.isNotEmpty(list1))baseBdUpStockService.updateBatchById(BeanUtil.copyToList(list1, BaseBdUpStock.class));
-        if(CollectionUtils.isNotEmpty(list2))baseBdDownStockService.updateBatchById(BeanUtil.copyToList(list2, BaseBdDownStock.class));
+        if (CollectionUtils.isNotEmpty(list1))
+            baseBdUpStockService.updateBatchById(BeanUtil.copyToList(list1, BaseBdUpStock.class));
+        if (CollectionUtils.isNotEmpty(list2))
+            baseBdDownStockService.updateBatchById(BeanUtil.copyToList(list2, BaseBdDownStock.class));
     }
 
     @Override
@@ -241,6 +247,7 @@ public class ReportServiceImpl implements ReportService {
 //            log.info(sr.toString());
             sr.setMainBusiness(sr.getMainBusiness().replaceAll("最-", ""));
             sr.setWeek(DateUtil.getWeek(sr.getCreateDate()));
+            sr.setCount(sr.getCountZt()+sr.getCountZthf());
         }
         //添加
         Map<String, List<SubjectReport>> oprMap = list.stream().collect(Collectors.groupingBy(SubjectReport::getSubName));
@@ -248,7 +255,8 @@ public class ReportServiceImpl implements ReportService {
                 .filter(k -> !NewsEnum.SCOPE_UNKNOW.getName().equals(k.getSubName())).collect(Collectors.groupingBy(SubjectReport::getMainBusiness));
 
         List<SubjectReport> todayList = oprMap.get(NewsEnum.SCOPE_UNKNOW.getName());
-        if(CollectionUtils.isEmpty(todayList)){
+        if (CollectionUtils.isEmpty(todayList)) {
+            sortBKData(list);
             return list;
         }
 
@@ -256,32 +264,64 @@ public class ReportServiceImpl implements ReportService {
         for (SubjectReport sr : todayList) {
             String mainBusiness = sr.getMainBusiness();
             List<SubjectReport> tempList = relationMap.get(mainBusiness);
-            if(CollectionUtils.isEmpty(tempList)){
+            if (CollectionUtils.isEmpty(tempList)) {
 
-            }else if (tempList.size() > 1) {
+            } else if (tempList.size() > 1) {
                 SubjectReport tempPo = tempList.get(0);
                 sr.setSubName(tempPo.getSubName());
                 sr.setSubLineName(tempPo.getSubLineName());
             } else if (tempList.size() == 1) {
                 SubjectReport tempPo = tempList.get(0);
-                tempPo.setSubName(Calendar.getInstance().get(Calendar.YEAR)+tempPo.getMainBusiness());
+                tempPo.setSubName(Calendar.getInstance().get(Calendar.YEAR) + tempPo.getMainBusiness());
                 sr.setSubName(tempPo.getSubName());
                 sr.setSubLineName(tempPo.getSubLineName());
             }
         }
 
-        //重新排个序
-        list = list.stream()
-                .sorted(Comparator.comparing(SubjectReport::getCreateDate))
-                .sorted(Comparator.comparing(SubjectReport::getSubName))
-                .collect(Collectors.toList());
+        sortBKData(list);
         return list;
+    }
+
+    /**
+     * TODO 对象数组根据板块 对象中某个属性的数量 排序，待优化
+     * @param list
+     */
+    private void sortBKData(List<SubjectReport> list) {
+        Date date = confDateService.getBeforeTypeDate(new Date(), DateConstant.DEAL_LIST);
+        Map<String, List<SubjectReport>> map = list.stream().collect(Collectors.groupingBy(SubjectReport::getSubName));
+
+        Map<Integer, List<SubjectReport>> linkedHashMap = new LinkedHashMap();
+        List<Integer> sortList = Lists.newArrayList();
+        for (String mainBusiness : map.keySet()) {
+            List<SubjectReport> mbList = map.get(mainBusiness);
+            Integer combo = mbList.stream().filter(p -> date.equals(p.getCreateDate())).mapToInt(p -> Integer.parseInt(p.getCombo())).findAny().orElse(0);
+
+            List<SubjectReport> tempList = linkedHashMap.get(combo);
+            if (CollectionUtils.isEmpty(tempList)) {
+                linkedHashMap.put(combo, mbList);
+            } else {
+                tempList.addAll(mbList);
+            }
+            sortList.add(combo);
+        }
+
+        sortList = sortList.stream().distinct().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+
+        list.clear();
+        for (Integer combo : sortList) {
+            List<SubjectReport> tempList = linkedHashMap.get(combo);
+            tempList = tempList.stream()
+                    .sorted(Comparator.comparing(SubjectReport::getCreateDate))
+                    .sorted(Comparator.comparing(SubjectReport::getSubName))
+                    .collect(Collectors.toList());
+            list.addAll(tempList);
+        }
     }
 
     @Override
     public List<BaseSubjectDetail> genBaseSubjectDetail(List<ZtReport> list1, List<MbReport> list2, List<BdReport> list3) {
         List<BaseSubjectDetail> genList = Lists.newArrayList();
-        Map<String, List<ZtReport>> ztMap = list1.stream().filter(po -> (!po.getMainBusiness().contains("最-")||po.getInstructions().contains("活口"))).collect(Collectors.groupingBy(ZtReport::getMainBusiness));
+        Map<String, List<ZtReport>> ztMap = list1.stream().filter(po -> (!po.getMainBusiness().contains("最-") || po.getInstructions().contains("活口"))).collect(Collectors.groupingBy(ZtReport::getMainBusiness));
         Map<String, List<MbReport>> mbMap = list2.stream().collect(Collectors.groupingBy(MbReport::getMainBusiness));
         Map<String, List<BdReport>> bdMap = list3.stream().collect(Collectors.groupingBy(BdReport::getMainBusiness));
 
@@ -301,13 +341,13 @@ public class ReportServiceImpl implements ReportService {
 
             List<ZtReport> coreNameList = ztList.stream().filter(po -> {
                         String in = po.getInstructions();
-                        if ( po.getCombo() >= 3) {
+                        if (po.getCombo() >= 3) {
                             return true;
                         }
                         return false;
                     }
             ).limit(3).collect(Collectors.toList());
-            String coreName = coreNameList.stream().map(po->po.getStockName()+po.getCombo()+"b").collect(Collectors.joining(","));
+            String coreName = coreNameList.stream().map(po -> po.getStockName() + po.getCombo() + "b").collect(Collectors.joining(","));
             //删除所有重复的标的
             ztList.removeAll(coreNameList);
 
@@ -344,7 +384,7 @@ public class ReportServiceImpl implements ReportService {
 //            }
             //删除所有重复的标的
             helpNameList.removeAll(coreNameList);
-            helpName = helpNameList.stream().map(po->po.getStockName()+po.getCombo()+"b").collect(Collectors.joining((",")));
+            helpName = helpNameList.stream().map(po -> po.getStockName() + po.getCombo() + "b").collect(Collectors.joining((",")));
 
 
             //如果只有助攻数据，那么自动提高一级
@@ -355,7 +395,7 @@ public class ReportServiceImpl implements ReportService {
 
             //如果两个都是空，那么默认取一个放到助攻那
             if (StringUtils.isBlank(coreName) && StringUtils.isBlank(helpName)) {
-                helpName =  ztList.stream().map(po->po.getStockName()+po.getCombo()+"b").limit(2).collect(Collectors.joining(","));
+                helpName = ztList.stream().map(po -> po.getStockName() + po.getCombo() + "b").limit(2).collect(Collectors.joining(","));
             }
 
 
