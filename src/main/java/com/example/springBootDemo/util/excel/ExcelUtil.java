@@ -761,7 +761,14 @@ public class ExcelUtil<T> implements Serializable {
 
         //涨停底色处理
         Map<String, List<ZtReport>> ztMap = list.stream().collect(Collectors.groupingBy(ZtReport::getMainBusiness));
-        Map<String, List<ZtReport>> ztMap2 = new TreeMap<>(ztMap);
+        List<String> sortList = list.stream().map(p->p.getMainBusiness()).distinct().collect(Collectors.toList());
+        Comparator<String> c = (o1, o2) -> {
+            Integer i1 = sortList.indexOf(o1);
+            Integer i2 = sortList.indexOf(o2);
+            return i1.compareTo(i2);
+        };
+        Map<String, List<ZtReport>> ztMap2 = new TreeMap<>(c);
+        ztMap2.putAll(ztMap);
         Map<String, Object> colorMap = new TreeMap<>();
         IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME, IndexedColors.LIGHT_GREEN};
         int num = 0;
@@ -1075,7 +1082,15 @@ public class ExcelUtil<T> implements Serializable {
 
         //底色处理
         Map<String, List<SubjectReport>> ztMap = list.stream().collect(Collectors.groupingBy(SubjectReport::getSubName));
-        Map<String, List<SubjectReport>> ztMap2 = new TreeMap<>(ztMap);
+        List<String> sortList = list.stream().map(p->p.getSubName()).distinct().collect(Collectors.toList());
+        Comparator<String> c = (o1, o2) -> {
+            Integer i1 = sortList.indexOf(o1);
+            Integer i2 = sortList.indexOf(o2);
+            return i1.compareTo(i2);
+        };
+        Map<String, List<SubjectReport>> ztMap2 = new TreeMap<>(c);
+        ztMap2.putAll(ztMap);
+
         Map<String, Object> colorMap = new TreeMap<>();
         IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME, IndexedColors.LIGHT_GREEN};
         int num = 0;
@@ -1249,7 +1264,15 @@ public class ExcelUtil<T> implements Serializable {
 
         //底色处理
         Map<String, List<ModelReport>> modelMap = list.stream().collect(Collectors.groupingBy(ModelReport::getName));
-        Map<String, List<ModelReport>> modelMap2 = new TreeMap<>(modelMap);
+        List<String> sortList = list.stream().map(p->p.getName()).distinct().collect(Collectors.toList());
+        Comparator<String> c = (o1, o2) -> {
+            Integer i1 = sortList.indexOf(o1);
+            Integer i2 = sortList.indexOf(o2);
+            return i1.compareTo(i2);
+        };
+        Map<String, List<ModelReport>> modelMap2 = new TreeMap<>(c);
+        modelMap2.putAll(modelMap);
+
         Map<String, Object> colorMap = new TreeMap<>();
         IndexedColors[] colorArr = {IndexedColors.PALE_BLUE, IndexedColors.GREY_25_PERCENT, IndexedColors.LIGHT_CORNFLOWER_BLUE, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIME, IndexedColors.LIGHT_GREEN};
         int num = 0;
