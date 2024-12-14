@@ -22,7 +22,7 @@
 
     <select id="getSubjectReport" resultType="com.example.springBootDemo.entity.report.SubjectReport" parameterType="java.lang.String">
         select s.sub_name,s.instructions subInstructions,
-            rsl.sub_line_name,rsl.combo,rsl.duration_start,rsl.duration_end,
+            rsl.sub_line_name,IFNULL(rsl.combo,1) combo,rsl.duration_start,rsl.duration_end,
             m.key_words,m.bidding,m.node,
             sld.id,sld.main_business,sld.core_name,sld.help_name,sld.model,sld.instructions,sld.create_date,sld.count_zt, sld.count_zthf
         from base_subject s

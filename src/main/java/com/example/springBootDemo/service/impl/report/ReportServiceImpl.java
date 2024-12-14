@@ -294,7 +294,7 @@ public class ReportServiceImpl implements ReportService {
         List<Integer> sortList = Lists.newArrayList();
         for (String mainBusiness : map.keySet()) {
             List<SubjectReport> mbList = map.get(mainBusiness);
-            Integer combo = mbList.stream().filter(p -> date.equals(p.getCreateDate())).mapToInt(p -> Integer.parseInt(p.getCombo())).findAny().orElse(0);
+            Integer combo = mbList.stream().filter(p -> date.equals(p.getCreateDate())).mapToInt(p -> Integer.parseInt(p.getCombo() == null ? "0" : p.getCombo())).findAny().orElse(0);
 
             List<SubjectReport> tempList = linkedHashMap.get(combo);
             if (CollectionUtils.isEmpty(tempList)) {
