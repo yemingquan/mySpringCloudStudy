@@ -697,8 +697,8 @@ public class InputServiceImpl implements InputService {
             sub.setDurationStart(startDate);
             sub.setDurationEnd(endDate);
 
-            Integer combo = lineList.stream().max(Comparator.comparing(BaseSubjectLine::getCombo, Comparator.nullsFirst(Integer::compareTo))).map(BaseSubjectLine::getCombo).orElse(0);
-            sub.setCombo(combo);
+//            Integer combo = lineList.stream().max(Comparator.comp。aring(BaseSubjectLine::getCombo, Comparator.nullsFirst(Integer::compareTo))).map(BaseSubjectLine::getCombo).orElse(0);
+//            sub.setCombo(combo);
             baseSubjectService.insertOrUpdate(sub);
         }
     }
@@ -740,8 +740,8 @@ public class InputServiceImpl implements InputService {
             for (BaseSubjectLineDetail po : detailList) {
                 String coreName = po.getCoreName();
                 String helpName = po.getHelpName();
-                if (StringUtils.isNoneBlank(coreName)) set.addAll(Sets.newHashSet(coreName.split(",")));
-                if (StringUtils.isNoneBlank(helpName)) set.addAll(Sets.newHashSet(helpName.split(",")));
+                if (StringUtils.isNoneBlank(coreName)) set.addAll(Sets.newHashSet(coreName.replaceAll("\\d+b","").split(",")));
+                if (StringUtils.isNoneBlank(helpName)) set.addAll(Sets.newHashSet(helpName.replaceAll("\\d+b","").split(",")));
                 set.remove(";");
                 set.remove("");
             }
@@ -755,12 +755,11 @@ public class InputServiceImpl implements InputService {
                         .stockNameList(stockNameList)
                         .build();
                 Integer combo = baseZtStockService.getMaxCombo(queryStock);
-                line.setCombo(combo);
+                line.setCombo(combo == null ? 1 : combo);
             }
             baseSubjectLineService.insertOrUpdate(line);
         }
     }
-
 
     private void datePro(BaseReportStock po) {
         StringBuffer instructions = new StringBuffer("");
