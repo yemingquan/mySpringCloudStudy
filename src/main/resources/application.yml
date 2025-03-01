@@ -29,6 +29,9 @@ spring:
     default-encoding: UTF-8
     port: 465
     properties.mail.smtp.ssl.enable: true
+  ding:
+    url: https://oapi.dingtalk.com/robot/send?access_token=
+    token: 8bd0d1a2ae79bf86c29a21bc6b25d2f5b76d833e92fa4dbbd91365eea1e01270
 
 mybatis-plus:
   type-aliases-package: com.example.springBootDemo.entity

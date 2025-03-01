@@ -1,5 +1,9 @@
 package com.example.springBootDemo.config.components.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @所属模块 配置-枚举-文件格式枚举
  * @描述 <p>用于校验文件头部信息，判断文件类型<p/>
@@ -7,6 +11,9 @@ package com.example.springBootDemo.config.components.enums;
  * @创建时间
  * @备注
  */
+@Getter
+@AllArgsConstructor
+@Slf4j
 public enum FileTypeEnum {
 	JPG("ffd8ffe000104a464946"),
     PNG("89504e470d0a1a0a0000"),
@@ -69,15 +76,4 @@ public enum FileTypeEnum {
 
     private String value = "";
 
-    private FileTypeEnum(String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
 }

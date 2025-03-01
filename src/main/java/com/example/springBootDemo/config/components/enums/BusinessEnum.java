@@ -1,7 +1,8 @@
 package com.example.springBootDemo.config.components.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 
@@ -12,6 +13,9 @@ import java.util.Arrays;
  * @创建时间
  * @备注
  */
+@Getter
+@AllArgsConstructor
+@Slf4j
 public enum BusinessEnum {
     SUCCESS("0", "success"),
     FAIL("999999", "fail"),
@@ -23,23 +27,9 @@ public enum BusinessEnum {
     SESSION_NOT_EXSIST("500104", "不存在离线session数据"),
     NOT_FIND_DATA("500105", "查找不到对应数据");
 
-
-    @Getter
-    @Setter
     private String code;
 
-    @Getter
-    @Setter
     private String msg;
-
-    BusinessEnum(String msg) {
-        setMsg(msg);
-    }
-
-    BusinessEnum(String code, String msg) {
-        setCode(code);
-        setMsg(msg);
-    }
 
     public static String getMsg(String code) {
         BusinessEnum en = Arrays.stream(values()).filter(e -> e.getCode().equals(code)).findFirst().orElse(null);

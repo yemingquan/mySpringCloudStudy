@@ -2,7 +2,6 @@ package com.example.springBootDemo.service.impl.task;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.example.springBootDemo.config.components.constant.DateConstant;
-import com.example.springBootDemo.config.components.enums.SendTypeEnum;
 import com.example.springBootDemo.config.components.system.SystemConfConstant;
 import com.example.springBootDemo.entity.BaseStock;
 import com.example.springBootDemo.entity.SendVo;
@@ -175,7 +174,7 @@ public class TaskService {
                     .title("监控任务-基础数据落库异常")
                     .content(bf.toString())
                     .receiver(SystemConfConstant.receiver)//处理者账号
-                    .sendType(SendTypeEnum.EMAIL.getCode())//邮件
+                    .sendEnum(SendVo.SendTypeEnum.EMAIL)//邮件
                     .build();
 
             //异步线程推送

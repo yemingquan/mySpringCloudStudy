@@ -1,10 +1,8 @@
 package com.example.springBootDemo.msg;
 
-import com.example.springBootDemo.config.components.enums.SendTypeEnum;
 import com.example.springBootDemo.entity.SendVo;
 import com.example.springBootDemo.util.SpringContextUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @所属模块<p>
@@ -16,33 +14,31 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Slf4j
 public class SendMsgHandle {
-    ISendMethod sendMethod;
+    ISendMethod sender;
 
     SendVo sendVo;
 
     public SendMsgHandle(SendVo sendVo) {
         this.sendVo = sendVo;
-        String sendType = sendVo.getSendType();
-        if (StringUtils.isBlank(sendType)) {
+        if (sendVo==null) {
             return;
         }
-        String sendBean = SendTypeEnum.getBeanName(sendType);
         try {
-            sendMethod = SpringContextUtil.getBean(Class.forName(sendBean));
+            sender = SpringContextUtil.getBean(Class.forName(sendVo.getSendEnum().getBeanName()));
         } catch (ClassNotFoundException e) {
             return;
         }
     }
 
     public Boolean sendMsg() {
-        if (sendMethod == null) {
+        if (sender == null) {
             log.info("未配置发送类型[{}]", sendVo);
             return false;
         }
 //      发送方式以及内容打印
-        String sendName = SendTypeEnum.getName(sendVo.getSendType());
+        String sendName = sendVo.getSendEnum().getName();
         log.info("发送方式:{}，接受者:{}，标题:{}，内容:{}", sendName, sendVo.getReceiver(), sendVo.getTitle(), sendVo.getContent());
-        return sendMethod.sendMsg(sendVo.getReceiver(), sendVo.getTitle(), sendVo.getContent());
+        return sender.sendMsg(sendVo.getReceiver(), sendVo.getTitle(), sendVo.getContent());
     }
 
 }

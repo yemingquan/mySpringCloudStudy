@@ -1,7 +1,9 @@
 package com.example.springBootDemo.config.components.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 
@@ -13,6 +15,9 @@ import java.util.Arrays;
  * @Copyright (c) 2020 inc. all rights reserved<p>
  * @公司名称
  */
+@Getter
+@AllArgsConstructor
+@Slf4j
 public enum NewsEnum {
 
 
@@ -41,12 +46,6 @@ public enum NewsEnum {
     @Getter
     @Setter
     private String name;
-
-    NewsEnum(String type, String code, String beanName) {
-        setType(type);
-        setCode(code);
-        setName(beanName);
-    }
 
     public static String getName(String type, String code) {
         NewsEnum en = Arrays.stream(values())
