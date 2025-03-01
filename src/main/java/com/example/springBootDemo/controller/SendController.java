@@ -44,9 +44,8 @@ public class SendController {
     @ApiOperation(value = "信息发送")
     @PostMapping(value = "sendMsg", name = "信息发送")
     public RespBean sendMsg(@Valid @RequestBody SendVo sendVo) {
-//      1.记录日志
-//      2.根据类型发送信息
-//      3.修改日志表
+        SendVo.SendTypeEnum sendTypeEnum =SendVo.SendTypeEnum.valueOf(sendVo.getTypeCode());
+        sendVo.setSendEnum(sendTypeEnum);
         SendMsgHandle sendMsgHandle = new SendMsgHandle(sendVo);
         return RespBean.success(sendMsgHandle.sendMsg());
     }
