@@ -1,4 +1,4 @@
-package com.example.springBootDemo.config.components.constant;
+package com.example.springBootDemo.constant;
 
 /**
  * @所属模块<p>

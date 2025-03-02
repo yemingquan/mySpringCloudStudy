@@ -2,8 +2,8 @@ package com.example.springBootDemo.service.impl;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
-import com.example.springBootDemo.config.components.constant.DateConstant;
-import com.example.springBootDemo.config.components.enums.NewsEnum;
+import com.example.springBootDemo.constant.DateConstant;
+import com.example.springBootDemo.enums.system.NewsEnum;
 import com.example.springBootDemo.dao.mapper.BaseDateNewsDao;
 import com.example.springBootDemo.entity.BaseDateNews;
 import com.example.springBootDemo.entity.input.ConfBusiness;

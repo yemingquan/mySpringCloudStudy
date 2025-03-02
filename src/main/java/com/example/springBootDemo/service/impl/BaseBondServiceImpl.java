@@ -2,7 +2,7 @@ package com.example.springBootDemo.service.impl;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
-import com.example.springBootDemo.config.components.system.SystemConfConstant;
+import com.example.springBootDemo.config.system.SystemConfConstant;
 import com.example.springBootDemo.dao.mapper.BaseBondDao;
 import com.example.springBootDemo.entity.input.BaseBond;
 import com.example.springBootDemo.service.BaseBondService;

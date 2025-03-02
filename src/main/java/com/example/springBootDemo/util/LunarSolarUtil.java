@@ -1,7 +1,7 @@
 package com.example.springBootDemo.util;
 
 
-import com.example.springBootDemo.config.components.constant.DateConstant;
+import com.example.springBootDemo.constant.DateConstant;
 import lombok.Data;
 
 import java.lang.reflect.Array;

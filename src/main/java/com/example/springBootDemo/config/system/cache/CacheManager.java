@@ -1,4 +1,4 @@
-package com.example.springBootDemo.config.components.system.cache;
+package com.example.springBootDemo.config.system.cache;
 
 import org.springframework.stereotype.Component;
 

@@ -1,6 +1,6 @@
 package com.example.springBootDemo.controller;
 
-import com.example.springBootDemo.config.components.system.session.RespBean;
+import com.example.springBootDemo.config.system.session.RespBean;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.service.impl.task.TaskService;
 import io.swagger.annotations.Api;

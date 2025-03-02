@@ -3,8 +3,8 @@ package com.example.springBootDemo.service.impl.report;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.example.springBootDemo.config.components.constant.DateConstant;
-import com.example.springBootDemo.config.components.constant.StockConstant;
+import com.example.springBootDemo.constant.DateConstant;
+import com.example.springBootDemo.constant.StockConstant;
 import com.example.springBootDemo.entity.*;
 import com.example.springBootDemo.entity.base.BaseReportStock;
 import com.example.springBootDemo.entity.dto.QueryStockDto;

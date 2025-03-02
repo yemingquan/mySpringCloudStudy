@@ -1,4 +1,4 @@
-package com.example.springBootDemo.config.components.system;
+package com.example.springBootDemo.config.system;
 
 /**
  * @所属模块<p>

@@ -1,6 +1,6 @@
-package com.example.springBootDemo.config.components.error;
+package com.example.springBootDemo.config.exception;
 
-import com.example.springBootDemo.config.components.enums.ErrorEnum;
+import com.example.springBootDemo.config.exception.enums.ErrorEnum;
 import lombok.Data;
 
 /**

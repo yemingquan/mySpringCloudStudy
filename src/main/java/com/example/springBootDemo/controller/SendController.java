@@ -1,6 +1,6 @@
 package com.example.springBootDemo.controller;
 
-import com.example.springBootDemo.config.components.system.session.RespBean;
+import com.example.springBootDemo.config.system.session.RespBean;
 import com.example.springBootDemo.entity.SendVo;
 import com.example.springBootDemo.msg.SendMsgHandle;
 import io.swagger.annotations.Api;

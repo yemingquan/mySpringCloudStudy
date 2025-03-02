@@ -1,4 +1,4 @@
-package com.example.springBootDemo.config.components.constant;
+package com.example.springBootDemo.constant;
 
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;

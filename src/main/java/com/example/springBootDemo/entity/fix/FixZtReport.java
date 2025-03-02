@@ -1,7 +1,7 @@
 package com.example.springBootDemo.entity.fix;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
-import com.example.springBootDemo.config.components.constant.DateConstant;
+import com.example.springBootDemo.constant.DateConstant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

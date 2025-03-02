@@ -1,4 +1,4 @@
-package com.example.springBootDemo.config.components.system.session;
+package com.example.springBootDemo.config.system.session;
 
 import lombok.extern.slf4j.Slf4j;
 

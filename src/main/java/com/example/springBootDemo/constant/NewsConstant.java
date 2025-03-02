@@ -1,4 +1,4 @@
-package com.example.springBootDemo.config.components.constant;
+package com.example.springBootDemo.constant;
 
 import org.springframework.stereotype.Service;
 

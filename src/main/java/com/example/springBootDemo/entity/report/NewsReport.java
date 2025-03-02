@@ -1,7 +1,7 @@
 package com.example.springBootDemo.entity.report;
 
 import com.baomidou.mybatisplus.annotations.TableField;
-import com.example.springBootDemo.config.components.constant.DateConstant;
+import com.example.springBootDemo.constant.DateConstant;
 import com.example.springBootDemo.util.excel.Excel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

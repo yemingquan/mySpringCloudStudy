@@ -9,7 +9,7 @@ package com.example.springBootDemo.util;
  * @公司名称
  */
 
-import com.example.springBootDemo.config.components.constant.DateConstant;
+import com.example.springBootDemo.constant.DateConstant;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;

@@ -1,4 +1,4 @@
-package com.example.springBootDemo.config.components.enums;
+package com.example.springBootDemo.config.exception.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
