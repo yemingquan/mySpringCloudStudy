@@ -1,8 +1,8 @@
 package com.example.springBootDemo.config.interceptor;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -14,28 +14,19 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @Copyright (c) 2020 inc. all rights reserved<p>
  * @公司名称
  */
-@Configurable
+@Configuration
 @Slf4j
 public class WebIntercetorConfig implements WebMvcConfigurer {
-
-
-    /**
-     * 若要在Interceptor中进行依赖注入，则需要：
-     * 将拦截器注册为一个 Bean
-     * @return
-     */
-    @Bean
-    public GlobalInterceptor globalInterceptor() {
-        return new GlobalInterceptor();
-    }
+    @Autowired
+    private GlobalInterceptor globalInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry){
-        log.info("——————————————拦截器配置——————————————");
-        registry.addInterceptor(globalInterceptor())
+        registry.addInterceptor(globalInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/error","/404","/static/**", "/resources/**", "/public/**","/doc.html","/swagger-ui/index.html")
         ;
-        WebMvcConfigurer.super.addInterceptors(registry);
+        log.info("——————————————拦截器配置完成——————————————");
     }
+
 }
