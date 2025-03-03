@@ -56,10 +56,10 @@ public class SendVo {
     @Slf4j
     public enum SendTypeEnum {
 
-        SMS("短信", "com.example.springBootDemo.msg.method.SMSSendMethod"),
-        EMAIL("邮件", "com.example.springBootDemo.msg.method.EmailSendMethod"),
-        WX("微信", "com.example.springBootDemo.msg.method.WXSendMethod"),
-        DD("钉钉", "com.example.springBootDemo.msg.method.DingSendMethod"),
+        SMS("短信", "com.example.springBootDemo.service.msg.method.SMSSendMethod"),
+        EMAIL("邮件", "com.example.springBootDemo.service.msg.method.EmailSendMethod"),
+        WX("微信", "com.example.springBootDemo.service.msg.method.WXSendMethod"),
+        DD("钉钉", "com.example.springBootDemo.service.msg.method.DingSendMethod"),
         ;
 
         private String name;

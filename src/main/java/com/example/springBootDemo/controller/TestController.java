@@ -50,6 +50,7 @@ public class TestController {
     @LogAnnotation(module = "123",name="学生测试")
     @GetMapping("/save")
     public String save(Student po){
+        int result = 10 / 0;//TODO 测试用
         studentService.insert(po);
         return "save success";
     }
@@ -75,6 +76,7 @@ public class TestController {
         return stu;
     }
 
+    @LogAnnotation(module = "123",name="学生清单")
     @GetMapping("/list")
     public List<Student> list(Student po){
         //根据某年级查询并列举所有数据

@@ -24,7 +24,7 @@ public enum SystemEnum {
 
     SQL_EXCEPTON(SQLException.class, "500", "SQL Exception"),
 
-    UNKNOWN_EXCEPTION(Exception.class, "500", "An unexpected error occurred"),
+//    UNKNOWN_EXCEPTION(Exception.class, "500", "An unexpected error occurred"),
     ;
     public final Class<? extends Exception> exceptionClass;
     String code;
@@ -43,11 +43,11 @@ public enum SystemEnum {
             }
         }
 
-        if ("1".equals(type)) {
-            return UNKNOWN_EXCEPTION;
-        } else {
+//        if ("1".equals(type)) {
+//            return UNKNOWN_EXCEPTION;
+//        } else {
             return null;
-        }
+//        }
 
     }
 }
