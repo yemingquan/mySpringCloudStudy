@@ -1,6 +1,6 @@
-package com.example.springBootDemo.msg.method;
+package com.example.springBootDemo.service.msg.method;
 
-import com.example.springBootDemo.msg.ISendMethod;
+import com.example.springBootDemo.service.msg.ISendMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;

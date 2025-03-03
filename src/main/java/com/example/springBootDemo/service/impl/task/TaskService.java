@@ -8,7 +8,7 @@ import com.example.springBootDemo.entity.SendVo;
 import com.example.springBootDemo.entity.report.BdReport;
 import com.example.springBootDemo.entity.report.MbReport;
 import com.example.springBootDemo.entity.report.ZtReport;
-import com.example.springBootDemo.msg.SendMsgHandle;
+import com.example.springBootDemo.service.msg.SendMsgHandle;
 import com.example.springBootDemo.service.*;
 import com.example.springBootDemo.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;

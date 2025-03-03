@@ -1,8 +1,8 @@
-package com.example.springBootDemo.msg.method;
+package com.example.springBootDemo.service.msg.method;
 
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
-import com.example.springBootDemo.msg.ISendMethod;
+import com.example.springBootDemo.service.msg.ISendMethod;
 import com.google.common.collect.Lists;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;

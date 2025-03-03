@@ -1,4 +1,4 @@
-package com.example.springBootDemo.msg;
+package com.example.springBootDemo.service.msg;
 
 /**
  * @所属模块<p>

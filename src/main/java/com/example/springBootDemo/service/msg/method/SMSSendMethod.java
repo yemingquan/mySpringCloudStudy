@@ -1,6 +1,6 @@
-package com.example.springBootDemo.msg.method;
+package com.example.springBootDemo.service.msg.method;
 
-import com.example.springBootDemo.msg.ISendMethod;
+import com.example.springBootDemo.service.msg.ISendMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

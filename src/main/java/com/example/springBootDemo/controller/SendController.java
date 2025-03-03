@@ -2,7 +2,7 @@ package com.example.springBootDemo.controller;
 
 import com.example.springBootDemo.config.system.session.RespBean;
 import com.example.springBootDemo.entity.SendVo;
-import com.example.springBootDemo.msg.SendMsgHandle;
+import com.example.springBootDemo.service.msg.SendMsgHandle;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

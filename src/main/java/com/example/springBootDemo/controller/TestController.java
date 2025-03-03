@@ -1,6 +1,7 @@
 package com.example.springBootDemo.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.example.springBootDemo.config.AOP.LogAnnotation;
 import com.example.springBootDemo.config.system.session.RespBean;
 import com.example.springBootDemo.entity.test.Student;
 import com.example.springBootDemo.service.StudentService;
@@ -46,7 +47,7 @@ public class TestController {
 //        return cacheManager;
 //    }
 
-
+    @LogAnnotation(module = "123",name="学生测试")
     @GetMapping("/save")
     public String save(Student po){
         studentService.insert(po);

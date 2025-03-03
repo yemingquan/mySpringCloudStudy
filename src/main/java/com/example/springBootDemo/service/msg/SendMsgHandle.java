@@ -1,4 +1,4 @@
-package com.example.springBootDemo.msg;
+package com.example.springBootDemo.service.msg;
 
 import com.example.springBootDemo.entity.SendVo;
 import com.example.springBootDemo.util.SpringContextUtil;

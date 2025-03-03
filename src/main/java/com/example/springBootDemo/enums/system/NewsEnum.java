@@ -2,7 +2,6 @@ package com.example.springBootDemo.enums.system;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
@@ -20,8 +19,6 @@ import java.util.Arrays;
 @Slf4j
 public enum NewsEnum {
 
-
-
     TYPE_FUTURE("TYPE", "1", "预期"),
     TYPE_INSTANTLY("TYPE","2", "兑现"),
 
@@ -35,16 +32,9 @@ public enum NewsEnum {
     SCOPE_ACTIVE("SCOPE","3", "活跃板块"),
     SCOPE_OTHER("SCOPE","4", "其他");
 
-    @Getter
-    @Setter
+
     private String type;
-
-    @Getter
-    @Setter
     private String code;
-
-    @Getter
-    @Setter
     private String name;
 
     public static String getName(String type, String code) {
