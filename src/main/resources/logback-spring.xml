@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" >
+
+    <!-- 定义日志文件的存储位置和名称 -->
+    <property name="LOGS_PATH" value="/data/logs" />
+    <property name="APP_NAME" value="recovery-service" />
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} ${APP_NAME} [%X{traceId:-}] [%t] %-5p %c{1}:%L - %msg%n" />
+    <!--%d{yyyy-MM-dd HH:mm:ss.SSS} ${APP_NAME} - %msg %n-->
+<!-- [%X{X-B3-Traceld:-},%X{X-B3-ParentSpanId:-}, %X{X-Span-Export:-}]-->
+    <!--[%thread]%-5level %logger{36} %L[%X{Trace-Span-ld}]-->
+<!--            <Pattern>%-15d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level-->
+<!--                %logger{80}[%class:%line] - %msg%n-->
+
+
+
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+       <encoder >
+           <pattern>${LOG_PATTERN}}</pattern>
+           <charset>utf8</charset>
+       </encoder>
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+<!--            &lt;!&ndash;日志文件输出的文件名 &ndash;&gt;-->
+<!--            <fileNamePattern>../logs/amerp-server/error/amerp-server-error-%d{yyyy-MM-dd}.log.%i-->
+<!--            </fileNamePattern>-->
+<!--            &lt;!&ndash;日志文件保留天数&ndash;&gt;-->
+<!--            <MaxHistory>3</MaxHistory>-->
+<!--            <timeBasedFileNamingAndTriggeringPolicy-->
+<!--                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">-->
+<!--                &lt;!&ndash; or whenever the file size reaches 10MB &ndash;&gt;-->
+<!--                <maxFileSize>10MB</maxFileSize>-->
+<!--            </timeBasedFileNamingAndTriggeringPolicy>-->
+<!--        </rollingPolicy>-->
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+<!--        <appender-ref ref="ERROR" />-->
+<!--        <appender-ref ref="WARN" />-->
+    </root>
+</configuration>

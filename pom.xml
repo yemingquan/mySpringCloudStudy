@@ -175,20 +175,58 @@
             <artifactId>hutool-all</artifactId>
             <version>5.7.7</version>
         </dependency>
+        <!--Log 开始-->
+        <!--<dependency>
+           <groupId>org.apache.logging.log4j</groupId>
+           <artifactId>log4j-core</artifactId>
+           <version>2.17.0</version>
+       </dependency>
+
+       <dependency>
+           <groupId>org.apache.logging.log4j</groupId>
+           <artifactId>log4j-slf4j-impl</artifactId>
+           <version>2.17.0</version>
+       </dependency>
+       <dependency>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-api</artifactId>
+          <version>2.17.0</version>
+      </dependency>
+     <dependency>
+          <groupId>structlog4j</groupId>
+          <artifactId>structlog4j-api</artifactId>
+          <version>1.0.0</version>
+          <type>pom</type>
+      </dependency>
+      &lt;!&ndash; Optional JSON formatter &ndash;&gt;
+      <dependency>
+          <groupId>structlog4j</groupId>
+          <artifactId>structlog4j-json</artifactId>
+          <version>1.0.0</version>
+          <type>pom</type>
+      </dependency>
+      &lt;!&ndash; Optional YAML formatter &ndash;&gt;
+      <dependency>
+          <groupId>structlog4j</groupId>
+          <artifactId>structlog4j-yaml</artifactId>
+          <version>1.0.0</version>
+          <type>pom</type>
+      </dependency>-->
+        <!--Log 结束-->
     </dependencies>
 
 
-<!--    <dependencyManagement>-->
-<!--        <dependencies>-->
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.cloud</groupId>-->
-<!--                <artifactId>spring-cloud-dependencies</artifactId>-->
-<!--                <version>Edgware.RELEASE</version>-->
-<!--                <type>pom</type>-->
-<!--                <scope>import</scope>-->
-<!--            </dependency>-->
-<!--        </dependencies>-->
-<!--    </dependencyManagement>-->
+    <!--    <dependencyManagement>-->
+    <!--        <dependencies>-->
+    <!--            <dependency>-->
+    <!--                <groupId>org.springframework.cloud</groupId>-->
+    <!--                <artifactId>spring-cloud-dependencies</artifactId>-->
+    <!--                <version>Edgware.RELEASE</version>-->
+    <!--                <type>pom</type>-->
+    <!--                <scope>import</scope>-->
+    <!--            </dependency>-->
+    <!--        </dependencies>-->
+    <!--    </dependencyManagement>-->
 
 
     <!--maven插件-->
@@ -241,6 +279,10 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>jcenter</id>
+            <url>http://jcenter.bintray.com</url>
         </repository>
     </repositories>
 </project>

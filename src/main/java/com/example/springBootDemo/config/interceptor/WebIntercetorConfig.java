@@ -1,5 +1,7 @@
 package com.example.springBootDemo.config.interceptor;
 
+import com.example.springBootDemo.config.log.HeaderIntrceptor;
+import com.example.springBootDemo.config.log.LogInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +28,8 @@ public class WebIntercetorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns("/error","/404","/static/**", "/resources/**", "/public/**","/doc.html","/swagger-ui/index.html")
         ;
+        registry.addInterceptor(new LogInterceptor()).addPathPatterns("/**");
+        registry.addInterceptor(new HeaderIntrceptor()).addPathPatterns("/**");
         log.info("——————————————拦截器配置完成——————————————");
     }
 
