@@ -1,6 +1,6 @@
 package com.example.springBootDemo.config.log;
 
-import cn.hutool.core.lang.UUID;
+import com.example.springBootDemo.util.SerialUtil;
 import org.slf4j.MDC;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -20,11 +20,13 @@ public class LogInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
-        MDC.put("traceId", UUID.randomUUID().toString().replaceAll("-","").toLowerCase());
+        MDC.put("traceId", SerialUtil.get32UUID());
 //        String traceId = request.getHeader("app_trace_id");
 //        if(StringUtils.isNotEmpty(traceId)){
 //            MDC.put("traceId",traceId);
 //        }
         return true;
     }
+
+
 }
