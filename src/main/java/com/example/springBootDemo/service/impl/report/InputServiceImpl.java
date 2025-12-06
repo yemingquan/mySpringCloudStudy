@@ -763,6 +763,9 @@ public class InputServiceImpl implements InputService {
 
     private void datePro(BaseReportStock po) {
         StringBuffer instructions = new StringBuffer("");
+//        //TODO 临时处理 2025-4-7
+//        Integer combo = po.getCombo();
+//        po.setCombo(combo == null ? 1 : combo);
 
         po.setCreateDate(new Date());
         po.setModifedDate(new Date());

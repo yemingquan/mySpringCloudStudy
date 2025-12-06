@@ -1,7 +1,6 @@
 package com.example.springBootDemo.constant;
 
 import com.google.common.collect.Lists;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -13,7 +12,6 @@ import java.util.List;
  * @Copyright (c) 2020 inc. all rights reserved<p>
  * @公司名称
  */
-@Service
 public class DateConstant {
 
     public static final String DATE_FORMAT_10 = "yyyy-MM-dd";

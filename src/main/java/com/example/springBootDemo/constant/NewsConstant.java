@@ -1,6 +1,5 @@
 package com.example.springBootDemo.constant;
 
-import org.springframework.stereotype.Service;
 
 /**
  * @所属模块<p>
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
  * @Copyright (c) 2020 inc. all rights reserved<p>
  * @公司名称
  */
-@Service
 public class NewsConstant {
     public static final String TYPE = "TYPE";
     public static final String SCOPE = "SCOPE";
