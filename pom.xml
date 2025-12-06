@@ -65,6 +65,17 @@
             <version>2.5.1</version>
         </dependency>
 
+        <!--websocket-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-websocket</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.java-websocket</groupId>-->
+<!--            <artifactId>Java-WebSocket</artifactId>-->
+<!--            <version>1.5.4</version>-->
+<!--        </dependency>-->
+
         <!--mybatis-plus-->
         <!--		<dependency>-->
         <!--			<groupId>com.baomidou</groupId>-->
